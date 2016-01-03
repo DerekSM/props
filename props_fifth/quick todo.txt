@@ -1,0 +1,14 @@
+Make HUD and menus universal resolution
+
+Finish battling system
+
+add config item to Player Spawning 
+	item to allow blocked model spawning, and no blocking big props
+
+im pretty sure if a superadmin changes a setting 
+	when another superadmin isnt on server
+	and then said superadmin joins, it will show the unchanged setting as before.
+
+	fix
+
+hide battling hud when you open scoreboard
