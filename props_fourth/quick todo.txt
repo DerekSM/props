@@ -1,0 +1,6 @@
+Make HUD and menus universal resolution
+
+Finish battling system
+
+add config item to Player Spawning 
+	item to allow blocked model spawning, and no blocking big props
