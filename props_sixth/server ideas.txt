@@ -1,0 +1,2 @@
+instead of "Time Limit" (which is a bitch to implement or something, idk it hasnt been done yet!)
+	do.. "Prop Limit" for the battling, minimum 1 prop, maximum 5
