@@ -1,0 +1,28 @@
+**Changelog
+/ Switched NetVar's to NW2 library. I don't know if NetVar was an old way of networking or what but it was broken.
+/ Fixed some HUD errors
+- Removed bot modules. I don't think they were used and even if they were it was always buggy.
+- Removed some abusable debugging commands
+/ Fixed clientside muting (gagging) on scoreboard
++ Added new player info copy to scoreboard
+/ Fixed killing spree sounds and made them easier to find to add more.
++ Added more server config options
+/ Fixed chat sounds module, and added more sounds
++ Added statistics module. Gamemode statistics will report in chatbox.
++ Added ability to save gamemode config options across restarts
+
+**Todo
+Change antinoob's spawn protection system to an editable entity. Will allow for instant prop removal and no more looping through a sphere.
+Let players use alternate scoreboard (i.e a single scoreboard) in f4 menu
+Let players change HUD positions in f4 menu
+Let players change chat sound options in f4 menu
+Cleanup DoPlayerDeath
+I think prop dormancy voting function was messed up? But I don't remember how
+Add another statistic for total battles fought if it doesn't already exist
+Allow recent battle list to be interactive: Let players right click to view time and player information in detail.
+
+
+**Notes
+The gamemode is messy and I'm probably not going to do anything about it..
+No I'm not returning. I just felt like revisiting this project to fix some things.
+Thank you for running the gamemode to this day. It means a lot.
