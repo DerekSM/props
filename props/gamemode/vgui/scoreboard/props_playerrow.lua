@@ -28,24 +28,31 @@ function PANEL:Init()
 		local dmenu = DermaMenu()
 		
 		if self.Player:IsMuted() then
-			local unmute = dmenu:AddOption( "Unmute Player", function()
-				if not IsValid( self.Player ) then
-					return
-				end
-				self.Player:SetMuted( true )
-			end )
-			
-			unmute:SetIcon( "icon16/telephone_add.png" )
-		else
-			local mute = dmenu:AddOption( "Mute Player", function()
+			local unmute = dmenu:AddOption( "Locally Unmute Player", function()
 				if not IsValid( self.Player ) then
 					return
 				end
 				self.Player:SetMuted( false )
 			end )
 			
+			unmute:SetIcon( "icon16/telephone_add.png" )
+		else
+			local mute = dmenu:AddOption( "Locally Mute Player", function()
+				if not IsValid( self.Player ) then
+					return
+				end
+				self.Player:SetMuted( true )
+			end )
+			
 			mute:SetIcon( "icon16/telephone_delete.png" )
 		end
+
+		local PlayerInformation = dmenu:AddOption("Copy Info", function()
+			if not IsValid( self.Player ) then return end
+
+			SetClipboardText(self.Player:Nick() .. " - " .. self.Player:SteamID())
+		end )
+		PlayerInformation:SetIcon( "icon16/page_copy.png")
 		
 			-- check ulx permissions?
 		if LocalPlayer():IsSuperAdmin() then
@@ -160,8 +167,6 @@ function PANEL:Think()
 			local contentsizew,contentsizeh = surface.GetTextSize( y.id[ 2 ]( self.Player ) )
 			
 			local previousposx, previousposy = self.Content[ x ]:GetPos()
-			
-			print( #y.id[ 2 ]( self.Player ) )
 			
 			self.Content[ x ]:SetText( FixLongName( y.id[ 2 ]( self.Player ), 18 ) )
 			self.Content[ x ]:SetPos( 40, previousposy )

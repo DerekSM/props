@@ -13,6 +13,11 @@ local PANEL = {}
 
 function PANEL:Init()
 	
+	--[[if not LocalPlayer().SyncedGamemodeConfiguration then
+		net.Start("props_RequestGamemodeConfigSync")
+		net.SendToServer()
+	end]]
+
 	self:SetPos( 15, 15 )
 	self:SetSize( self:GetParent():GetWide() - 30, self:GetParent():GetTall() - 30 )
 	
@@ -216,8 +221,14 @@ function PANEL:Init()
 			self.configCategories[ category ].Panel:AddItem( self.configCategories[ category ].Panel[ k ] )
 			
 		end
-			
-		
+
+	end
+
+	self.configPanelSaveButton = self:Add( "DButton" )
+	self.configPanelSaveButton:Dock( BOTTOM )
+	self.configPanelSaveButton:SetText( "Save Settings To File")
+	self.configPanelSaveButton.DoClick = function()
+		RunConsoleCommand("props_savesettings")
 	end
 
 end

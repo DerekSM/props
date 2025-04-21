@@ -6,7 +6,6 @@ include( "props_battle.lua" )
 include( "props_newbattle.lua" )
 include( "props_topprops.lua" )
 include( "props_stats.lua" )
-include( "props_bots.lua" )
 include( "props_topprops_new.lua" )
 
 -- 1440 x 900
@@ -46,7 +45,6 @@ function PANEL:Init()
 	local battleNewPanel = vgui.Create( "props_BattleMenuNew", propSheets )
 	
 	--local statsPanel = vgui.Create( "props_StatsMenu", propSheets )
-	local botsPanel = vgui.Create( "props_BotsMenu", propSheets )
 	
 	local configPanel = nil
 	
@@ -61,10 +59,9 @@ function PANEL:Init()
 	--local propSheetFight = propSheets:AddSheet( "Battle", battlePanel, "icon16/bomb.png", false, false, "Fight a player 1-on-1" )
 	local propSheetFight2 = propSheets:AddSheet( "Battle", battleNewPanel, "icon16/bomb.png", false, false, "Fight a player 1-on-1" )
 	--local propSheetStats = propSheets:AddSheet( "Statistics", statsPanel, "icon16/chart_bar.png", false, false, "View gamemode statistics!" )
-	local propSheetBots = propSheets:AddSheet( "Bots", botsPanel, "icon16/user_gray.png", false, false, "Manage your bot" )
 	
 	if canAccessConfig then
-		local propSheetConfig = propSheets:AddSheet( "Config", configPanel, "icon16/cog.png", false, false, "Change gamemode settings" )
+		local propSheetConfig = propSheets:AddSheet( "Gamemode Config", configPanel, "icon16/cog.png", false, false, "Change gamemode settings" )
 	end
 	
 end

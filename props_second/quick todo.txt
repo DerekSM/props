@@ -1,3 +1,0 @@
-Make HUD and menus universal resolution
-
-Finish battling system

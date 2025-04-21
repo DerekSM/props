@@ -19,6 +19,7 @@
 
 --]]
 
+PROPKILL.HasSettingChangedRecently = false	-- This is for if an admin attempts to save the settings to file. Found in sv_data
 function GM:OnSettingChanged( pl, setting_id, s_from, s_to )
 	local canChange
 	local configList = {}
@@ -40,7 +41,10 @@ function GM:OnSettingChanged( pl, setting_id, s_from, s_to )
 			configList[ #configList + 1 ] = v
 		end
 	end
+	-- Add debug in case there is rogue admin.
+	print( string.format( txt, pl:Nick(), setting_id, s_to or "nothing") )
 
+	PROPKILL.HasSettingChangedRecently = true
 	net.Start( "props_UpdateConfig" )
 		net.WriteString( setting_id )
 		net.WriteString( s_to or "" )

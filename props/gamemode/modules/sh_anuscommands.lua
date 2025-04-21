@@ -265,7 +265,7 @@ plugin.chatcommand = "resetmystats"
 plugin.defaultAccess = "user"
 
 function plugin:OnRun( pl, arg, target )
-	local notify = pl:TotalFrags() >= 100
+	local notify = pl:GetTotalFrags() >= 100
 	pl:ConCommand( "props_resetmystats" )
 	
 	if notify then

@@ -25,7 +25,7 @@
 AddConfigItem( "dead_spawnprops",
 	{
 	Name = "Dead Spawning",
-	Category = "Player Deaths",
+	Category = "Player Management",
 	default = false,
 	type = "boolean",
 	desc = "Toggle dead players spawning props.",
@@ -35,7 +35,7 @@ AddConfigItem( "dead_spawnprops",
 AddConfigItem( "dead_removeprops",
 	{
 	Name = "Dead Removing",
-	Category = "Player Deaths",
+	Category = "Player Management",
 	default = true,
 	type = "boolean",
 	desc = "Toggle removing dead player's props.",
@@ -62,7 +62,7 @@ AddConfigItem( "dead_removeprops",
 AddConfigItem( "dead_removepropsdelay",
 	{
 	Name = "Dead Removing Delay",
-	Category = "Player Deaths",
+	Category = "Player Management",
 	default = 0,
 	type = "integer",
 	desc = "How long after a player's death until removal of their props.",
@@ -72,7 +72,7 @@ AddConfigItem( "dead_removepropsdelay",
 AddConfigItem( "dead_respawndelay",
 	{
 	Name = "Respawn delay",
-	Category = "Player Deaths",
+	Category = "Player Management",
 	default = 0.1,
 	min = 0,
 	max = 60,
@@ -106,10 +106,22 @@ AddConfigItem( "topprops",
 	}
 )
 
+AddConfigItem( "toppropsdelay",
+	{
+	Name = "Top Props Session Delay",
+	Category = "Misc",
+	default = 25,
+	min = 1,
+	max = 300,
+	type = "integer",
+	desc = "How often the session's top spawned props should be refreshed"
+	}
+)
+
 AddConfigItem( "blockedmodels",
 	{
 	Name = "Block Blacklisted Models",
-	Category = "Misc",
+	Category = "Player Management",
 	default = true,
 	type = "boolean",
 	desc = "Toggle spawning blocked models.",
@@ -221,6 +233,38 @@ AddConfigItem( "battle_maxpauses",
 	max = 100,
 	type = "integer",
 	desc = "How many times a player can pause the fight",
+	}
+)
+
+AddConfigItem("player_teamswitchdelay",
+	{
+	Name = "Team Switch Delay",
+	Category = "Player Management",
+	default = 5,
+	min = 0,
+	max = 300,
+	type = "integer",
+	desc = "How long before a player can switch teams again",
+	}
+)
+
+AddConfigItem("player_canspawnragdolls",
+	{
+	Name = "Allow spawning ragdolls",
+	Category = "Player Management",
+	default = false,
+	type = "boolean",
+	desc = "Allow all players to spawn ragdolls",
+	}
+)
+
+AddConfigItem("sounds_playkillingsprees",
+	{
+	Name = "Play killing spree sounds",
+	Category = "Misc",
+	default = true,
+	type = "boolean",
+	desc = "Play killing spree sounds found in sh_init",
 	}
 )
 

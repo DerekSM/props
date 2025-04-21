@@ -9,43 +9,6 @@
 		Serverside commands players can use
 ]]--
 
-
-
-	-- testing
-concommand.Add( "movetome", function( pl, cmd, arg )
-	if not IsValid( pl:GetEyeTrace().Entity ) or pl:GetEyeTrace().Entity:GetClass() != "prop_physics" then
-		print( "NAH" )
-	return
-	end
-	
-	local tr = pl:GetEyeTrace().Entity
-	
-	tr:GetPhysicsObject():Wake()
-	tr:GetPhysicsObject():EnableMotion( true )
-	
-	local deltachange = CurTime()
-	
-	timer.Create( "UPDATEDELTA", 0.02, 100, function()
-		deltachange = CurTime() - deltachange
-	end )
-	
-	timer.Create( "DOTHEMOVE", 0.005, 40, function()
-		local params = {}
-		params.secondstoarrive = 1
-		params.pos = pl:GetPos() + Vector( 0, 0, 16 ) 
-		params.angle = Angle( 0, 0, 0 )
-		params.maxangular = 5000
-		params.maxanuglardamp = 10000
-		params.maxspeed = 1000000
-		params.maxspeeddamp = 10000
-		params.dampfactor = 0.8
-		params.teleportdistance = 900
-		params.deltatime = deltachange	
-	
-		tr:GetPhysicsObject():ComputeShadowControl( params )
-	end )
-end )
-
 --[[
 
 *
@@ -55,29 +18,6 @@ end )
 *
 
 --]]
-concommand.Add( "tesst", function( pl )
-	net.Start( "props_FightResults" )
-		net.WriteTable( 
-		{
-			Userid = pl:UserID(),
-			Steamid = pl:SteamID(),
-			Name = pl:Name(),
-			Wins = pl:GetFightsWon(),
-			Losses = pl:GetFightsLost(),
-		} )
-		net.WriteTable( 
-		{
-			Userid = pl:UserID(),
-			Steamid = pl:SteamID(),
-			Name = pl:Name(),
-			Wins = pl:GetFightsWon(),
-			Losses = pl:GetFightsLost(),
-		} )
-		net.WriteString( winner or "N/A" )
-		net.WriteString( score or "N/A" )
-		net.WriteString( "7:04" )
-	net.Broadcast()
-end )
 
 
 local function props_ChangeSetting( pl, cmd, arg )
@@ -130,6 +70,28 @@ local function props_ChangeSetting( pl, cmd, arg )
 	end
 end
 concommand.Add( "props_changesetting", props_ChangeSetting )
+
+local function props_SaveSettings( pl )
+	if not pl:IsSuperAdmin() then return end
+	if not PROPKILL.HasSettingChangedRecently then return end
+
+	local txt = "%s saved the gamemode's settings"
+
+	for k,v in pairs( player.GetAll() ) do
+		if v:IsAdmin() then
+			v:ChatPrint( string.format( txt, pl:Nick() ) )
+		else
+			v:ChatPrint( string.format( txt, "SOMEONE" ) )
+		end
+	end
+	-- Add debug in case there is rogue admin.
+	print( string.format( txt, pl:Nick() ) )
+
+	-- Found in sv_data
+	props_SaveGamemodeConfig()
+end
+concommand.Add("props_savesettings", props_SaveSettings)
+
 	
 --[[
 
@@ -290,7 +252,7 @@ concommand.Add( "props_pausebattle", props_PauseBattle )
 --]]
 local function props_ResetMyStats( pl, cmd, args )
 	if not IsValid( pl ) then return end
-	if pl:TotalFrags() < 100 then 
+	if pl:GetTotalFrags() < 100 then
 		pl:Notify( 1, 4, "Reach 100 kills before resetting your stats." )
 		return
 	end

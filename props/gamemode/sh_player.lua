@@ -78,18 +78,18 @@ end
 
 --]]
 
-function _R.Player:TotalFrags()
-	return self:GetNetVar( "TotalFrags", 0 )
+function _R.Player:GetTotalFrags()
+	return self:GetNW2Int( "TotalFrags", 0 )
 end
 function _R.Player:SetTotalFrags( i_Amt, b_Network )
-	self:SetNetVar( "TotalFrags", i_Amt )
+	self:SetNW2Int( "TotalFrags", i_Amt )
 end
 
-function _R.Player:TotalDeaths()
-	return self:GetNetVar( "TotalDeaths", 0 )
+function _R.Player:GetTotalDeaths()
+	return self:GetNW2Int( "TotalDeaths", 0 )
 end
 function _R.Player:SetTotalDeaths( i_Amt )
-	self:SetNetVar( "TotalDeaths", i_Amt )
+	self:SetNW2Int( "TotalDeaths", i_Amt )
 end
 
 --[[
@@ -104,31 +104,35 @@ end
 
 function _R.Player:GetKillstreak()
 		-- turn into netrequest, nobody else needs to know about this unless spectating 
-	return self:GetNetVar( "Killstreak", 0 )
+	return self:GetNW2Int( "Killstreak", 0 )
 end
 function _R.Player:AddKillstreak( i_Amt )
-	self:SetNetVar( "Killstreak", self:GetNetVar( "Killstreak", 0 ) + i_Amt )
+	--self:SetNetVar( "Killstreak", self:GetNetVar( "Killstreak", 0 ) + i_Amt )
+	local Killstreak = self:SetKillstreak( self:GetKillstreak() + i_Amt )
 	
-	if self:GetNetVar( "Killstreak", 0 ) > self:GetNetVar( "BestKillstreak", 0 ) and not PROPKILL.Battling then
-		self:SetBestKillstreak( self:GetKillstreak() )
+	--if self:GetNetVar( "Killstreak", 0 ) > self:GetNetVar( "BestKillstreak", 0 ) and not PROPKILL.Battling then
+	if Killstreak > self:GetBestKillstreak() and not PROPKILL.Battling then
+		self:SetBestKillstreak( Killstreak )
 	end
 end
 function _R.Player:SetKillstreak( i_Amt )
 	--if PROPKILL.Battling then return end
 
-	self:SetNetVar( "Killstreak", i_Amt )
+	self:SetNW2Int( "Killstreak", i_Amt )
 	
 	if not PROPKILL.Battling then
-		if i_Amt > self:GetNetVar( "BestKillstreak", 0 ) then
+		if i_Amt > self:GetBestKillstreak() then
 			self:SetBestKillstreak( i_Amt )
 		end
 	end
+
+	return i_Amt
 end
 function _R.Player:GetBestKillstreak()
-	return self:GetNetVar( "BestKillstreak", 0 )
+	return self:GetNW2Int( "BestKillstreak", 0 )
 end
 function _R.Player:SetBestKillstreak( i_Amt )
-	self:SetNetVar( "BestKillstreak", i_Amt )
+	self:SetNW2Int( "BestKillstreak", i_Amt )
 	
 	if PROPKILL.Statistics[ "bestkillstreak" ] and PROPKILL.Statistics[ "bestkillstreak" ] < i_Amt then
 		PROPKILL.Statistics[ "bestkillstreak" ] = i_Amt
@@ -138,33 +142,35 @@ end
 
 
 function _R.Player:GetDeathstreak()
-	return self:GetNetVar( "Deathstreak", 0 )
+	return self:GetNW2Int( "Deathstreak", 0 )
 end
 function _R.Player:AddDeathstreak( i_Amt )
-	self:SetNetVar( "Deathstreak", self:GetNetVar( "Deathstreak", 0 ) + i_Amt )
+	local Deathstreak = self:SetDeathstreak( self:GetDeathstreak() + i_Amt)
 	
-	if self:GetNetVar( "Deathstreak", 0 ) > self:GetNetVar( "BestDeathstreak", 0 ) and not PROPKILL.Battling then
+	if Deathstreak > self:GetBestDeathstreak() and not PROPKILL.Battling then
 		self:SetBestDeathstreak( i_Amt )
 	end
 end
 function _R.Player:SetDeathstreak( i_Amt )
 	if PROPKILL.Battling then return end
 
-	self:SetNetVar( "Deathstreak", i_Amt )
+	self:SetNW2Int( "Deathstreak", i_Amt )
 	
 	if not PROPKILL.Battling then
-		if i_Amt > self:GetNetVar( "BestDeathstreak", 0 ) then
+		if i_Amt > self:GetBestDeathstreak() then
 			self:SetBestDeathstreak( i_Amt )
 		end
 	end
+
+	return i_Amt
 end
 function _R.Player:GetBestDeathstreak()
-	self:GetNetVar( "BestDeathstreak", 0 )
+	return self:GetNW2Int( "BestDeathstreak", 0 )
 end
 function _R.Player:SetBestDeathstreak( i_Amt )
-	self:SetNetVar( "BestDeathstreak", i_Amt )
+	self:SetNW2Int( "BestDeathstreak", i_Amt )
 	
-	if PROPKILL.Statistics[ "bestkillstreak" ] and PROPKILL.Statistics[ "bestkillstreak" ] < i_Amt then
+	if PROPKILL.Statistics[ "bestdeathstreak" ] and PROPKILL.Statistics[ "bestdeathstreak" ] < i_Amt then
 		PROPKILL.Statistics[ "bestdeathstreak" ] = i_Amt
 		PROPKILL.Statistics[ "bestdeathstreaker" ] = self:SteamID()
 	end
@@ -222,7 +228,7 @@ end
 end]]
 
 function _R.Player:GetKD()
-	local frags, deaths = self:TotalFrags(), self:TotalDeaths()
+	local frags, deaths = self:GetTotalFrags(), self:GetTotalDeaths()
 	local round = math.Round( frags / deaths, 2 )
 	
 	return (frags == 0 and deaths == 0 and 0) or (tostring(round) == "inf" and 1) or round
@@ -230,25 +236,25 @@ end
 
 
 function _R.Player:GetFightsWon()
-	return self:GetNetVar( "FightsWon", 0 )
+	return self:GetNW2Int( "FightsWon", 0 )
 end
 
 function _R.Player:SetFightsWon( num )
-	self:SetNetVar( "FightsWon", num )
+	self:SetNW2Int( "FightsWon", num )
 end
 
 function _R.Player:AddFightsWon( num )
-	self:SetNetVar( "FightsWon", self:GetFightsWon() + 1 )
+	self:SetFightsWon( self:GetFightsWon() + 1 )
 end
 
 function _R.Player:GetFightsLost()
-	return self:GetNetVar( "FightsLost", 0 )
+	return self:GetNW2Int( "FightsLost", 0 )
 end
 
 function _R.Player:SetFightsLots( num )
-	self:SetNetVar( "FightsLost", num )
+	self:SetNW2Int( "FightsLost", num )
 end
 
 function _R.Player:AddFightsLost( num )
-	self:SetNetVar( "FightsLost", self:GetFightsLost() + 1 )
+	self:SetFightsLost( self:GetFightsLost() + 1 )
 end

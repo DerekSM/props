@@ -12,6 +12,7 @@
 AddConfigItem( "wheelspeed_amount",
 	{
 	Name = "Wheelspeed amount",
+	Category = "Player Management",
 	default = 120,
 	min = 10,
 	max = 600,
@@ -23,6 +24,7 @@ AddConfigItem( "wheelspeed_amount",
 AddConfigItem( "wheelspeed_enforce",
 	{
 	Name = "Force wheelspeed",
+	Category = "Player Management",
 	default = nil,
 	type = "button",
 	desc = "Force wheelspeeds of players",

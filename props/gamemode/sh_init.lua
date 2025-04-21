@@ -16,11 +16,15 @@ PROPKILL.Colors["Blue"] = Color( 60,120,180,255 )
 
 GM.Name = "Props"
 GM.Author = "Shinycow"
-GM.Version = "1.1"
+GM.Version = "1.2"
+-- Should be fine to remove this entire variable without breaking anything.
+GM.KillingSprees =
+{
+	[5] = {"%s is on a Killing Spree!", "https://www.myinstants.com/media/sounds/halo-reach-killing-spree.mp3"},
+	[10] = {"%s is Exterminating", "https://www.myinstants.com/media/sounds/extermination_pqUnqB8.mp3"},
+	[15] = {"%s IS UNSTOPPABLE", "https://www.myinstants.com/media/sounds/unstoppable_1.mp3"},
+}
 DeriveGamemode( "sandbox" )
-
-	-- put in propkill.config ?
-GM.SecondsBetweenTeamSwitches = 5
 
 TEAM_SPECTATOR = 1
 TEAM_DEATHMATCH = 2
@@ -36,7 +40,7 @@ team.SetUp( TEAM_DEATHMATCH, "Deathmatch", Color( 127, 0, 255, 255 ) )
 team.SetUp( TEAM_RED, "Red Team", Color( 164, 50, 50, 255 ) ) --132, 62, 62, 255 ) )
 team.SetUp( TEAM_BLUE, "Blue Team", Color( 22, 22, 225, 255 ) )--51, 51, 225, 255 ) )
 
-	-- add the "spectator", "deathmatch", "red", etc
+	-- Keys are available options in case a player wants to join a team manually through chat/console.
 PROPKILL.ValidTeams = {}
 PROPKILL.ValidTeams[ "1" ] = TEAM_SPECTATOR
 PROPKILL.ValidTeams[ "spectator" ] = TEAM_SPECTATOR
@@ -171,37 +175,45 @@ end
 -- top props
 
 if SERVER then
-	timer.Create( "props_RefreshTopPropsSession", 25/*45*/, 0, function()
-			-- no props have been spawned
-		if table.Count( PROPKILL.TopPropsCache ) == 0 or #player.GetAll() == 0 then
-			return
-		end
-		
-		local sorted = {}
-		local output = {}
-		
-		for k,v in pairs( PROPKILL.TopPropsCache ) do
-			sorted[ #sorted + 1 ] = { Model = k, Count = v }
-		end
-		
-		table.SortByMember( sorted, "Count" )
-
-		for i=1,#sorted do
-			if i > PROPKILL.Config[ "topprops" ].default then break end
-			
-			output[ i ] = { Model = sorted[ i ].Model, Count = sorted[ i ].Count }
-		end
-		
-		PROPKILL.TopPropsSession = output
-		
-		net.Start( "props_UpdateTopPropsSession" )
-			net.WriteUInt( #PROPKILL.TopPropsSession, 8 )
-			for i=1,#PROPKILL.TopPropsSession do
-				net.WriteString( PROPKILL.TopPropsSession[ i ].Model )
-				net.WriteUInt( PROPKILL.TopPropsSession[ i ].Count, 14 )
+	-- Hack to let the new config option work
+	timer.Simple(1, function()
+		timer.Create( "props_RefreshTopPropsSession", PROPKILL.Config["toppropsdelay"].default, 0, function()
+				-- no props have been spawned
+			if table.Count( PROPKILL.TopPropsCache ) == 0 or #player.GetAll() == 0 then
+				return
 			end
-		net.Broadcast()
+
+			local sorted = {}
+			local output = {}
+
+			for k,v in pairs( PROPKILL.TopPropsCache ) do
+				sorted[ #sorted + 1 ] = { Model = k, Count = v }
+			end
+
+			table.SortByMember( sorted, "Count" )
+
+			for i=1,#sorted do
+				if i > PROPKILL.Config[ "topprops" ].default then break end
+
+				output[ i ] = { Model = sorted[ i ].Model, Count = sorted[ i ].Count }
+			end
+
+			PROPKILL.TopPropsSession = output
+
+			net.Start( "props_UpdateTopPropsSession" )
+				net.WriteUInt( #PROPKILL.TopPropsSession, 8 )
+				for i=1,#PROPKILL.TopPropsSession do
+					net.WriteString( PROPKILL.TopPropsSession[ i ].Model )
+					net.WriteUInt( PROPKILL.TopPropsSession[ i ].Count, 14 )
+				end
+			net.Broadcast()
+		end )
 	end )
+	hook.Add("OnSettingChanged", "ListenForTopPropsSetting", function( pl, setting )
+		if setting == "toppropsdelay" then
+			timer.Adjust("props_RefreshTopPropsSession", PROPKILL.Config["toppropsdelay"].default)
+		end
+	end)
 	
 		-- please god let nobody look at this code
 		-- I promise im gonna fix it up

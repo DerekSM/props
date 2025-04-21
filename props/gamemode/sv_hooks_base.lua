@@ -89,6 +89,8 @@ function GM:Initialize()
 		
 		PROPKILL.TopPropsTotal = data
 	end
+
+	props_LoadGamemodeConfig()
 		
 end
 
@@ -267,6 +269,7 @@ function GM:PlayerDeath( pl, wep, killer )
 	pl.DeathTime = CurTime()
 end
 
+-- APR 2025: What the fuck is this function? Clean it up
 function GM:DoPlayerDeath( pl, killer, dmginfo )
 	pl:CreateRagdoll()
 	if not PROPKILL.Battling then
@@ -319,7 +322,7 @@ function GM:DoPlayerDeath( pl, killer, dmginfo )
 		-- this is for below networking death message
 	local kill_type = "smash"
 	local hud_message = {}
-	
+
 	local ktype_tbl =
 	{
 		[ "longshot" ] = Color( 190, 30, 220, 255 ),	-- light violet
@@ -327,21 +330,21 @@ function GM:DoPlayerDeath( pl, killer, dmginfo )
 		[ "headsmash" ] = Color( 191, 255, 127, 255 ),	-- some gay color, shit green
 		[ "smash" ] = Color( 255, 204, 0, 255 ),		-- yellow-orange
 	}
-	
+
 	local function registerKilltype( sinput, b_NoAdd )
 		kill_type = sinput
-		
+
 		local message = prop_owner:Nick() .. " " .. sinput .. "'d " .. pl:Nick()
 
 		hud_message = { txt = message, col = ktype_tbl[ sinput ] }
 		if not PROPKILL.Battling and not b_NoAdd then
 			_R.Player[ "Add" .. string.upper( string.Left( sinput, 1 ) ) .. string.Right( sinput, #sinput - 1 ) ]( prop_owner )
 		end
-		
+
 		for k,v in next, player.GetAll() do
 			v:ConsoleMsg( Color( 200, 100, 200, 255 ), message )
 		end
-		
+
 		PROPKILL.Statistics[ "total" .. sinput ] = ( PROPKILL.Statistics[ "total" .. sinput ] or 0 ) + 1
 	end
 	
@@ -357,19 +360,16 @@ function GM:DoPlayerDeath( pl, killer, dmginfo )
 		end
 	end
 	
-	local killing_sprees = 
-	{
-		[5] = {"%s is on a Killing Spree!", "http://shinycowservers.site.nfoservers.com/sounds/sprees/killing_spree.mp3"},
-		[10] = {"%s is Dominating!", "http://shinycowservers.site.nfoservers.com/sounds/sprees/dominating.mp3"},
-		[15] = {"%s IS UNSTOPPABLE", "http://shinycowservers.site.nfoservers.com/sounds/sprees/unstoppable.mp3"},
-	}
-	
-	if killing_sprees and killing_sprees[ prop_owner:GetKillstreak() ] and not PROPKILL.Battling then
-		net.Start( "props_PlaySoundURL" )
-			net.WriteString( killing_sprees[ prop_owner:GetKillstreak() ][ 2 ] )
-		net.Broadcast()
-		--BroadcastLua( [[sound.PlayURL( "]] .. killing_sprees[ prop_owner:GetKillstreak() ][ 2 ] .. [[", "noblock", function() end )]] )
-		PrintMessage( HUD_PRINTCENTER, string.format( killing_sprees[ prop_owner:GetKillstreak() ][ 1 ], prop_owner:Nick() ) )
+	if GAMEMODE.KillingSprees and PROPKILL.Config["sounds_playkillingsprees"].default then
+		local killingspree = GAMEMODE.KillingSprees
+		local killstreak = prop_owner:GetKillstreak()
+		if killingspree[ killstreak ] and not PROPKILL.Battling then
+			net.Start( "props_PlaySoundURL" )
+				net.WriteString( killingspree[ killstreak ][ 2 ] )
+			net.Broadcast()
+			--BroadcastLua( [[sound.PlayURL( "]] .. killing_sprees[ prop_owner:GetKillstreak() ][ 2 ] .. [[", "noblock", function() end )]] )
+			PrintMessage( HUD_PRINTCENTER, string.format( killingspree[ killstreak ][ 1 ], prop_owner:Nick() ) )
+		end
 	end
 	
 		-- Clients can use this data for themselves
@@ -474,8 +474,9 @@ function GM:PlayerSpawnProp( pl, mdl )
 	end
 
 		-- check if a model is blacklisted.
-	if PROPKILL.BlockedModels
-	and PROPKILL.BlockedModels[ string.lower( mdl ) ] then
+	if (PROPKILL.BlockedModels
+	and PROPKILL.BlockedModels[ string.lower( mdl ) ])
+	and PROPKILL.Config["blockedmodels"].default then
 		if pl:IsSuperAdmin() then
 			pl:ChatPrint( mdl .. " is normally blocked, however you are allowed to bypass the list." )
 		else
@@ -518,7 +519,7 @@ function GM:PlayerSpawnedProp( pl, mdl, ent )
 		I have used it on my sanbox server and it is perfect when some construction grabbing my fps. 
 		]]
 		
-	ent:SetNetVar( "Owner", pl )
+	ent:SetNW2Entity( "Owner", pl )
 	ent.PropOwner = pl
 	
 	if PROPKILL.Battling and PROPKILL.Battlers[ "inviter" ] == pl or PROPKILL.Battlers[ "invitee" ] == pl then
@@ -544,9 +545,13 @@ function GM:PlayerSpawnSENT( pl, class )
 	return pl:IsSuperAdmin()
 end
 
---[[function GM:PlayerSpawnRagdoll( pl, mdl )
-	return false
-end]]
+function GM:PlayerSpawnRagdoll( pl, mdl )
+	return PROPKILL.Config[ "player_canspawnragdolls" ].default
+end
+function GM:PlayerSpawnedRagdoll( pl, model, ent )
+	ent:SetNW2Entity( "Owner", pl )
+	ent.PropOwner = pl
+end
 
 function GM:PlayerSpawnNPC( pl )
 	return pl:IsSuperAdmin()
@@ -639,7 +644,7 @@ function GM:PlayerCanJoinTeam( pl, teamid )
 		return false, "There is a battle going on"
 	end
 
-	local timeSwitch = GAMEMODE.SecondsBetweenTeamSwitches
+	local timeSwitch = PROPKILL.Config["player_teamswitchdelay"].default
 	if pl.LastTeamSwitch and (RealTime() - pl.LastTeamSwitch) < timeSwitch then
 		--pl:Notify( NOTIFY_ERROR, 4, Format( "Please wait %i more seconds before trying to change team again", ( timeSwitch - ( RealTime() - pl.LastTeamSwitch ) ) ) )
 		return false, "Wait " .. math.Round( timeSwitch - ( RealTime() - pl.LastTeamSwitch ), 1 ) .. " more seconds before trying again" 

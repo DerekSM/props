@@ -124,7 +124,7 @@ local function CreateHUD( b_noMotd )
 		end 
 	end
 	
-	local propsPlayer = LocalPlayer():GetObserverTarget() or LocalPlayer() --LocalPlayer():GetViewEntity()
+	local propsPlayer = IsValid(LocalPlayer():GetObserverTarget()) and LocalPlayer():GetObserverTarget() or LocalPlayer() --LocalPlayer():GetViewEntity()
 	
 	VGUI_BASECONTENT = vgui.Create( "DPanel" )
 		-- for if there's 3 bars
@@ -191,10 +191,15 @@ local function CreateHUD( b_noMotd )
 		-- when theres 3 of them use this
 	---------VGUI_KILLSTREAK:SetFillColor( Color( 76, 84, 255, 255 ) )
 	VGUI_KILLSTREAK:SetFillColor( Color( 206, 61, 38, 255 ) )
-	VGUI_KILLSTREAK:SetBarValue( propsPlayer:GetKillstreak() / propsPlayer:GetBestKillstreak() )
+	if propsPlayer.GetKillstreak then
+		VGUI_KILLSTREAK:SetBarValue( propsPlayer:GetKillstreak() / propsPlayer:GetBestKillstreak() )
+	else
+		VGUI_KILLSTREAK:SetBarValue( 1 )
+	end
 	VGUI_KILLSTREAK.PaintOver = function( self, w, h )
 		surface.SetFont( "props_HUDTextSmall" )
-		propsPlayer = LocalPlayer():GetObserverTarget() or LocalPlayer()
+		propsPlayer = IsValid(LocalPlayer():GetObserverTarget()) and LocalPlayer():GetObserverTarget() or LocalPlayer()
+		if not propsPlayer.GetKillstreak then print("hmm") return end
 		local size_w, size_h = surface.GetTextSize( "Killstreak: " .. propsPlayer:GetKillstreak() .. " / " .. propsPlayer:GetBestKillstreak() )
 
 		draw.SimpleText( "Killstreak: " .. propsPlayer:GetKillstreak() .. " / " .. propsPlayer:GetBestKillstreak(), "props_HUDTextSmall", w / 10, h/2 - size_h/2, Color( 230, 230, 230, 255 ) )
@@ -214,8 +219,13 @@ local function CreateHUD( b_noMotd )
 		-- when there's 3 of them use this
 	-----------------VGUI_KD:SetFillColor( Color( 60, 166, 255, 255 ) )
 	VGUI_KD:SetFillColor( Color( 59, 59, 167, 255 ) )
-	VGUI_KD:SetBarValue( propsPlayer:GetKD() )
+	if propsPlayer.GetKD then
+		VGUI_KD:SetBarValue( propsPlayer:GetKD() )
+	else
+		VGUI_KD:SetBarValue( 1 )
+	end
 	VGUI_KD.PaintOver = function( self, w, h )
+		if not propsPlayer.GetKD then return end
 		surface.SetFont( "props_HUDTextSmall" )
 		local size_w, size_h = surface.GetTextSize( "KD Ratio: " .. propsPlayer:GetKD() )
 
@@ -263,8 +273,8 @@ local function CreateHUD( b_noMotd )
 		
 		local owner_text = "Owner:"
 
-		local owner = propsPlayer.LookingAtProp:GetNetVar( "Owner" )
-		if owner then
+		local owner = propsPlayer.LookingAtProp:GetNW2Entity( "Owner", NULL )
+		if owner and IsValid(owner) then
 			owner_text = FixLongName( "Owner: " .. owner:Nick(), 22 )
 		end
 		

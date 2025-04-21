@@ -58,6 +58,9 @@ util.AddNetworkString( "props_SendRecentBattles" )
 util.AddNetworkString( "props_StopResumeBattle" )
 util.AddNetworkString( "props_FightResults" )
 util.AddNetworkString( "props_PlaySoundURL" )
+--util.AddNetworkString( "props_RequestGamemodeConfigSync" )
+--util.AddNetworkString( "props_SendGamemodeConfigSync" )
+
 
 AddCSLuaFile( "sh_init.lua" )
 include( "sh_init.lua" )
@@ -119,7 +122,6 @@ AddCSLuaFile( "vgui/menus/props_newbattle.lua" )
 AddCSLuaFile( "vgui/menus/props_config.lua" )
 AddCSLuaFile( "vgui/menus/props_battleinvite.lua" )
 AddCSLuaFile( "vgui/menus/props_stats.lua" )
-AddCSLuaFile( "vgui/menus/props_bots.lua" )
 AddCSLuaFile( "vgui/menus/props_battleresults.lua" )
 AddCSLuaFile( "vgui/menus/props_topprops_new.lua" )
 

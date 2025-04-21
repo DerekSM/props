@@ -76,12 +76,12 @@ InfoScoreboard =
 	},
 	
 	{
-	id = { "Total Kills", FindMetaTable( "Player" ).TotalFrags },
+	id = { "Total Kills", FindMetaTable( "Player" ).GetTotalFrags },
 	space = 0.19,
 	},
 	
 	{
-	id = { "Total Deaths", FindMetaTable( "Player" ).TotalDeaths },
+	id = { "Total Deaths", FindMetaTable( "Player" ).GetTotalDeaths },
 	space = 0.19,
 	},
 	

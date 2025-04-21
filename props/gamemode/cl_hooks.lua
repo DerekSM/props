@@ -46,9 +46,9 @@ end )
 
 function GM:OnPlayerKilled( dead, killer, kill_type )
 	if dead != killer then
-		killer:SetTotalFrags( killer:TotalFrags() + 1 )
+		killer:SetTotalFrags( killer:GetTotalFrags() + 1 )
 	end
-	dead:SetTotalDeaths( dead:TotalDeaths() + 1 )
+	dead:SetTotalDeaths( dead:GetTotalDeaths() + 1 )
 end
 
 --[[
@@ -306,7 +306,11 @@ function props_PlaySoundURL( url )
 		savedURLs[ url ].obj:SetTime( 0 )
 		savedURLs[ url ].obj:Play()
 	else
-		sound.PlayURL( url, "noblock", function( snd ) savedURLs[ url ] = { length = snd:GetLength(), obj = snd } end )
+		sound.PlayURL( url, "noblock", function( snd )
+			if snd then
+				savedURLs[ url ] = { length = snd:GetLength(), obj = snd }
+			end
+		end )
 	end
 end
 
@@ -315,3 +319,8 @@ net.Receive( "props_PlaySoundURL", function()
 	
 	props_PlaySoundURL( url )
 end )
+
+--[[net.Receive( "props_SendGamemodeConfigSync", function()
+	PROPKILL.Config = net.ReadTable()
+	LocalPlayer().SyncedGamemodeConfiguration = true
+end )]]

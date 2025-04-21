@@ -175,7 +175,7 @@ pkPauseBattle:defaultAccess( ULib.ACCESS_ALL )
 pkPauseBattle:help( "Pauses the current battle" )
 
 function ulx.pkResetMyStats( calling_ply )
-	local notify = calling_ply:TotalFrags() >= 100
+	local notify = calling_ply:GetTotalFrags() >= 100
 	calling_ply:ConCommand( "props_resetmystats" )
 	
 	if notify then

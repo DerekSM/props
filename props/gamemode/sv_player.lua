@@ -35,7 +35,7 @@ function _R.Player:SetFrags( i_Amt )
 	
 		-- don't network for every kill,
 		-- client's can do this themselves
-	self:SetTotalFrags( self:TotalFrags() + i_Amt )
+	self:SetTotalFrags( self:GetTotalFrags() + i_Amt )
 	
 	oldSetFrags( self, i_Amt )
 end
@@ -54,35 +54,37 @@ function _R.Player:AddFrags( i_Amt )
 	
 		-- don't network for every kill,
 		-- client's can do this themselves
-	self:SetTotalFrags( self:TotalFrags() + i_Amt )
+	self:SetTotalFrags( self:GetTotalFrags() + i_Amt )
 	
 	oldAddFrags( self, i_Amt )
 end
 
 oldSetDeaths = oldSetDeaths or _R.Player.SetDeaths
 function _R.Player:SetDeaths( i_Amt )
-	self:SetTotalDeaths( self:TotalDeaths() + i_Amt )
+	self:SetTotalDeaths( self:GetTotalDeaths() + i_Amt )
 	
 	oldSetDeaths( self, i_Amt )
 end
 
 oldAddDeaths = oldAddDeaths or _R.Player.AddDeaths
 function _R.Player:AddDeaths( i_Amt )
-	self:SetTotalDeaths( self:TotalDeaths() + i_Amt )
+	self:SetTotalDeaths( self:GetTotalDeaths() + i_Amt )
 	--self:SetTotalDeaths( self:GetTotalDeaths() + i_Amt )
 	
 	oldAddDeaths( self, i_Amt )
 end
 	
 function _R.Player:AddFlyby( i_Amt )
-	self:SetNetVar( "Flybys", self:GetNetVar( "Flybys", 0 ) + 1 )
+	--self:SetNetVar( "Flybys", self:GetNetVar( "Flybys", 0 ) + 1 )
+	self:SetFlyby( self:GetFlybys() + (i_Amt or 1) )
 end
 function _R.Player:SetFlyby( i_Amt )
-	i_Amt = tonumber( i_Amt )
-	self:SetNetVar( "Flybys", i_Amt )
+	--i_Amt = tonumber( i_Amt )
+	--self:SetNetVar( "Flybys", i_Amt )
+	self:SetNW2Int( "Flybys", tonumber(i_Amt) )
 end
 function _R.Player:GetFlybys()
-	return self:GetNetVar( "Flybys", 0 )
+	return self:GetNW2Int( "Flybys", 0 )
 end
 function _R.Player:IsFlying()
 		-- Partially taken from DeathZone. My old method was bad.
@@ -115,26 +117,30 @@ end )
 
 
 function _R.Player:AddLongshot( i_Amt )
-	self:SetNetVar( "Longshots", self:GetNetVar( "Longshots", 0 ) + 1 )
+	--self:SetNetVar( "Longshots", self:GetNetVar( "Longshots", 0 ) + 1 )
+	self:SetLongshots( self:GetLongshots() + (i_Amt or 1) )
 end
 function _R.Player:SetLongshot( i_Amt )
-	i_Amt = tonumber( i_Amt )
-	self:SetNetVar( "Longshots", i_Amt )
+	--i_Amt = tonumber( i_Amt )
+	--self:SetNetVar( "Longshots", i_Amt )
+	self:SetNW2Int("Longshots", tonumber(i_Amt) )
 end
 function _R.Player:GetLongshots()
-	return self:GetNetVar( "Longshots", 0 )
+	return self:GetNW2Int( "Longshots", 0 )
 end
 
 
 function _R.Player:AddHeadsmash( i_Amt )
-	self:SetNetVar( "Headsmash", self:GetNetVar( "Headsmash", 0 ) + 1 )
+	--self:SetNetVar( "Headsmash", self:GetNetVar( "Headsmash", 0 ) + 1 )
+	self:SetHeadsmash( self:GetHeadsmash() + (i_Amt or 1) )
 end
 function _R.Player:SetHeadsmash( i_Amt )
-	i_Amt = tonumber( i_Amt )
-	self:SetNetVar( "Headsmash", i_Amt )
+	--i_Amt = tonumber( i_Amt )
+	--self:SetNetVar( "Headsmash", i_Amt )
+	self:SetNW2Int("Headsmash", i_Amt)
 end
 function _R.Player:GetHeadsmash()
-	return self:GetNetVar( "Headsmash", 0 )
+	return self:GetNW2Int( "Headsmash", 0 )
 end
 
 --[[

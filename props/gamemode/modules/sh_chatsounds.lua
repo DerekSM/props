@@ -11,42 +11,58 @@
 
 if CLIENT then
 	
-	-- could i instead write a table so players don't have to request a url each time they send a message?
-	-- yes.
-	-- will i?
-	-- no.
-	
 	CreateClientConVar( "props_PlayChatSounds", "1", true, true )
 	local chatsounds = GetConVar( "props_PlayChatSounds" )
-	
+
+	-- Can find more here: https://wiki.facepunch.com/gmod/HL2_Sound_List
+	local ChatSoundsList =
+	{
+	["hax"] =
+		{
+		["sounds"] = {"vo/npc/female01/hacks01.wav", "vo/npc/male01/hacks02.wav"},
+		["delay"] = 3, -- in seconds
+		},
+	["gtfo"] =
+		{
+		["sounds"] = {"vo/npc/male01/gethellout.wav"},
+		["delay"] = 7,
+		},
+	["wait"] =
+		{
+		["sounds"] = {"vo/trainyard/man_waitaminute.wav"},
+		["delay"] = 4,
+		},
+	["rizz"] =
+		{
+		["sounds"] = {"https://www.myinstants.com//media/sounds/rizz-sound-effect.mp3"},	-- yes this even supports playing from URL
+		["delay"] = 4,
+		},
+	["bruh"] =
+		{
+		["sounds"] = {"https://www.myinstants.com//media/sounds/movie_1.mp3"},
+		["delay"] = 6,
+		},
+	}
+
+	local BaseSoundDelay = 2.4 -- At least 2.4 seconds need to pass before we'll play another sound
 	local sound_delay = CurTime()
 	
 	hook.Add( "OnPlayerChat", "fdsf", function( pl, txt, team )
 		if chatsounds:GetString() != "1" then return end
 		if sound_delay > CurTime() then return end
-		if math.random( 1, 5 ) == 2 or math.random( 1, 7 ) == 3 then return end
+		if math.random( 1, 4 ) == 2 or math.random( 1, 6 ) == 3 then return end
+		if not ChatSoundsList[txt:lower()] then return end
 
-		txt = txt:lower()
-		txt = txt:gsub( " ", "_" )
-		
-		http.Fetch( "http://shinycowservers.site.nfoservers.com/sounds/chat/" .. txt .. "/exists.html", 
-			function( body, len )
-				local explode = string.Explode( "\n", body )
-				
-				if len < 24 then
-					
-					num = explode[ 1 ]
-					
-					local url = "http://shinycowservers.site.nfoservers.com/sounds/chat/" .. txt .. "/" .. math.random( 1, tonumber(num) ) .. ".wav"
-					--print( url )
-					--sound.PlayURL( url, "noblock", function( station ) end )
-					props_PlaySoundURL( url )
-					
-					sound_delay = CurTime() + 2.4 + ( explode[ 2 ] and tonumber( explode[ 2 ] ) or 0 )
+		local Sounds = ChatSoundsList[txt:lower()]["sounds"]
+		local ChosenSound = math.random(1, #Sounds)
 
-				end
-			end
-		)
+		if string.find(Sounds[ChosenSound]:lower(), "http") then
+			props_PlaySoundURL( Sounds[ChosenSound] )
+		else
+			surface.PlaySound( Sounds[ChosenSound] )
+		end
+
+		sound_delay = CurTime() + BaseSoundDelay + ChatSoundsList[txt:lower()]["delay"]
 	end )
 	
 elseif SERVER then

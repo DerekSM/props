@@ -10,7 +10,8 @@
 ]]--
 
 if FPP then 
-	error( "Falco's Prop Protection was found!\nNot using sh_blockedmodels.lua" )
+	print( "Falco's Prop Protection was found!\nNot using sh_blockedmodels.lua" )
+	return
 end
 
 
