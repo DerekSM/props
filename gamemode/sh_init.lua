@@ -16,8 +16,8 @@ PROPKILL.Colors["Blue"] = Color( 60,120,180,255 )
 
 GM.Name = "Props"
 GM.Author = "Shinycow"
-GM.Version = "1.2"
--- Should be fine to remove this entire variable without breaking anything.
+GM.Version = "1.2.1"
+-- You (the server owner) should be fine to just remove the variable entirely if you don't want sounds
 GM.KillingSprees =
 {
 	[5] = {"%s is on a Killing Spree!", "https://www.myinstants.com/media/sounds/halo-reach-killing-spree.mp3"},
@@ -52,7 +52,6 @@ PROPKILL.ValidTeams[ "4" ] = TEAM_BLUE
 PROPKILL.ValidTeams[ "blue" ] = TEAM_BLUE
 
 function AddConfigItem( id, tbl ) --default, type, description )
-	--if not id or not default or not type then return end
 	if not id then return end
 	if not tbl then return end
 	if not tbl.type then return end
@@ -130,13 +129,8 @@ if SERVER then
 				if IsValid(trace.Entity) and not trace.Entity:IsPlayer() and not v.SeenProps[ trace.Entity ] then
 					umsg.Start( "propkill_ShowOwner", v )
 						umsg.Bool( true )
-						--umsg.Entity( trace.Entity )
-						--if trace.Entity.Owner then
-						--	umsg.Entity( trace.Entity.Owner )
-						--else
 							umsg.Entity( trace.Entity )
 							umsg.Bool( true )
-						--end
 					umsg.End()
 					
 					v.SeenProps[ trace.Entity ] = true
@@ -201,7 +195,7 @@ if SERVER then
 			PROPKILL.TopPropsSession = output
 
 			net.Start( "props_UpdateTopPropsSession" )
-				net.WriteUInt( #PROPKILL.TopPropsSession, 8 )
+				net.WriteUInt( #PROPKILL.TopPropsSession, 6 )
 				for i=1,#PROPKILL.TopPropsSession do
 					net.WriteString( PROPKILL.TopPropsSession[ i ].Model )
 					net.WriteUInt( PROPKILL.TopPropsSession[ i ].Count, 14 )
@@ -383,7 +377,7 @@ if SERVER then
 		file.Write( "props/topprops.txt", pon.encode( PROPKILL.TopPropsTotal ) )
 		
 		net.Start( "props_UpdateTopPropsTotal" )
-			net.WriteUInt( math.Clamp( #PROPKILL.TopPropsTotal, 0, PROPKILL.Config[ "topprops" ].default ), 8 )
+			net.WriteUInt( math.Clamp( #PROPKILL.TopPropsTotal, 0, PROPKILL.Config[ "topprops" ].default ), 6 )
 			for i=1,math.Clamp( #PROPKILL.TopPropsTotal, 0, PROPKILL.Config[ "topprops" ].default ) do
 				net.WriteString( PROPKILL.TopPropsTotal[ i ].Model )
 				net.WriteUInt( PROPKILL.TopPropsTotal[ i ].Count, 18 )
@@ -395,7 +389,7 @@ if SERVER then
 	function props_SendTopPropsTotal( pl )
 		if #PROPKILL.TopPropsTotal == 0 then return end
 		net.Start( "props_UpdateTopPropsTotal" )
-			net.WriteUInt( math.Clamp( #PROPKILL.TopPropsTotal, 0, PROPKILL.Config[ "topprops" ].default ), 8 )
+			net.WriteUInt( math.Clamp( #PROPKILL.TopPropsTotal, 0, PROPKILL.Config[ "topprops" ].default ), 6 )
 			for i=1,math.Clamp( #PROPKILL.TopPropsTotal, 0, PROPKILL.Config[ "topprops" ].default ) do
 				net.WriteString( PROPKILL.TopPropsTotal[ i ].Model )
 				net.WriteUInt( PROPKILL.TopPropsTotal[ i ].Count, 18 )
@@ -406,7 +400,7 @@ end
 
 if CLIENT then
 	net.Receive( "props_UpdateTopPropsSession", function()
-		local amt = net.ReadUInt( 8 )
+		local amt = net.ReadUInt( 6 )
 					
 		PROPKILL.TopPropsSession = {}
 		
@@ -422,7 +416,7 @@ if CLIENT then
 	end )
 	
 	net.Receive( "props_UpdateTopPropsTotal", function()
-		local amt = net.ReadUInt( 8 )
+		local amt = net.ReadUInt( 6 )
 		
 		PROPKILL.TopPropsTotal = {}
 		
