@@ -1,4 +1,10 @@
 **Changelog
+v1.2.2:
+/ Fixed fighting bots on servers without ULX
+/ Fixed ending battle error
+/ Fixed battle results menu having weird graphics artifacts.
++ Battle results menu now can be highlighted and copied
++ Added more killing spree sounds
 v1.2.1:
 / The default weapon selection HUD will now show if you have a toolgun.
 / Miscellaneous micro optimisations and fixes.
@@ -26,8 +32,9 @@ Let players change chat sound options in f4 menu
 Cleanup DoPlayerDeath
 I think prop dormancy voting function was messed up? But I don't remember how
 Add another statistic for total battles fought if it doesn't already exist
-Allow recent battle list to be interactive: Let players right click to view time and player information in detail.
+Allow right clicking recent battle list to open steam page of the battlers.
 Add config for server owners to let players create their own bot paths
+Fix kill limit default in battle menu? It looks like even if it's changed in the gamemode config it still shows "10"
 
 
 **Notes

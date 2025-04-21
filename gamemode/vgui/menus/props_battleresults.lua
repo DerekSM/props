@@ -38,13 +38,7 @@ function PANEL:Init()
 	self.Grid:SetColWide( self:GetWide() / 3 + 10 )
 	self.Grid:SetRowHeight( self:GetTall() )
 	self.Grid:Dock( TOP )
-	
-	--[[for i=1,3 do
-	local but = vgui.Create( "DButton" )
-	but:SetText( i )
-	but:SetSize( 30, 20 )
-	self.Grid:AddItem( but )
-	end]]
+
 	
 	self.Grid.Content = {}
 	for i=1, 3 do
@@ -83,7 +77,7 @@ function PANEL:Init()
 		end
 		
 		if k == 1 then
-			self.Grid.Content[ k ].PlayerInfo = self.Grid.Content[ k ]:Add( "DLabel" )
+			self.Grid.Content[ k ].PlayerInfo = self.Grid.Content[ k ]:Add( "DTextEntry" )
 			self.Grid.Content[ k ].PlayerInfo:SetFont( "props_HUDTextSmall" )
 			self.Grid.Content[ k ].PlayerInfo:SetText(
 			[[
@@ -93,11 +87,16 @@ function PANEL:Init()
 			Total Wins: 0
 
 			Total Losses: 38]] )
-			self.Grid.Content[ k ].PlayerInfo:SizeToContents()
+			--self.Grid.Content[ k ].PlayerInfo:SizeToContents()
+				-- Not too happy with manually setting the size but it'll do for now
+			self.Grid.Content[ k ].PlayerInfo:SetSize(200,120)
+			self.Grid.Content[ k ].PlayerInfo:SetTextColor( color_white )
+			self.Grid.Content[ k ].PlayerInfo:SetMultiline( true )
+			self.Grid.Content[ k ].PlayerInfo:SetPaintBackground( false )
 			local avatarposx, avatarposy = self.Grid.Content[ k ].Avatar:GetPos()
 			self.Grid.Content[ k ].PlayerInfo:SetPos( avatarposx + 10, self.Grid.Content[ k ].Avatar:GetTall() + avatarposy + 5 ) 
 		else
-			self.Grid.Content[ k ].PlayerInfo = self.Grid.Content[ k ]:Add( "DLabel" )
+			self.Grid.Content[ k ].PlayerInfo = self.Grid.Content[ k ]:Add( "DTextEntry" )
 			self.Grid.Content[ k ].PlayerInfo:SetFont( "props_HUDTextSmall" )
 			self.Grid.Content[ k ].PlayerInfo:SetText(
 			[[
@@ -107,7 +106,12 @@ function PANEL:Init()
 			Total Wins: 14
 
 			Total Losses: 1]] )
-			self.Grid.Content[ k ].PlayerInfo:SizeToContents()
+			--self.Grid.Content[ k ].PlayerInfo:SizeToContents()
+				-- Not too happy with manually setting the size but it'll do for now
+			self.Grid.Content[ k ].PlayerInfo:SetSize(200,120)
+			self.Grid.Content[ k ].PlayerInfo:SetTextColor( color_white )
+			self.Grid.Content[ k ].PlayerInfo:SetMultiline( true )
+			self.Grid.Content[ k ].PlayerInfo:SetPaintBackground( false )
 			local avatarposx, avatarposy = self.Grid.Content[ k ].Avatar:GetPos()
 			self.Grid.Content[ k ].PlayerInfo:SetPos( avatarposx + 10, self.Grid.Content[ k ].Avatar:GetTall() + avatarposy + 5 ) 
 		end
@@ -121,8 +125,10 @@ function PANEL:Init()
 	self.Grid.Content[ 2 ].VSText:SetPos( self.Grid.Content[ 2 ]:GetWide() / 2 - vstxtsize_w / 2, (self.Grid.Content[ 1 ].Avatar:GetTall() + 24) - (vstxtsize_h - 24) )
 	self.Grid.Content[ 2 ].VSText:SizeToContents()
 	
-	self.Grid.Content[ 2 ].WinnerInfo = self.Grid.Content[ 2 ]:Add( "DLabel" )
+	self.Grid.Content[ 2 ].WinnerInfo = self.Grid.Content[ 2 ]:Add( "DTextEntry" )
 	self.Grid.Content[ 2 ].WinnerInfo:SetFont( "props_HUDTextSmall" )
+	self.Grid.Content[ 2 ].WinnerInfo:SetMultiline( true )
+	self.Grid.Content[ 2 ].WinnerInfo:SetPaintBackground( false )
 	self.Grid.Content[ 2 ].WinnerInfo:SetText(
 	[[
 
@@ -177,7 +183,9 @@ function PANEL:SetInformation( tBattler1, tBattler2, Winner, Score, Time )
 
 	Total Losses: ]] .. tBattler1.Losses
 	)
-	self.Grid.Content[ 1 ].PlayerInfo:SizeToContents()
+	--self.Grid.Content[ 1 ].PlayerInfo:SizeToContents()
+		-- Not too happy with manually setting the size but it'll do for now
+	self.Grid.Content[ 1 ].PlayerInfo:SetSize(200,120)
 	
 	
 	if IsValid( Player( tBattler2.Userid ) ) then
@@ -198,13 +206,15 @@ function PANEL:SetInformation( tBattler1, tBattler2, Winner, Score, Time )
 
 	Total Losses: ]] .. tBattler2.Losses
 	)
-	self.Grid.Content[ 3 ].PlayerInfo:SizeToContents()
+	--self.Grid.Content[ 3 ].PlayerInfo:SizeToContents()
+		-- Not too happy with manually setting the size but it'll do for now
+	self.Grid.Content[ 3 ].PlayerInfo:SetSize(200,120)
 	
 	
 	self.Grid.Content[ 2 ].WinnerInfo:SetText(
 	[[
 
-	Winner: ]] .. Winner .. [[
+	Winner: ]] .. FixLongName( Winner, 13 ) .. [[
 
 
 	Score: ]] .. Score .. [[
@@ -212,7 +222,10 @@ function PANEL:SetInformation( tBattler1, tBattler2, Winner, Score, Time )
 
 	Time Taken: ]] .. string.ToMinutesSeconds( Time )
 	)
-	self.Grid.Content[ 2 ].WinnerInfo:SizeToContents()
+
+	--self.Grid.Content[ 2 ].WinnerInfo:SizeToContents()
+	-- Not too happy with manually setting the size but it'll do for now
+	self.Grid.Content[ 2 ].WinnerInfo:SetSize(200,120)
 end
 	
 	

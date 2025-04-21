@@ -251,7 +251,7 @@ function _R.Player:GetFightsLost()
 	return self:GetNW2Int( "FightsLost", 0 )
 end
 
-function _R.Player:SetFightsLots( num )
+function _R.Player:SetFightsLost( num )
 	self:SetNW2Int( "FightsLost", num )
 end
 

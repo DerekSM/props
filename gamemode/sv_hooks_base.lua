@@ -363,11 +363,11 @@ function GM:DoPlayerDeath( pl, killer, dmginfo )
 	if GAMEMODE.KillingSprees and PROPKILL.Config["sounds_playkillingsprees"].default then
 		local killingspree = GAMEMODE.KillingSprees
 		local killstreak = prop_owner:GetKillstreak()
-		if killingspree[ killstreak ] and not PROPKILL.Battling then
+		if killingspree and killingspree[ killstreak ] and not PROPKILL.Battling then
 			net.Start( "props_PlaySoundURL" )
 				net.WriteString( killingspree[ killstreak ][ 2 ] )
 			net.Broadcast()
-			--BroadcastLua( [[sound.PlayURL( "]] .. killing_sprees[ prop_owner:GetKillstreak() ][ 2 ] .. [[", "noblock", function() end )]] )
+
 			PrintMessage( HUD_PRINTCENTER, string.format( killingspree[ killstreak ][ 1 ], prop_owner:Nick() ) )
 		end
 	end
@@ -661,7 +661,6 @@ function GM:PlayerCanJoinTeam( pl, teamid )
 	local timeSwitch = PROPKILL.Config["player_teamswitchdelay"].default
 
 	if pl.LastTeamSwitch and (RealTime() - pl.LastTeamSwitch) <= 0 then
-		--pl:Notify( NOTIFY_ERROR, 4, Format( "Please wait %i more seconds before trying to change team again", ( timeSwitch - ( RealTime() - pl.LastTeamSwitch ) ) ) )
 		return false, "Wait " .. math.Round( (pl.LastTeamSwitch - RealTime()), 1 ) .. " more seconds before trying again"
 	end
 	

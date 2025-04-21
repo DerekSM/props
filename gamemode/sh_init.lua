@@ -16,13 +16,15 @@ PROPKILL.Colors["Blue"] = Color( 60,120,180,255 )
 
 GM.Name = "Props"
 GM.Author = "Shinycow"
-GM.Version = "1.2.1"
+GM.Version = "1.2.2"
 -- You (the server owner) should be fine to just remove the variable entirely if you don't want sounds
 GM.KillingSprees =
 {
 	[5] = {"%s is on a Killing Spree!", "https://www.myinstants.com/media/sounds/halo-reach-killing-spree.mp3"},
 	[10] = {"%s is Exterminating", "https://www.myinstants.com/media/sounds/extermination_pqUnqB8.mp3"},
 	[15] = {"%s IS UNSTOPPABLE", "https://www.myinstants.com/media/sounds/unstoppable_1.mp3"},
+	[25] = {"%s is a God!", "https://www.myinstants.com//media/sounds/f_godlike.mp3"},
+	[50] = {"%s is playing against retards", "https://www.myinstants.com//media/sounds/bad-to-the-bone-meme.mp3"},
 }
 DeriveGamemode( "sandbox" )
 
