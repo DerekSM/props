@@ -17,6 +17,7 @@ local ReferenceTable =
 ["totalheadsmash"] = "players had their heads smashed",
 ["totaljoins"] = "total non-unique players joined",
 ["totalkills"] = "total kills across restarts",
+["totalmessages"] = "total messages have been said by players",
 }
 
 

@@ -56,5 +56,5 @@ net.Receive( "PlayerKilled", function()
 end )
 
 hook.Add( "HUDShouldDraw", "props_StopThatWeaponSelection!", function( name )
-	if name == "CHudWeaponSelection" then return false end
+	if name == "CHudWeaponSelection" and not LocalPlayer():HasWeapon("gmod_tool") then return false end
 end )

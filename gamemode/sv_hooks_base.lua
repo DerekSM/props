@@ -54,7 +54,7 @@ end
 function GM:Initialize()
 	file.CreateDir( "props" )
 	
-	for k,v in pairs( properties.List ) do
+	for k,v in next, properties.List do
 		if v.Order < 2000 and k != "remove" then
 			properties.List[ k ] = nil
 		end
@@ -148,7 +148,7 @@ function GM:PlayerInitialSpawn( pl )
 	
 	timer.CreatePlayer( pl, "props_NetworkUpdatedConfig", 5, 1, function()
 		local tbl = table.Copy(PROPKILL.Config)
-		for k,v in pairs( tbl ) do
+		for k,v in next, tbl do
 			v.func = nil
 		end
 		
@@ -546,6 +546,20 @@ function GM:PlayerSpawnSENT( pl, class )
 end
 
 function GM:PlayerSpawnRagdoll( pl, mdl )
+	if pl:Team() == TEAM_SPECTATOR
+	or (not pl:Alive() and not PROPKILL.Config[ "dead_spawnprops" ].default) then
+		local msg = true
+		if pl.DeathTime and CurTime() - pl.DeathTime <= 0.75 then
+			msg = false
+		end
+
+		if msg then
+			pl:Notify( NOTIFY_ERROR, 3, "You must be alive to spawn ragdolls!", true )
+		end
+
+		return false
+	end
+
 	return PROPKILL.Config[ "player_canspawnragdolls" ].default
 end
 function GM:PlayerSpawnedRagdoll( pl, model, ent )
@@ -645,16 +659,17 @@ function GM:PlayerCanJoinTeam( pl, teamid )
 	end
 
 	local timeSwitch = PROPKILL.Config["player_teamswitchdelay"].default
-	if pl.LastTeamSwitch and (RealTime() - pl.LastTeamSwitch) < timeSwitch then
+
+	if pl.LastTeamSwitch and (RealTime() - pl.LastTeamSwitch) <= 0 then
 		--pl:Notify( NOTIFY_ERROR, 4, Format( "Please wait %i more seconds before trying to change team again", ( timeSwitch - ( RealTime() - pl.LastTeamSwitch ) ) ) )
-		return false, "Wait " .. math.Round( timeSwitch - ( RealTime() - pl.LastTeamSwitch ), 1 ) .. " more seconds before trying again" 
+		return false, "Wait " .. math.Round( (pl.LastTeamSwitch - RealTime()), 1 ) .. " more seconds before trying again"
 	end
 	
 	-- Already on this team!
 	if pl:Team() == teamid then
 		return false, "You're already on that team!"
 	end
-	
+
 	pl.LastTeamSwitch = RealTime() + timeSwitch
 	return true, "success"
 end

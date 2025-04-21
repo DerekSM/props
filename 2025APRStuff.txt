@@ -1,4 +1,10 @@
 **Changelog
+v1.2.1:
+/ The default weapon selection HUD will now show if you have a toolgun.
+/ Miscellaneous micro optimisations and fixes.
+/ Dead players and spectators can't spawn ragdolls anymore even if ragdolls are enabled.
+/ Fixed player team switch delay. It was doubling whatever time restriction we had.
+v1.2:
 / Switched NetVar's to NW2 library. I don't know if NetVar was an old way of networking or what but it was broken.
 / Fixed some HUD errors
 - Removed bot modules. I don't think they were used and even if they were it was always buggy.
@@ -20,6 +26,7 @@ Cleanup DoPlayerDeath
 I think prop dormancy voting function was messed up? But I don't remember how
 Add another statistic for total battles fought if it doesn't already exist
 Allow recent battle list to be interactive: Let players right click to view time and player information in detail.
+Readd bots. Apparently they are still actively used for aim training.
 
 
 **Notes

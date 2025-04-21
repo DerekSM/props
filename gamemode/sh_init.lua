@@ -31,7 +31,7 @@ TEAM_DEATHMATCH = 2
 TEAM_RED = 3
 TEAM_BLUE = 4
 
-for k,v in pairs( team.GetAllTeams() ) do
+for k,v in next, team.GetAllTeams() do
 	team.GetAllTeams()[ k ] = nil
 end
 
@@ -119,7 +119,7 @@ end
 	-- copypasted from old gamemode
 if SERVER then
 	timer.Create( "props_ShowPropOwner", 0.5, 0, function()
-		for k,v in pairs( player.GetAll() ) do
+		for k,v in next, player.GetAll() do
 			
 			if v.IsBot and v:IsBot() then continue end
 			
@@ -186,7 +186,7 @@ if SERVER then
 			local sorted = {}
 			local output = {}
 
-			for k,v in pairs( PROPKILL.TopPropsCache ) do
+			for k,v in next, PROPKILL.TopPropsCache do
 				sorted[ #sorted + 1 ] = { Model = k, Count = v }
 			end
 
@@ -241,8 +241,8 @@ if SERVER then
 		local sessioncopy = table.Copy( PROPKILL.TopPropsSession )
 		
 		if #copy > 0 then
-			for k,v in pairs( copy ) do
-				for a,b in pairs( sessioncopy ) do
+			for k,v in next, copy do
+				for a,b in next, sessioncopy do
 					if v.Model == b.Model then
 						hasmodels[ v.Model ] = true
 					end
@@ -259,7 +259,7 @@ if SERVER then
 				sorted[ #sorted + 1 ] = { Model = v.Model, Count = v.Count }
 			end]]
 			
-			for k,v in pairs( sessioncopy ) do
+			for k,v in next, sessioncopy do
 				if not hasmodels[ v.Model ] then
 					sorted[ #sorted + 1 ] = { Model = v.Model, Count = v.Count }
 				end
@@ -315,11 +315,11 @@ if SERVER then
 				end
 			end]]
 			
-			for k,v in pairs( copy ) do
+			for k,v in next, copy do
 				if hasmodels[ v.Model ] then
 				
 					local found = nil
-					for a,b in pairs( PROPKILL.TopPropsSession ) do
+					for a,b in next, PROPKILL.TopPropsSession do
 						if b.Model == v.Model then
 							found = a
 						end
@@ -353,7 +353,7 @@ if SERVER then
 				sorted[ #sorted + 1 ] = { Model = v.Model, Count = v.Count }
 			end]]
 		else
-			for k,v in pairs( PROPKILL.TopPropsSession ) do
+			for k,v in next, PROPKILL.TopPropsSession do
 				sorted[ #sorted + 1 ] = { Model = v.Model, Count = v.Count }
 			end
 		end

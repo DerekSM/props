@@ -94,6 +94,7 @@ function props_SaveGamemodeConfig()
 		end
 	end
 
+	PROPKILL.HasSettingChangedRecently = false
 	file.Write( "props/config.txt", pon.encode( data ) )
 end
 

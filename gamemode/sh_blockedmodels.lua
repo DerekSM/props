@@ -33,7 +33,7 @@ if SERVER then
 		
 		local data = pon.decode( file.Read( "props/blockedmodels.txt", "DATA" ) )
 		
-		for k,v in pairs( data ) do
+		for k,v in next, data do
 			if not PROPKILL.BlockedModels[ k ] then
 				PROPKILL.BlockedModels[ k ] = true
 			end
@@ -43,7 +43,7 @@ if SERVER then
 	hook.Add( "PlayerInitialSpawn", "props_UpdateBlockedModels", function( pl )
 		net.Start( "props_SendBlockedModelsList" )
 			net.WriteUInt( table.Count( PROPKILL.BlockedModels ), 8 )
-			for k,v in pairs( PROPKILL.BlockedModels ) do
+			for k,v in next, PROPKILL.BlockedModels do
 				net.WriteString( k )
 			end
 		net.Send( pl )

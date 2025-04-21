@@ -50,7 +50,7 @@ timer.Create( "props_antiNoob", 0.96--[[1.36]], 0, function()
 	
 	for i=1,#props_playerSpawns do
 		
-		for k,v in pairs( ents.GetAll() ) do
+		for k,v in next, ents.GetAll() do
 			if v.beingRemoved or not v.Owner or not v.Owner:IsPlayer() or (v:IsWeapon() and IsValid( v:GetOwner() )) or v.Owner.propsWhitelisted then continue end
 			
 			--if v:GetPos():Distance( props_playerSpawns[ i ]:GetPos() ) <= props_antinoobdetectionRadius then

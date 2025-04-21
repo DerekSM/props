@@ -204,7 +204,7 @@ function props_GetLeader()
 		-- new lookup
 	leader = NULL
 	local temp_Killstreak = 0
-	for k,v in pairs( player.GetAll() ) do
+	for k,v in next, player.GetAll() do
 		if v:GetKillstreak() > temp_Killstreak then
 			leader = v
 			temp_Killstreak = v:GetKillstreak()
