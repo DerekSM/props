@@ -33,6 +33,35 @@ local function LoadModules()
 	end
 end
 
+PROPKILL.ClientConfig = {}
+function AddClientConfigItem( id, tbl )
+	if not id then return end
+	if not tbl then return end
+	if not tbl.type then return end
+	if PROPKILL.Config[ id ] then
+		print( "PROPKILL CONFIG ID '" .. id .. "' ALREADY EXISTS!" )
+		return
+	end
+
+	tbl.desc = tbl.desc or "No information available."
+	tbl.currentvalue = cookie.GetString( id, tbl.default )
+	if tbl.type == "integer" then
+		tbl.currentvalue = tonumber(tbl.currentvalue)
+	elseif tbl.type == "boolean" then
+		tbl.currentvalue = tobool(tbl.currentvalue)
+	end
+
+	tbl.Category = tbl.Category or "Unknown"
+
+	PROPKILL.ClientConfig[ id ] = tbl
+end
+
+function ChangeClientConfigValue( id, value )
+	PROPKILL.ClientConfig[ id ].currentvalue = value
+	cookie.Set( id, tostring(value) )
+end
+
+
 include( "sh_init.lua" )
 include( "sh_config.lua" )
 include( "sh_util.lua" )
@@ -49,8 +78,9 @@ include( "sh_blockedmodels.lua" )
 include( "sh_speedy.lua" )
 
 include( "cl_scoreboard.lua" )
-include( "vgui/scoreboard/props_playerrow.lua" )
-include( "vgui/scoreboard/props_scoreboard.lua" )
+--include( "vgui/scoreboard/props_playerrow.lua" )
+--include( "vgui/scoreboard/props_scoreboard.lua" )
+--include( "vgui/scoreboard/props_scoreboard_alt.lua" )
 
 include( "cl_hud.lua" )
 include( "vgui/hud/horizontalbar.lua" )

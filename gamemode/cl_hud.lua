@@ -94,7 +94,34 @@ surface.CreateFont( "props_HUDTextMASSIVE",
 				weight = 900,
 				}
 				)
-				
+AddClientConfigItem( "props_BaseHUDX",
+	{
+	Name = "Main HUD X Positioning",
+	--Category = "Player Management",
+	default = 15,
+	min = 0,
+	max = ScrW(),
+	type = "integer",
+	desc = "Drag the slider to move the main HUD horizontally across the screen",
+	decimals = 0,
+	listening = true, -- If true, will change while sliding the number bar
+	}
+)
+AddClientConfigItem( "props_BaseHUDY",
+	{
+	Name = "Main HUD Y Positioning",
+	--Category = "Player Management",
+	default = math.ceil( ScrH() * GetUniversalSize( 110, 900 ) ),
+	min = 0,
+	max = ScrH(),
+	type = "integer",
+	desc = "Drag the slider to move the main HUD vertically across the screen",
+	decimals = 0,
+	listening = true, -- If true, will change while sliding the number bar
+	}
+)
+
+
 hook.Add( "HUDShouldDraw", "props_OverrideDefaultHUD", function( name )
 	if name == "CHudHealth" then return false end
 end )
@@ -127,11 +154,8 @@ local function CreateHUD( b_noMotd )
 	local propsPlayer = IsValid(LocalPlayer():GetObserverTarget()) and LocalPlayer():GetObserverTarget() or LocalPlayer() --LocalPlayer():GetViewEntity()
 	
 	VGUI_BASECONTENT = vgui.Create( "DPanel" )
-		-- for if there's 3 bars
-	-------------VGUI_BASECONTENT:SetPos( 15, ScrH() - 135 )
-	-------------VGUI_BASECONTENT:SetSize( 350, 120 )
-	--VGUI_BASECONTENT:SetPos( 15, ScrH() - 110 ) 
-	VGUI_BASECONTENT:SetPos( 15, math.ceil( ScrH() * GetUniversalSize( 110, 900 ) ))
+	--VGUI_BASECONTENT:SetPos( 15, math.ceil( ScrH() * GetUniversalSize( 110, 900 ) ))
+	VGUI_BASECONTENT:SetPos( PROPKILL.ClientConfig["props_BaseHUDX"].currentvalue, PROPKILL.ClientConfig["props_BaseHUDY"].currentvalue )
 	--VGUI_BASECONTENT:SetSize( 350, 95 )
 		-- 350 / 1440 = 0.243
 	VGUI_BASECONTENT:SetSize( ScrW() * 0.243, ScrH() * 0.1055 )
@@ -140,6 +164,9 @@ local function CreateHUD( b_noMotd )
 		--draw.RoundedBox( 0, 0, 0, w, h, Color( 31, 31, 31, 235  ) )
 		draw.RoundedBox( 0, 0, 0, w, h, Color( 27, 26, 26, 235 ) )
 		self:DrawBackgroundBlur( 4 )
+	end
+	VGUI_BASECONTENT.Think = function( pnl )
+		pnl:SetPos( PROPKILL.ClientConfig["props_BaseHUDX"].currentvalue, PROPKILL.ClientConfig["props_BaseHUDY"].currentvalue )
 	end
 	
 	local basesizew, basesizeh = VGUI_BASECONTENT:GetSize()
@@ -252,6 +279,10 @@ local function CreateHUD( b_noMotd )
 			return
 		end
 		draw.RoundedBox( 0, 0, 0, w, h, Color( 47, 46, 46, 235 ) )
+	end
+	VGUI_PROPPANEL.Think = function( pnl )
+		local basecontentpos_x, basecontentpos_y = VGUI_BASECONTENT:GetPos()
+		pnl:SetPos( basecontentpos_x + 40, basecontentpos_y - VGUI_PROPPANEL:GetTall() + 1 )
 	end
 	
 	VGUI_PROPOWNER = vgui.Create( "DLabel" )

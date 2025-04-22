@@ -132,8 +132,22 @@ end
 -- credits : http://facepunch.com/showthread.php?t=1051898&p=27576273&viewfull=1#post27576273
 
 
-include( "vgui/scoreboard/props_playerrow.lua" )
 include( "vgui/scoreboard/props_scoreboard.lua" )
+include( "vgui/scoreboard/props_playerrow.lua" )
+include( "vgui/scoreboard/props_scoreboard_alt.lua" )
+include( "vgui/scoreboard/props_playerrow_alt.lua" )
+
+--CreateClientConVar( "props_NewScoreboard", "0", true, true )
+--local UseNewScoreboard = GetConVar( "props_NewScoreboard" )
+AddClientConfigItem( "props_NewScoreboard",
+	{
+	Name = "Show Alternate Scoreboard",
+	--Category = "Player Management",
+	default = false,
+	type = "boolean",
+	desc = "Show the new, singular scoreboard",
+	}
+)
 
 --[[---------------------------------------------------------
    Name: gamemode:ScoreboardShow( )
@@ -146,8 +160,13 @@ function GM:ScoreboardShow()
 		g_Scoreboard = nil
 	end
 
-	g_Scoreboard = vgui.Create( "props_scoreboard" )
-	
+	--if UseNewScoreboard:GetInt() > 0 then
+	if PROPKILL.ClientConfig["props_NewScoreboard"].currentvalue then
+		g_Scoreboard = vgui.Create( "props_scoreboard_alt" )
+	else
+		g_Scoreboard = vgui.Create( "props_scoreboard" )
+	end
+
 	--[[if ( IsValid( g_Scoreboard ) ) then
 		g_Scoreboard:Show()
 		g_Scoreboard:MakePopup()

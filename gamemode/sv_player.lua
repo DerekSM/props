@@ -118,7 +118,7 @@ end )
 
 function _R.Player:AddLongshot( i_Amt )
 	--self:SetNetVar( "Longshots", self:GetNetVar( "Longshots", 0 ) + 1 )
-	self:SetLongshots( self:GetLongshots() + (i_Amt or 1) )
+	self:SetLongshot( self:GetLongshots() + (i_Amt or 1) )
 end
 function _R.Player:SetLongshot( i_Amt )
 	--i_Amt = tonumber( i_Amt )

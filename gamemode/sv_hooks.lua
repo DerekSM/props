@@ -195,7 +195,7 @@ function GM:EndBattle( pl, pl2, forfeiter, stopped, winner, score, msg )
 		end
 		
 		if not PROPKILL.BattleFun then
-			PROPKILL.RecentBattles[ #PROPKILL.RecentBattles + 1 ] = { time = os.time(), timetook = (PROPKILL.Config[ "battle_time" ].default * 60) - PROPKILL.ServerBattleTime, proplimit = PROPKILL.BattleProps, battleroneprops = pl:GetNWInt( "props_BattleProps", 0 ), battlertwoprops = pl2:GetNWInt( "props_BattleProps", 0 ), Inviter = pl:Nick(), Invitee = pl2:Nick(), forfeit = true, forfeiter = forfeiter, winner = winner, score = "FF" }
+			PROPKILL.RecentBattles[ #PROPKILL.RecentBattles + 1 ] = { time = os.time(), timetook = (PROPKILL.Config[ "battle_time" ].default * 60) - PROPKILL.ServerBattleTime, proplimit = PROPKILL.BattleProps, battleroneprops = pl:GetNWInt( "props_BattleProps", 0 ), battlertwoprops = pl2:GetNWInt( "props_BattleProps", 0 ), Inviter = pl:Nick(), Invitee = pl2:Nick(), forfeit = true, forfeiter = forfeiter, winner = winner, score = "FF", InviterSteam = pl:SteamID64(), InviteeSteam = pl2:SteamID64() }
 			if winner == pl2:Nick() then
 				pl2:AddFightsWon( 1 )
 				pl:AddFightsLost( 1 )
@@ -210,7 +210,7 @@ function GM:EndBattle( pl, pl2, forfeiter, stopped, winner, score, msg )
 		end
 		
 		if not PROPKILL.BattleFun then
-			PROPKILL.RecentBattles[ #PROPKILL.RecentBattles + 1 ] = { time = os.time(), timetook = (PROPKILL.Config[ "battle_time" ].default * 60) - PROPKILL.ServerBattleTime, proplimit = PROPKILL.BattleProps, battleroneprops = pl:GetNWInt( "props_BattleProps", 0 ), battlertwoprops = pl2:GetNWInt( "props_BattleProps", 0 ), Inviter = pl:Nick(), Invitee = pl2:Nick(), stopped = true, winner = "Nobody", score = "N/A" }
+			PROPKILL.RecentBattles[ #PROPKILL.RecentBattles + 1 ] = { time = os.time(), timetook = (PROPKILL.Config[ "battle_time" ].default * 60) - PROPKILL.ServerBattleTime, proplimit = PROPKILL.BattleProps, battleroneprops = pl:GetNWInt( "props_BattleProps", 0 ), battlertwoprops = pl2:GetNWInt( "props_BattleProps", 0 ), Inviter = pl:Nick(), Invitee = pl2:Nick(), stopped = true, winner = "Nobody", score = "N/A", InviterSteam = pl:SteamID64(), InviteeSteam = pl2:SteamID64() }
 		end
 	elseif winner then
 		for k,v in pairs( player.GetAll() ) do
@@ -218,7 +218,7 @@ function GM:EndBattle( pl, pl2, forfeiter, stopped, winner, score, msg )
 		end
 		
 		if not PROPKILL.BattleFun then
-			PROPKILL.RecentBattles[ #PROPKILL.RecentBattles + 1 ] = { time = os.time(), timetook = (PROPKILL.Config[ "battle_time" ].default * 60) - PROPKILL.ServerBattleTime, proplimit = PROPKILL.BattleProps, battleroneprops = pl:GetNWInt( "props_BattleProps", 0 ), battlertwoprops = pl2:GetNWInt( "props_BattleProps", 0 ), Inviter = pl:Nick(), Invitee = pl2:Nick(), winner = winner, score = score }
+			PROPKILL.RecentBattles[ #PROPKILL.RecentBattles + 1 ] = { time = os.time(), timetook = (PROPKILL.Config[ "battle_time" ].default * 60) - PROPKILL.ServerBattleTime, proplimit = PROPKILL.BattleProps, battleroneprops = pl:GetNWInt( "props_BattleProps", 0 ), battlertwoprops = pl2:GetNWInt( "props_BattleProps", 0 ), Inviter = pl:Nick(), Invitee = pl2:Nick(), winner = winner, score = score, InviterSteam = pl:SteamID64(), InviteeSteam = pl2:SteamID64() }
 			if winner == pl2:Nick() then
 				pl2:AddFightsWon( 1 )
 				pl:AddFightsLost( 1 )

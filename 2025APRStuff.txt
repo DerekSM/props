@@ -1,4 +1,13 @@
 **Changelog
+v1.3:
++ Players can now right click all future battle results to view the steam page of those who battled.
+/ Fixed longshots
+/ Recent battles scores will now stay visible even when the recent battles scrollbar is visible
+/ Fixed default kill limit in battle menu. It now uses the config setting (as intended)
++ Added alternate, toggleable singular scoreboard
++ Added saveable client configuration menu in the F4 Menu.
++ Added ability to change HUD positions in the F4 Menu
+/ Moved Chat sounds option to F4 Menu.
 v1.2.2:
 / Fixed fighting bots on servers without ULX
 / Fixed ending battle error
@@ -26,15 +35,10 @@ v1.2:
 
 **Todo
 Change antinoob's spawn protection system to an editable entity. Will allow for instant prop removal and no more looping through a sphere.
-Let players use alternate scoreboard (i.e a single scoreboard) in f4 menu
-Let players change HUD positions in f4 menu
-Let players change chat sound options in f4 menu
 Cleanup DoPlayerDeath
 I think prop dormancy voting function was messed up? But I don't remember how
 Add another statistic for total battles fought if it doesn't already exist
-Allow right clicking recent battle list to open steam page of the battlers.
 Add config for server owners to let players create their own bot paths
-Fix kill limit default in battle menu? It looks like even if it's changed in the gamemode config it still shows "10"
 
 
 **Notes

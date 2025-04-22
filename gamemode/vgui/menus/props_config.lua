@@ -59,51 +59,51 @@ function PANEL:Init()
 				PROPKILL.Config[ k ].default = pnl:GetChecked()
 			end	
 		elseif v.type == "integer" then
-					self.configCategories[ category ].Panel[ k ].Content = self.configCategories[ category ].Panel[ k ]:Add( "DNumSlider" )
-					--self.configCategories[ category ].Panel[ k ].Content:SetPos( 195, 15 )
-					--self.configCategories[ category ].Panel[ k ].Content:SetWide( 300 )
-					--self.configCategories[ category ].Panel[ k ].Content:SetText( v.Name )
-					self.configCategories[ category ].Panel[ k ].Content:SetPos( 135, 15 )
-					self.configCategories[ category ].Panel[ k ].Content:SetWide( 400 )
-					self.configCategories[ category ].Panel[ k ].Content:SetMin( v.min or 1 )
-					self.configCategories[ category ].Panel[ k ].Content:SetMax( v.max or 50 )
-					self.configCategories[ category ].Panel[ k ].Content:SetDecimals( v.decimals or 0 )
-					self.configCategories[ category ].Panel[ k ].Content.Scratch:SetDecimals( v.decimals or 0 )
-					self.configCategories[ category ].Panel[ k ].Content:SetValue( v.default )
-					--self.configCategories[ category ].Panel[ k ].Content.Label:Remove()
-					self.configCategories[ category ].Panel[ k ].Content.Slider:SetSlideX( v.default / ( v.max or 50 ) )
-					self.configCategories[ category ].Panel[ k ].Content.Slider.OnMouseReleased = function( pnl )
-						pnl:SetDragging( false )
-						pnl:MouseCapture( false )
-						
-						RunConsoleCommand( "props_changesetting", k, math.Round( self.configCategories[ category ].Panel[ k ].Content:GetValue(), v.decimals or 0 ) )
-						PROPKILL.Config[ k ].default = math.Round( self.configCategories[ category ].Panel[ k ].Content:GetValue(), v.decimals or 0 )
-					end
-					self.configCategories[ category ].Panel[ k ].Content.Slider.Knob.OnMouseReleased = function( pnl, mousecode )
-						RunConsoleCommand( "props_changesetting", k, math.Round( self.configCategories[ category ].Panel[ k ].Content:GetValue(), v.decimals or 0 ) )
-						PROPKILL.Config[ k ].default = math.Round( self.configCategories[ category ].Panel[ k ].Content:GetValue(), v.decimals or 0 )
-						
-						return DLabel.OnMouseReleased( pnl, mousecode )
-					end
-					self.configCategories[ category ].Panel[ k ].Content.TextArea.OnEnter = function( pnl )
-						RunConsoleCommand( "props_changesetting", k, math.Round( pnl:GetValue(), v.decimals or 0 ) )
-						PROPKILL.Config[ k ].default = math.Round( self.configCategories[ category ].Panel[ k ].Content:GetValue(), v.decimals or 0 )
-					end
-					--print( self.configCategories[ category ].Panel[ k ].Content.Scratch and "scratch found" or "no scratch" )
-					self.configCategories[ category ].Panel[ k ].Content.PerformLayout = function( pnl )
-						--pnl.Label:SetWide( pnl:GetWide() / 2.4 )
-					end
-				elseif v.type == "button" then
-					self.configCategories[ category ].Panel[ k ].Content = self.configCategories[ category ].Panel[ k ]:Add( "DButton" )
-					self.configCategories[ category ].Panel[ k ].Content:SetPos( 200 + 3, 30 )
-					self.configCategories[ category ].Panel[ k ].Content:SetWide( 300 )
-					self.configCategories[ category ].Panel[ k ].Content:SetTall( 20 )
-					self.configCategories[ category ].Panel[ k ].Content:SetText( v.Name )
-					self.configCategories[ category ].Panel[ k ].Content.DoClick = function( pnl )
-						RunConsoleCommand( "props_changesetting", k )
-					end
-					
-				end
+			self.configCategories[ category ].Panel[ k ].Content = self.configCategories[ category ].Panel[ k ]:Add( "DNumSlider" )
+			--self.configCategories[ category ].Panel[ k ].Content:SetPos( 195, 15 )
+			--self.configCategories[ category ].Panel[ k ].Content:SetWide( 300 )
+			--self.configCategories[ category ].Panel[ k ].Content:SetText( v.Name )
+			self.configCategories[ category ].Panel[ k ].Content:SetPos( 135, 15 )
+			self.configCategories[ category ].Panel[ k ].Content:SetWide( 400 )
+			self.configCategories[ category ].Panel[ k ].Content:SetMin( v.min or 1 )
+			self.configCategories[ category ].Panel[ k ].Content:SetMax( v.max or 50 )
+			self.configCategories[ category ].Panel[ k ].Content:SetDecimals( v.decimals or 0 )
+			self.configCategories[ category ].Panel[ k ].Content.Scratch:SetDecimals( v.decimals or 0 )
+			self.configCategories[ category ].Panel[ k ].Content:SetValue( v.default )
+			--self.configCategories[ category ].Panel[ k ].Content.Label:Remove()
+			self.configCategories[ category ].Panel[ k ].Content.Slider:SetSlideX( v.default / ( v.max or 50 ) )
+			self.configCategories[ category ].Panel[ k ].Content.Slider.OnMouseReleased = function( pnl )
+				pnl:SetDragging( false )
+				pnl:MouseCapture( false )
+
+				RunConsoleCommand( "props_changesetting", k, math.Round( self.configCategories[ category ].Panel[ k ].Content:GetValue(), v.decimals or 0 ) )
+				PROPKILL.Config[ k ].default = math.Round( self.configCategories[ category ].Panel[ k ].Content:GetValue(), v.decimals or 0 )
+			end
+			self.configCategories[ category ].Panel[ k ].Content.Slider.Knob.OnMouseReleased = function( pnl, mousecode )
+				RunConsoleCommand( "props_changesetting", k, math.Round( self.configCategories[ category ].Panel[ k ].Content:GetValue(), v.decimals or 0 ) )
+				PROPKILL.Config[ k ].default = math.Round( self.configCategories[ category ].Panel[ k ].Content:GetValue(), v.decimals or 0 )
+
+				return DLabel.OnMouseReleased( pnl, mousecode )
+			end
+			self.configCategories[ category ].Panel[ k ].Content.TextArea.OnEnter = function( pnl )
+				RunConsoleCommand( "props_changesetting", k, math.Round( pnl:GetValue(), v.decimals or 0 ) )
+				PROPKILL.Config[ k ].default = math.Round( self.configCategories[ category ].Panel[ k ].Content:GetValue(), v.decimals or 0 )
+			end
+			--print( self.configCategories[ category ].Panel[ k ].Content.Scratch and "scratch found" or "no scratch" )
+			self.configCategories[ category ].Panel[ k ].Content.PerformLayout = function( pnl )
+				--pnl.Label:SetWide( pnl:GetWide() / 2.4 )
+			end
+		elseif v.type == "button" then
+			self.configCategories[ category ].Panel[ k ].Content = self.configCategories[ category ].Panel[ k ]:Add( "DButton" )
+			self.configCategories[ category ].Panel[ k ].Content:SetPos( 200 + 3, 30 )
+			self.configCategories[ category ].Panel[ k ].Content:SetWide( 300 )
+			self.configCategories[ category ].Panel[ k ].Content:SetTall( 20 )
+			self.configCategories[ category ].Panel[ k ].Content:SetText( v.Name )
+			self.configCategories[ category ].Panel[ k ].Content.DoClick = function( pnl )
+				RunConsoleCommand( "props_changesetting", k )
+			end
+
+		end
 	end
 
 	for k,v in SortedPairs( PROPKILL.Config ) do

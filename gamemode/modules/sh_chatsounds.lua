@@ -11,8 +11,17 @@
 
 if CLIENT then
 	
-	CreateClientConVar( "props_PlayChatSounds", "1", true, true )
-	local chatsounds = GetConVar( "props_PlayChatSounds" )
+	--CreateClientConVar( "props_PlayChatSounds", "1", true, true )
+	--local chatsounds = GetConVar( "props_PlayChatSounds" )
+	AddClientConfigItem( "props_PlayChatSounds",
+		{
+		Name = "Play Chat Sounds",
+		--Category = "Player Management",
+		default = true,
+		type = "boolean",
+		desc = "Occasionally play trigger word chat sounds",
+		}
+	)
 
 	-- Can find more here: https://wiki.facepunch.com/gmod/HL2_Sound_List
 	local ChatSoundsList =
@@ -48,7 +57,8 @@ if CLIENT then
 	local sound_delay = CurTime()
 	
 	hook.Add( "OnPlayerChat", "fdsf", function( pl, txt, team )
-		if chatsounds:GetString() != "1" then return end
+		--if chatsounds:GetString() != "1" then return end
+		if not PROPKILL.ClientConfig["props_PlayChatSounds"].currentvalue then return end
 		if sound_delay > CurTime() then return end
 		if math.random( 1, 4 ) == 2 or math.random( 1, 6 ) == 3 then return end
 		if not ChatSoundsList[txt:lower()] then return end
@@ -68,7 +78,8 @@ if CLIENT then
 elseif SERVER then
 	
 	local function notifyChatSounds( pl )
-		pl:ChatPrint( "Turn off chatsounds by typing props_PlayChatSounds 0 in console" )
+		--pl:ChatPrint( "Turn off chatsounds by typing props_PlayChatSounds 0 in console" )
+		pl:ChatPrint( "Turn off chatsounds by using the Client Config in the F4 menu" )
 	end
 	
 	timer.Create( "props_AnnounceChatSoundToggle", 240, 0, function()

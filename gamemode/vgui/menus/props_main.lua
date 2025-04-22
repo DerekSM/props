@@ -7,6 +7,7 @@ include( "props_newbattle.lua" )
 include( "props_topprops.lua" )
 include( "props_stats.lua" )
 include( "props_topprops_new.lua" )
+include( "props_clientconfig.lua" )
 
 -- 1440 x 900
 
@@ -52,6 +53,9 @@ function PANEL:Init()
 	if canAccessConfig then
 		configPanel = vgui.Create( "props_ConfigMenu", propSheets )
 	end
+
+	local clientConfigPanel = vgui.Create( "props_ClientConfigMenu", propSheets )
+
 	
 	local propSheetTeams = propSheets:AddSheet( "Team Selection", teamsPanel, "icon16/sport_football.png", false, false, "Join a team" )
 	--local propSheetProps = propSheets:AddSheet( "Top Props", propsPanel, "icon16/car.png", false, false, "View top list of props spawned" )
@@ -63,6 +67,8 @@ function PANEL:Init()
 	if canAccessConfig then
 		local propSheetConfig = propSheets:AddSheet( "Gamemode Config", configPanel, "icon16/cog.png", false, false, "Change gamemode settings" )
 	end
+
+	local propSheetClientConfig = propSheets:AddSheet( "Client Config", clientConfigPanel, "icon16/vcard_edit.png", false, false, "Change client gamemode-specific settings" )
 	
 end
 

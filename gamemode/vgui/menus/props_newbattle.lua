@@ -108,7 +108,7 @@ function PANEL:Init()
 	self.LeftPanel.FragLimitPanel.Wang:SetWide( 70 )
 	self.LeftPanel.FragLimitPanel.Wang:SetTall( 18 )
 	self.LeftPanel.FragLimitPanel.Wang:SetPos( self.LeftPanel.FragLimitPanel:GetWide() - self.LeftPanel.FragLimitPanel.Wang:GetWide(), 0 )
-	self.LeftPanel.FragLimitPanel.Wang:SetValue( 10 )
+	self.LeftPanel.FragLimitPanel.Wang:SetValue( PROPKILL.Config[ "battle_defaultkills" ].default )
 	self.LeftPanel.FragLimitPanel.Wang:SetMin( PROPKILL.Config[ "battle_minkills" ].default )
 	self.LeftPanel.FragLimitPanel.Wang:SetMax( PROPKILL.Config[ "battle_maxkills" ].default )
 	self.LeftPanel.FragLimitPanel.Wang:SetDecimals( 0 )
@@ -310,9 +310,40 @@ function PANEL:Init()
 	self.RightPanel.RecentContentPanel:SetSpacing( 5 )
 	self.RightPanel.RecentContentPanel:EnableHorizontal( false )
 	self.RightPanel.RecentContentPanel:EnableVerticalScrollbar( true )
-	self.RightPanel.RecentContentPanel.Paint = function( self, w, h )
+	self.RightPanel.RecentContentPanel.Paint = function( self2, w, h )
 		draw.RoundedBox( 0, 0, 0, w, h, Color( 200, 200, 200, 255 ) )
 	end
+		-- Most likely shitty way of calling all scores to be repositioned when scrollbar appears.
+		-- The way I was trying to do it seemed elegant but only caused the first score panel to reposition.
+	self.RightPanel.RecentContentPanel.ScorePanels = {}
+		-- Will be called when it becomes visible AND unvisible, so we need to check manually.
+	self.RightPanel.RecentContentPanel.OnScrollbarAppear = function( pnl )
+			-- This function gets called when everything is being set up.
+			-- I.e it's a dummy first call. So we ignore it.
+		if not pnl.ShownFirstDummyScrollbar then
+			pnl.ShownFirstDummyScrollbar = true
+			return
+		end
+		--print("Scrollbar changed fucntion")
+		--pnl.ScrollbarChanged = true
+
+		for k,panels in next, pnl.ScorePanels do
+			local VerticalScrollbar = pnl.VBar
+			if VerticalScrollbar:IsVisible() then
+				--print("Scrollbar active. Changing position.")
+				local ScrollbarWidth  = VerticalScrollbar:GetSize()
+				panels.OldPanelPosX,panels.OldPanelPosY = panels:GetPos()
+				panels:SetPos(
+					panels.OldPanelPosX - ScrollbarWidth,
+					panels.OldPanelPosY
+				)
+			else
+				--print("Scrollbar inactive. Resetting position.")
+				panels:SetPos( panels.OldPanelPosX, panels.OldPanelPosY )
+			end
+		end
+	end
+
 	
 	local contentpanelpos_x, contentpanelpos_y = self.RightPanel.RecentContentPanel:GetPos()
 	
@@ -406,7 +437,31 @@ function PANEL:Init()
 				self.RightPanel.RecentContentPanel:InsertAfter( self.RightPanel.RecentContentPanel[ "recent" .. k ] , self.RightPanel.RecentContentPanel[ "recent" .. k .. "button" ].ContentInfo )
 			end
 		end
-		
+		self.RightPanel.RecentContentPanel[ "recent" .. k .. "button" ].DoRightClick = function( self2 )
+			if not v.InviterSteam or not v.InviteeSteam then return end
+
+			local menu = DermaMenu( self2 )
+
+			local InviterURL = menu:AddOption( "Open page of " .. v.Inviter, function() gui.OpenURL("https://steamcommunity.com/profiles/" .. v.InviterSteam) end )
+			InviterURL:SetIcon( "icon16/world_link.png" )
+			local InviteeURL = menu:AddOption( "Open page of " .. v.Invitee, function() gui.OpenURL("https://steamcommunity.com/profiles/" .. v.InviteeSteam) end )
+			InviteeURL:SetIcon( "icon16/world_link.png" )
+
+			menu:AddSpacer()
+			menu:AddOption( "Close" )
+
+			menu:Open()
+
+			menu.Think = function()
+				if not IsValid( self2 ) then
+					menu:Hide()
+					if IsValid( menu ) then
+						menu:Remove()
+					end
+				end
+			end
+		end
+
 		
 		self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentNames = self.RightPanel.RecentContentPanel[ "recent" .. k ]:Add( "DLabel" )
 		self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentNames:SetText( v.Names )
@@ -432,7 +487,34 @@ function PANEL:Init()
 		local contentscoresize_w, contentscoresize_h = surface.GetTextSize( v.score )
 		self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentScore:SetSize( contentscoresize_w, contentscoresize_h )
 		--self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentScore:SetPos( (10 + columnnamesize_w) + 90 + columnwinnersize_w + columnscoresize_w + 113, self.RightPanel.RecentContentPanel[ "recent" .. k ]:GetTall() / 2 - contentscoresize_h / 2 ) 
-		self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentScore:SetPos( self.RightPanel.RecentContentPanel[ "recent" .. k ]:GetWide() - (contentscoresize_w - 2), self.RightPanel.RecentContentPanel[ "recent" .. k ]:GetTall() / 2 - contentscoresize_h / 2 ) 
+		self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentScore:SetPos(
+			self.RightPanel.RecentContentPanel[ "recent" .. k ]:GetWide() - (contentscoresize_w - 2),
+			self.RightPanel.RecentContentPanel[ "recent" .. k ]:GetTall() / 2 - contentscoresize_h / 2
+		)
+
+		--[[self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentScore.Think = function( pnl )
+			-- No need to constantly set position.
+			if not self.RightPanel.RecentContentPanel.ScrollbarChanged then return end
+
+			local VerticalScrollbar = self.RightPanel.RecentContentPanel.VBar
+			if VerticalScrollbar:IsVisible() then
+				--print("Scrollbar active. Changing position.")
+				local ScrollbarWidth  = VerticalScrollbar:GetSize()
+				pnl.OldPanelPosX,pnl.OldPanelPosY = pnl:GetPos()
+				pnl:SetPos(
+					pnl.OldPanelPosX - ScrollbarWidth,
+					pnl.OldPanelPosY
+				)
+			else
+				--print("Scrollbar inactive. Resetting position.")
+				pnl:SetPos( pnl.OldPanelPosX, pnl.OldPanelPosY )
+			end
+
+			self.RightPanel.RecentContentPanel.ScrollbarChanged = false
+		end]]
+		-- Added to a table to be called to reposition when scrollbar appears/disappears
+		self.RightPanel.RecentContentPanel.ScorePanels[#self.RightPanel.RecentContentPanel.ScorePanels + 1] = self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentScore
+
 		
 		self.RightPanel.RecentContentPanel:AddItem( self.RightPanel.RecentContentPanel[ "recent" .. k ] )
 	
