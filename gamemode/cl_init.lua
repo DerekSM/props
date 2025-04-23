@@ -33,7 +33,7 @@ local function LoadModules()
 	end
 end
 
-PROPKILL.ClientConfig = {}
+PROPKILL.ClientConfig = PROPKILL.ClientConfig or {}
 function AddClientConfigItem( id, tbl )
 	if not id then return end
 	if not tbl then return end
@@ -59,6 +59,7 @@ end
 function ChangeClientConfigValue( id, value )
 	PROPKILL.ClientConfig[ id ].currentvalue = value
 	cookie.Set( id, tostring(value) )
+	hook.Run("Props_ClientConfigChanged", id, value)
 end
 
 

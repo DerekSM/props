@@ -12,7 +12,7 @@
 
 hook.Add( "Initialize", "startremoval", function()
 	timer.Create( "RemoveClientsidePhysProp", 300, 0, function()
-		for k,v in pairs( ents.GetAll() ) do
+		for k,v in next, ents.GetAll() do
 				-- did u know: the class is different on mac and windows!
 			if string.find( v:GetClass(), "PhysPropClientside" ) then
 				v:Remove()

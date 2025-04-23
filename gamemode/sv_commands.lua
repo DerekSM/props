@@ -122,6 +122,10 @@ local function props_JoinTeam( pl, cmd, arg )
 	
 	pl:SetTeam( teamid )
 	pl:Spawn()
+
+	if pl:Team() == TEAM_SPECTATOR then
+		pl:SetKillstreak( 0 )
+	end
 end
 concommand.Add( "props_changeteam", props_JoinTeam )
 	

@@ -58,6 +58,7 @@ util.AddNetworkString( "props_SendRecentBattles" )
 util.AddNetworkString( "props_StopResumeBattle" )
 util.AddNetworkString( "props_FightResults" )
 util.AddNetworkString( "props_PlaySoundURL" )
+util.AddNetworkString( "props_AnnounceNewKillstreak" )
 --util.AddNetworkString( "props_RequestGamemodeConfigSync" )
 --util.AddNetworkString( "props_SendGamemodeConfigSync" )
 

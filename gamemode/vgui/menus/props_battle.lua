@@ -1,5 +1,7 @@
 local PANEL = {}
 
+local draw = draw
+
 function PANEL:Init()
 	self:SetPos( 20, 20 )
 	self:SetSize( self:GetParent():GetWide() - 40, self:GetParent():GetTall() - 40 )

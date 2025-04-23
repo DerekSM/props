@@ -1,7 +1,7 @@
 if not props_antinoobdetectionRadius then print( "SV_ANTINOOB NOT LOADING." ) return end
 
 -- check an even bigger distance for props staying in an area for a long period of time, also increase big props to be blacklisted.
-
+local ents = ents
 
 --[[util.AddNetworkString( "plspawns" )
 local aids = true
@@ -19,7 +19,7 @@ end]]
 local props_playerSpawns = {}
 
 local function AddPlayerSpawn()
-	for k,v in pairs( ents.GetAll() ) do
+	for k,v in next, ents.GetAll() do
 		
 		if v:GetClass() == "info_player_start" then
 			props_playerSpawns[ #props_playerSpawns + 1 ] = v
@@ -44,7 +44,7 @@ hook.Add( "PlayerInitialSpawn", "props_RegisterWhitelist", function( pl )
 	end
 end )
 
-timer.Create( "props_antiNoob", 0.96--[[1.36]], 0, function()
+timer.Create( "props_antiNoob", 0.9--[[1.36]], 0, function()
 	if not PROPKILL.Config[ "spawnprotection" ].default then return end
 	if PROPKILL.Battling then return end
 	

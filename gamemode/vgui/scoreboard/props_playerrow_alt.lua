@@ -5,6 +5,9 @@
 --
 local PANEL = {}
 
+local draw = draw
+local surface = surface
+
 function PANEL:Init()
 
 	self.AvatarButton = self:Add( "DButton" )

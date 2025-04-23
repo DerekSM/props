@@ -1,4 +1,10 @@
 **Changelog
+v1.3.1:
+/ Fixed autorefresh breaking gamemode
+/ More optimizations. Most are clientside, hopefully giving more FPS to players.
+/ Players with a killstreak joining spectator team will have their killstreak reset now.
+/ The "Prop owner" HUD will be slightly more responsive
+/ Miscellaneous fixes
 v1.3:
 + Players can now right click all future battle results to view the steam page of those who battled.
 / Fixed longshots

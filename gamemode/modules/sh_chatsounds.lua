@@ -57,7 +57,6 @@ if CLIENT then
 	local sound_delay = CurTime()
 	
 	hook.Add( "OnPlayerChat", "fdsf", function( pl, txt, team )
-		--if chatsounds:GetString() != "1" then return end
 		if not PROPKILL.ClientConfig["props_PlayChatSounds"].currentvalue then return end
 		if sound_delay > CurTime() then return end
 		if math.random( 1, 4 ) == 2 or math.random( 1, 6 ) == 3 then return end
@@ -83,7 +82,7 @@ elseif SERVER then
 	end
 	
 	timer.Create( "props_AnnounceChatSoundToggle", 240, 0, function()
-		for k,v in pairs( player.GetAll() ) do
+		for k,v in next, player.GetAll() do
 			notifyChatSounds( v )
 		end
 	end )

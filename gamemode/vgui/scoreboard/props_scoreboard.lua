@@ -11,6 +11,9 @@
 
 local PANEL = {}
 
+local draw = draw
+local surface = surface
+
 hook.Add( "Initialize", "props_RegisterScoreboardArrow", function()
 	timer.Simple(3, function()
 		LocalPlayer().ScoreboardArrow = 1

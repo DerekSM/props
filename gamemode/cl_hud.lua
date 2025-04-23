@@ -10,6 +10,8 @@
 ]]--
 
 local _R = debug.getregistry()
+local surface = surface
+local draw = draw
 
 	-- CREDITS: blackawps
 local matBlurScreen = Material( "pp/blurscreen" )
@@ -165,44 +167,70 @@ local function CreateHUD( b_noMotd )
 		draw.RoundedBox( 0, 0, 0, w, h, Color( 27, 26, 26, 235 ) )
 		self:DrawBackgroundBlur( 4 )
 	end
-	VGUI_BASECONTENT.Think = function( pnl )
-		pnl:SetPos( PROPKILL.ClientConfig["props_BaseHUDX"].currentvalue, PROPKILL.ClientConfig["props_BaseHUDY"].currentvalue )
+	VGUI_BASECONTENT.OldSetPos = VGUI_BASECONTENT.SetPos
+	VGUI_BASECONTENT.SetPos = function( pnl, x, y )
+		VGUI_BASECONTENT.OldSetPos( pnl, x, y )
+
+		hook.Run("props_BaseContentPositionChanged", pnl, x, y )
 	end
+	hook.Add("Props_ClientConfigChanged", "ChangeBaseContentPositioning", function( id, value )
+		VGUI_BASECONTENT:SetPos( PROPKILL.ClientConfig["props_BaseHUDX"].currentvalue, PROPKILL.ClientConfig["props_BaseHUDY"].currentvalue )
+	end )
+	--[[VGUI_BASECONTENT.Think = function( pnl )
+		print("Change base content position")
+		pnl:SetPos( PROPKILL.ClientConfig["props_BaseHUDX"].currentvalue, PROPKILL.ClientConfig["props_BaseHUDY"].currentvalue )
+	end]]
 	
 	local basesizew, basesizeh = VGUI_BASECONTENT:GetSize()
 	
 	surface.SetFont( "props_HUDTextSmall" )
 	local leader = props_GetLeader()
-	local textsizew, textsizeh = surface.GetTextSize( "Leader: Shinycow ( 0 )" )
+	local LeaderText = ""
+	if IsValid( leader ) then
+		LeaderText = "Leader: " .. leader:Nick() .. " ( " .. leader:GetKillstreak() .. " )"
+	else
+		LeaderText = "No Leader"
+	end
+	local textsizew, textsizeh = surface.GetTextSize( LeaderText )
 	VGUI_LEADER = vgui.Create( "DLabel" )
 	VGUI_LEADER:SetParent( VGUI_BASECONTENT )
-	--VGUI_LEADER:SetPos( 40, 3 )
-	VGUI_LEADER:SetPos( 40, 3 )
 	VGUI_LEADER:SetSize( basesizew, textsizeh )
-	if IsValid( leader ) then
-		VGUI_LEADER:SetText( "Leader: " .. leader:Nick() .. " ( " .. leader:GetKillstreak() .. " )" )
-	else
-		VGUI_LEADER:SetText( "Leader: ( 0 ) " )
-	end
+	VGUI_LEADER:SetText( LeaderText )
+	VGUI_LEADER:SetPos( VGUI_LEADER:GetWide()/2 - textsizew/2, 3 )
 	VGUI_LEADER:SetFont( "props_HUDTextSmall" )
 	--VGUI_LEADER:SetTextColor( Color( 200, 200, 200, 255 ) )
 	--VGUI_LEADER:SetTextColor( Color( 127, 125, 125, 255 ) )
 	VGUI_LEADER:SetTextColor( Color( 230, 230, 230, 255 ) )
 	VGUI_LEADER.Think = function( self )
-		local leader = props_GetLeader()
+		--[[local leader = props_GetLeader()
 		local textsizew, textsizeh = nil, nil
 		local sizew, sizeh = self:GetSize()
 		
-		local leader = props_GetLeader()
 		if IsValid( leader ) then
-			textsizew, textsizeh = surface.GetTextSize( "Leader: " .. FixLongName( leader:Nick(), 17 ) .. " ( " .. leader:GetKillstreak() .. " )" )
-			VGUI_LEADER:SetText( "Leader: " .. FixLongName( leader:Nick(), 17 ) .. " ( " .. leader:GetKillstreak() .. " )" )
+			local LeaderString = table.FastConcat(" ", "Leader:", FixLongName( leader:Nick(), 17 ), "(", leader:GetKillstreak(), ")" )
+			textsizew, textsizeh = surface.GetTextSize( LeaderString )
+			VGUI_LEADER:SetText( LeaderString )
 		else
 			textsizew, textsizeh = surface.GetTextSize( "Leader: ( 0 )" )
 			VGUI_LEADER:SetText( "Leader: ( 0 )" )
 		end
-		self:SetPos( sizew/2 - textsizew/2, 3 )
+		self:SetPos( sizew/2 - textsizew/2, 3 )]]
 	end
+	hook.Add( "OnNewLeaderFound", "ChangeLeaderText", function( leader )
+		--local leader = props_GetLeader()
+		local textsizew, textsizeh = nil, nil
+		local sizew, sizeh = VGUI_LEADER:GetSize()
+
+		if IsValid( leader ) and leader:GetKillstreak() > 0 then
+			local LeaderString = table.FastConcat(" ", "Leader:", FixLongName( leader:Nick(), 17 ), "(", leader:GetKillstreak(), ")" )
+			textsizew, textsizeh = surface.GetTextSize( LeaderString )
+			VGUI_LEADER:SetText( LeaderString )
+		else
+			textsizew, textsizeh = surface.GetTextSize( "No Leader" )
+			VGUI_LEADER:SetText( "No Leader" )
+		end
+		VGUI_LEADER:SetPos( sizew/2 - textsizew/2, 3 )
+	end )
 	
 	local previoussizew, previoussizeh = VGUI_LEADER:GetSize()
 	local previousposx, previousposy = VGUI_LEADER:GetPos()
@@ -224,12 +252,14 @@ local function CreateHUD( b_noMotd )
 		VGUI_KILLSTREAK:SetBarValue( 1 )
 	end
 	VGUI_KILLSTREAK.PaintOver = function( self, w, h )
-		surface.SetFont( "props_HUDTextSmall" )
 		propsPlayer = IsValid(LocalPlayer():GetObserverTarget()) and LocalPlayer():GetObserverTarget() or LocalPlayer()
 		if not propsPlayer.GetKillstreak then print("hmm") return end
-		local size_w, size_h = surface.GetTextSize( "Killstreak: " .. propsPlayer:GetKillstreak() .. " / " .. propsPlayer:GetBestKillstreak() )
+		surface.SetFont( "props_HUDTextSmall" )
 
-		draw.SimpleText( "Killstreak: " .. propsPlayer:GetKillstreak() .. " / " .. propsPlayer:GetBestKillstreak(), "props_HUDTextSmall", w / 10, h/2 - size_h/2, Color( 230, 230, 230, 255 ) )
+		local KillstreakString = table.FastConcat( " ", "Killstreak:", propsPlayer:GetKillstreak(), "/", propsPlayer:GetBestKillstreak() )
+		local size_w, size_h = surface.GetTextSize( KillstreakString )
+
+		draw.SimpleText( KillstreakString, "props_HUDTextSmall", w / 10, h/2 - size_h/2, Color( 230, 230, 230, 255 ) )
 		self:SetBarValue( propsPlayer:GetKillstreak() / propsPlayer:GetBestKillstreak() )
 	end
 	
@@ -254,9 +284,11 @@ local function CreateHUD( b_noMotd )
 	VGUI_KD.PaintOver = function( self, w, h )
 		if not propsPlayer.GetKD then return end
 		surface.SetFont( "props_HUDTextSmall" )
-		local size_w, size_h = surface.GetTextSize( "KD Ratio: " .. propsPlayer:GetKD() )
 
-		draw.SimpleText( "KD Ratio: " .. propsPlayer:GetKD(), "props_HUDTextSmall", w / 10, h/2 - size_h/2, Color( 230, 230, 230, 255 ) )
+		local KDRatioString = table.FastConcat( " ", "KD Ratio:", propsPlayer:GetKD() )
+		local size_w, size_h = surface.GetTextSize( KDRatioString )
+
+		draw.SimpleText( KDRatioString, "props_HUDTextSmall", w / 10, h/2 - size_h/2, Color( 230, 230, 230, 255 ) )
 		self:SetBarValue( propsPlayer:GetKD() )
 	end
 	
@@ -274,16 +306,18 @@ local function CreateHUD( b_noMotd )
 	VGUI_PROPPANEL:SetKeyboardInputEnabled( true )
 	VGUI_PROPPANEL:ParentToHUD()
 	VGUI_PROPPANEL.Paint = function( self, w, h )
-		--draw.RoundedBox( 0, 0, 0, w, h, Color( 31, 31, 31, 235  ) )
 		if not propsPlayer.LookingAtProp or not IsValid( propsPlayer.LookingAtProp ) then
 			return
 		end
 		draw.RoundedBox( 0, 0, 0, w, h, Color( 47, 46, 46, 235 ) )
 	end
 	VGUI_PROPPANEL.Think = function( pnl )
-		local basecontentpos_x, basecontentpos_y = VGUI_BASECONTENT:GetPos()
-		pnl:SetPos( basecontentpos_x + 40, basecontentpos_y - VGUI_PROPPANEL:GetTall() + 1 )
+		--local basecontentpos_x, basecontentpos_y = VGUI_BASECONTENT:GetPos()
+		--pnl:SetPos( basecontentpos_x + 40, basecontentpos_y - VGUI_PROPPANEL:GetTall() + 1 )
 	end
+	hook.Add("props_BaseContentPositionChanged", "ChangePropPanelPositioning", function( basepnl, x, y )
+		VGUI_PROPPANEL:SetPos( x + 40, y - VGUI_PROPPANEL:GetTall() + 1 )
+	end )
 	
 	VGUI_PROPOWNER = vgui.Create( "DLabel" )
 	VGUI_PROPOWNER:SetParent( VGUI_PROPPANEL )
@@ -292,7 +326,8 @@ local function CreateHUD( b_noMotd )
 	VGUI_PROPOWNER:SetFont( "props_HUDTextSmall" )
 	surface.SetFont( "props_HUDTextSmall" )
 	local ownersize_w, ownersize_h = surface.GetTextSize( "Owner: Shinycow" )
-	VGUI_PROPOWNER:SetPos( VGUI_PROPPANEL:GetWide() / 2 - ownersize_w / 2, VGUI_PROPPANEL:GetTall() / 2 - ownersize_h / 2 )
+	local PropPanelSizeW, PropPanelSizeH = VGUI_PROPPANEL:GetSize()
+	VGUI_PROPOWNER:SetPos( PropPanelSizeW / 2 - ownersize_w / 2, PropPanelSizeH / 2 - ownersize_h / 2 )
 	VGUI_PROPOWNER:SetSize( ownersize_w, ownersize_h )
 	VGUI_PROPOWNER.Think = function( self )
 		if not propsPlayer.LookingAtProp or not IsValid( propsPlayer.LookingAtProp ) then
@@ -312,7 +347,7 @@ local function CreateHUD( b_noMotd )
 		local ownersize_w, ownersize_h = surface.GetTextSize( owner_text )
 		
 		self:SetText( owner_text )
-		self:SetPos( VGUI_PROPPANEL:GetWide() / 2 - ownersize_w / 2, VGUI_PROPPANEL:GetTall() / 2 - ownersize_h / 2 ) 
+		self:SetPos( PropPanelSizeW / 2 - ownersize_w / 2, PropPanelSizeH / 2 - ownersize_h / 2 )
 		self:SetSize( ownersize_w, ownersize_h )
 	end
 
@@ -350,18 +385,9 @@ local function CreateIntroHUD()
 	VGUI_introBackground.Paint = function( self, w, h )
 		if startFading then 
 			alphaCalc = math.Approach( alphaCalc, 0, (245 / timeToFade) * FrameTime())
-				-- i cant do maths
-			--alphaCalc = math.Approach( alphaCalc, 0, Lerp( (240 / timeToFade ) * FrameTime(), 1, 0 ) )
-			--print( alphaCalc )
 		end
 		
 		draw.RoundedBox( 0, 0, 0, w, h, Color( 50, 50, 50, alphaCalc ) )
-
-		--[[if alphaCalc == 0 and timetaken2 == 0 then
-			timetaken2 = SysTime()
-			
-			LocalPlayer():ChatPrint( "took " .. timetaken2 - timetaken .. " seconds" )
-		end	]]
 	end
 	
 	surface.SetFont( "props_HUDTextHuge" )
@@ -394,12 +420,6 @@ local function CreateIntroHUD()
 	timer.Create( "CreatePropkillHUD", 1, 0, function()
 		CreatePropkillHUD()
 	end )
-	--[[timer.Create( "CreatePropkillHUD", timeToFade + startFadeTime + 0.2 , 3, function()
-		if alphaCalc == 0 and IsValid( VGUI_introBackground ) then
-			CreateHUD()
-			timer.Destroy( "CreatePropkillHUD" )
-		end
-	end )]]
 end
 
 function props_ShowBattlingHUD()
@@ -497,15 +517,6 @@ function props_ShowBattlingHUD()
 	VGUI_CountdownText:SetText( "Time Remaining" )
 	VGUI_CountdownText:SetSize( VGUI_CountdownText.Sizew, VGUI_CountdownText.Sizeh )
 	VGUI_CountdownText:SetPos( VGUI_CountdownPanel:GetWide() / 2 - VGUI_CountdownText.Sizew / 2 + 5, -2 )
-	--[[VGUI_CountdownText.Think = function()
-		if VGUI_Countdowntext:GetText() != "Time Remaining" and not PROPKILL.BattlePaused then
-			surface.SetFont( "props_HUDTextLarge" )
-			VGUI_CountdownText.Sizew, VGUI_CountdownText.Sizeh = surface.GetTextSize( "Time Remaining" )
-			VGUI_CountdownText:SetFont( "props_HUDTextLarge" )
-			
-			VGUI_CountdownText:SetSize( VGUI_CountdownText.Sizew, VGUI_CountdownText.Sizeh )
-			VGUI_CountdownText:SetPos( VGUI_CountdownPanel:GetWide() / 2 - VGUI_CountdownText.Sizew / 2 + 5, -2 )
-		else]]
 			
 	
 	VGUI_CountdownTimer = vgui.Create( "DLabel" )
@@ -533,14 +544,11 @@ function props_HideBattlingHUD()
 end
 
 hook.Add( "OnReloaded", "props_RedrawHUD", function()
-	--CreateIntroHUD()
 	CreateHUD( true )
 end )
 
 hook.Add( "Initialize", "props_DrawHUD", function()
 	timer.Simple( 1, function()
 		CreateIntroHUD()
-	
-		--CreateHUD()
 	end )
 end )

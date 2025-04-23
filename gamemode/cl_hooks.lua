@@ -9,6 +9,11 @@
 		Hooks created for this gamemode
 ]]--
 
+local table = table
+local surface = surface
+local draw = draw
+local string = string
+
 --[[
 
 *
@@ -24,8 +29,8 @@ net.Receive( "props_NetworkPlayerKill", function()
 	local killer = net.ReadEntity()
 		-- smash / longshot / flyby
 	local kill_type = net.ReadString()
-	
-	hook.Call( "OnPlayerKilled", nil, dead, killer, kill_type )
+
+	hook.Run( "OnPlayerKilled", dead, killer, kill_type )
 end )
 
 --[[
@@ -45,10 +50,13 @@ end )
 ]]--
 
 function GM:OnPlayerKilled( dead, killer, kill_type )
-	if dead != killer then
+	-- Commented out because this function was never called when we used hook.Call
+	-- So if the gamemode worked before when this was never called, then let's remove it and not risk messing something up
+	--[[if dead != killer then
 		killer:SetTotalFrags( killer:GetTotalFrags() + 1 )
 	end
-	dead:SetTotalDeaths( dead:GetTotalDeaths() + 1 )
+
+	dead:SetTotalDeaths( dead:GetTotalDeaths() + 1 )]]
 end
 
 --[[
@@ -324,3 +332,10 @@ end )
 	PROPKILL.Config = net.ReadTable()
 	LocalPlayer().SyncedGamemodeConfiguration = true
 end )]]
+
+net.Receive( "props_AnnounceNewKillstreak", function()
+	local Leader, NewLeader = props_RefreshLeader()
+	if NewLeader or not IsValid(NewLeader) then
+		hook.Run( "OnNewLeaderFound", Leader )
+	end
+end )

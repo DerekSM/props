@@ -16,7 +16,7 @@ PROPKILL.Colors["Blue"] = Color( 60,120,180,255 )
 
 GM.Name = "Props"
 GM.Author = "Shinycow"
-GM.Version = "1.3"
+GM.Version = "1.3.1"
 -- You (the server owner) should be fine to just remove the variable entirely if you don't want sounds
 GM.KillingSprees =
 {
@@ -52,6 +52,9 @@ PROPKILL.ValidTeams[ "3" ] = TEAM_RED
 PROPKILL.ValidTeams[ "red" ] = TEAM_RED
 PROPKILL.ValidTeams[ "4" ] = TEAM_BLUE
 PROPKILL.ValidTeams[ "blue" ] = TEAM_BLUE
+
+local player = player
+local util = util
 
 function AddConfigItem( id, tbl ) --default, type, description )
 	if not id then return end
@@ -119,13 +122,11 @@ end
 	-- networking prop owner
 	-- copypasted from old gamemode
 if SERVER then
-	timer.Create( "props_ShowPropOwner", 0.5, 0, function()
-		for k,v in next, player.GetAll() do
-			
-			if v.IsBot and v:IsBot() then continue end
-			
+	timer.Create( "props_ShowPropOwner", 0.4, 0, function()
+		for k,v in next, player.GetHumans() do
+
 			v.SeenProps = v.SeenProps or {}
-			
+
 			local trace = util.TraceLine( util.GetPlayerTrace( v ) )
 			if trace.HitNonWorld then
 				if IsValid(trace.Entity) and not trace.Entity:IsPlayer() and not v.SeenProps[ trace.Entity ] then
@@ -134,7 +135,7 @@ if SERVER then
 							umsg.Entity( trace.Entity )
 							umsg.Bool( true )
 					umsg.End()
-					
+
 					v.SeenProps[ trace.Entity ] = true
 					v.SeenProps[ "prop_physics" ] = true
 				end
@@ -143,11 +144,11 @@ if SERVER then
 					umsg.Start( "propkill_ShowOwner", v )
 						umsg.Bool( false )
 					umsg.End()
-					
+
 					v.SeenProps = {}
 				end
 			end
-		
+
 		end
 	end )
 end

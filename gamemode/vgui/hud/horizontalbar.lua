@@ -10,6 +10,7 @@
 ]]--
 
 local PANEL = {}
+local surface = surface
 
 local colors =
 {

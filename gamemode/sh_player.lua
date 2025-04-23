@@ -126,6 +126,17 @@ function _R.Player:SetKillstreak( i_Amt )
 		end
 	end
 
+		-- Last minute addition. Notifies players that a killstreak was changed
+		-- Added the delay because our NW2Int for Killstreaks is networked AFTER this net broadcast, resulting in incorrect data
+		-- ^ Generally, the data is 1 kill behind.
+	if SERVER then
+		timer.Simple(0.03, function()
+			net.Start("props_AnnounceNewKillstreak")
+				--net.WriteEntity( self )
+			net.Broadcast()
+		end )
+	end
+
 	return i_Amt
 end
 function _R.Player:GetBestKillstreak()
@@ -196,12 +207,10 @@ function _R.Player:IsLeader()
 	return false
 end
 
-function props_GetLeader()
-	if IsValid( leader ) and leader:GetKillstreak() > 0 then
-		return leader
-	end
-	
+
+function props_RefreshLeader()
 		-- new lookup
+	local OldLeader = leader
 	leader = NULL
 	local temp_Killstreak = 0
 	for k,v in next, player.GetAll() do
@@ -210,8 +219,16 @@ function props_GetLeader()
 			temp_Killstreak = v:GetKillstreak()
 		end
 	end
-	
-	return IsValid( leader ) and leader or NULL
+
+	return IsValid( leader ) and leader or NULL, OldLeader != leader
+end
+
+function props_GetLeader()
+	if IsValid( leader ) then
+		return leader
+	end
+
+	return props_RefreshLeader()
 end
 
 				
