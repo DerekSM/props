@@ -136,7 +136,7 @@ function GM:PlayerInitialSpawn( pl )
 		pl:SetTeam( random >= 6 and TEAM_RED or random == 1 and TEAM_BLUE or random == 2 and TEAM_BLUE or TEAM_DEATHMATCH )
 	end
 	
-	for k,v in next, player.GetAll() do
+	for k,v in next, player.GetHumans() do
 		PROPKILL.ChatText( v, PROPKILL.Colors.Blue, pl:Nick(), color_white, " has connected to the server. (", PROPKILL.Colors.Blue, pl:SteamID(), color_white, ")" )
 	end
 	
@@ -250,7 +250,7 @@ function GM:PlayerDisconnected( pl )
 		GAMEMODE:EndBattle( PROPKILL.Battlers[ "inviter" ], pl, pl, nil, PROPKILL.Battlers[ "inviter" ]:Nick() )
 	end
 
-	for k,v in next, player.GetAll() do
+	for k,v in next, player.GetHumans() do
 		PROPKILL.ChatText( v, PROPKILL.Colors.Blue, pl:Nick(), color_white, " has left the server. (", PROPKILL.Colors.Blue, pl:SteamID(), color_white, ")" )
 	end
 end

@@ -215,12 +215,14 @@ end )
 		START STEAL FROM DeathZone (uh oh)
 */
 
+
 local MessageCache = {}
+local MessageCacheCounter = 0
 local MessageFastRemove = false
 local addmaterial = Material( "icon16/add.png", "nocull" )
 local function DrawMessageCache()
+	local drawSimpleTextOutlined = draw.SimpleTextOutlined
 	for i, v in next, MessageCache do
-
 		if v.goingUp then
 			local amount = 255 / 30
 			if v.alpha + amount <= 255 then
@@ -242,6 +244,7 @@ local function DrawMessageCache()
 
 		if not v.goingUp and v.alpha <= 0 then
 			table.remove(MessageCache, i)
+			MessageCacheCounter = MessageCacheCounter - 1
 		end
 
 		local targetY
@@ -262,29 +265,27 @@ local function DrawMessageCache()
 		surface.SetMaterial( addmaterial )
 		surface.SetDrawColor(Color(255, 255, 255, v.alpha))
 		surface.DrawTexturedRect(10 + v.x, (ScrH() / 2) + v.y - 8, 16, 16)
-		draw.SimpleTextOutlined(v.data.text, "Trebuchet18", 30 + v.x, (ScrH() / 2) + v.y, Color(v.data.col.r, v.data.col.g, v.data.col.b, v.alpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER, 1, Color(v.data.col.r / 2, v.data.col.g / 2, v.data.col.b / 2, v.alpha / 2))
+		drawSimpleTextOutlined(v.data.text, "Trebuchet18", 30 + v.x, (ScrH() / 2) + v.y, Color(v.data.col.r, v.data.col.g, v.data.col.b, v.alpha), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER, 1, Color(v.data.col.r / 2, v.data.col.g / 2, v.data.col.b / 2, v.alpha / 2))
 	end
-	
-	if #MessageCache > 60 then
+
+	if MessageCacheCounter > 60 then
 		MessageCache = {}
+		MessageCacheCounter = 0
 	end
-	
-	if #MessageCache > 16 then
-		--table.remove(MessageCache, 1)
-		--for i=#MessageCache - 5,#MessageCache do
+
+	if MessageCacheCounter > 16 then
 		for i=1,5 do
 			if MessageCache[ i ] then
 				MessageCache[ i ].goingup = false
 			end
-			--MessageCache[ i ].alpha = math.min( MessageCache[ i ].alpha, 40 )
 		end
 		MessageFastRemove = true
 	else
 		MessageFastRemove = false
 	end
 end
-
 hook.Add("HUDPaint", "PK_DrawMessageCache", DrawMessageCache)
+
 net.Receive("PK_HUDMessage", function()
 	local data_string = net.ReadString()
 	local data_int1 = net.ReadUInt( 8 )
@@ -296,7 +297,8 @@ net.Receive("PK_HUDMessage", function()
 		v.time = v.time + 0.8
 	end
 
-	MessageCache[ #MessageCache + 1 ] = {data = {text = data_string, col = Color(data_int1,data_int2,data_int3,255)}, x = 0, y = 0, goingUp = true, time = CurTime(), alpha = 0}
+	MessageCacheCounter = MessageCacheCounter + 1
+	MessageCache[ MessageCacheCounter ] = {data = {text = data_string, col = Color(data_int1,data_int2,data_int3,255)}, x = 0, y = 0, goingUp = true, time = CurTime(), alpha = 0}
 end)
 
 /*

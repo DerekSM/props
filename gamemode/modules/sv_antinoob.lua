@@ -3,28 +3,14 @@ if not props_antinoobdetectionRadius then print( "SV_ANTINOOB NOT LOADING." ) re
 -- check an even bigger distance for props staying in an area for a long period of time, also increase big props to be blacklisted.
 local ents = ents
 
---[[util.AddNetworkString( "plspawns" )
-local aids = true
-if aids then
-	local aidsss= {}
-	net.Start( "plspawns" )
-		for k,v in pairs( ents.FindByClass( "info_player_start" ) ) do
-			aidsss[ #aidsss + 1 ] = v:GetPos()
-		end
-		net.WriteTable( aidsss )
-	net.Broadcast()
-end]]
-
 	-- holds table of player spawns
 local props_playerSpawns = {}
+local props_playerSpawnsCount = 0
 
 local function AddPlayerSpawn()
-	for k,v in next, ents.GetAll() do
-		
-		if v:GetClass() == "info_player_start" then
-			props_playerSpawns[ #props_playerSpawns + 1 ] = v
-		end
-		
+	for k,v in next, ents.FindByClass("info_player_start") do
+		props_playerSpawns[ #props_playerSpawns + 1 ] = v:GetPos()
+		props_playerSpawnsCount = props_playerSpawnsCount + 1
 	end
 	
 	if game.GetMap() == "gm_construct" then props_antinoobdetectionRadius = 238^2 end
@@ -35,8 +21,7 @@ hook.Add( "InitPostEntity", "props_AddSpawns", AddPlayerSpawn )
 hook.Add( "OnReloaded", "props_AddSpawns", AddPlayerSpawn )
 
 hook.Add( "PlayerInitialSpawn", "props_RegisterWhitelist", function( pl )
-		-- don't bitch that I'm using table.HasValue
-		-- It's easier to modify the whitelist
+		-- found in sh_antinoob.lua
 	if table.HasValue( props_antinoobwhitelist, pl:SteamID() ) then
 			
 		pl.propsWhitelisted = true
@@ -44,23 +29,29 @@ hook.Add( "PlayerInitialSpawn", "props_RegisterWhitelist", function( pl )
 	end
 end )
 
-timer.Create( "props_antiNoob", 0.9--[[1.36]], 0, function()
+
+	-- We can afford to lower the time between checks because we optimized this code.
+timer.Create( "props_antiNoob", 0.41, 0, function()
 	if not PROPKILL.Config[ "spawnprotection" ].default then return end
 	if PROPKILL.Battling then return end
-	
-	for i=1,#props_playerSpawns do
-		
-		for k,v in next, ents.GetAll() do
+
+	for i=1,props_playerSpawnsCount do
+
+			-- https://wiki.facepunch.com/gmod/ents.FindByClass
+			-- ents.FindByClass / ents.Interator may be faster than ents.GetAll. Alternatively use ents.FindInBox
+			-- A lazier way may even be ents.FindInPVS
+			-- Profile this code!!!
+			-- Update: After profiling, out of the three options (.GetAll, Iterator, and FindInPVS), FindInPVS wins.
+			-- In fact, according to my shoddy profiling we are >2x faster now.
+		for k,v in next, ents.FindInPVS(props_playerSpawns[i]) do
 			if v.beingRemoved or not v.Owner or not v.Owner:IsPlayer() or (v:IsWeapon() and IsValid( v:GetOwner() )) or v.Owner.propsWhitelisted then continue end
-			
-			--if v:GetPos():Distance( props_playerSpawns[ i ]:GetPos() ) <= props_antinoobdetectionRadius then
-			if v:GetPos():DistToSqr( props_playerSpawns[ i ]:GetPos() ) <= props_antinoobdetectionRadius then	
-				
+
+			local EntDistanceFromSpawn = v:GetPos():DistToSqr( props_playerSpawns[ i ] )
+			if EntDistanceFromSpawn <= props_antinoobdetectionRadius then
+
 				if v.GetPhysicsObject and IsValid( v:GetPhysicsObject() ) then
 					local phys = v:GetPhysicsObject()
-					
-					--print( v:GetClass() )
-					
+
 						-- frozen
 					if not phys:IsMotionEnabled() then
 						v.beingRemoved = true
@@ -81,57 +72,31 @@ timer.Create( "props_antiNoob", 0.9--[[1.36]], 0, function()
 					end
 				end
 			end
-			
-			if v:GetPos():DistToSqr( props_playerSpawns[ i ]:GetPos() ) <= ( (props_antinoobdetectionRadius + 1) * 2 ) then
+
+			if EntDistanceFromSpawn <= ( (props_antinoobdetectionRadius + 1) * 2 ) then
 				if v.GetPhysicsObject and IsValid( v:GetPhysicsObject() ) then
 					v.RemovalCount = (v.RemovalCount or 0) + 1
-					--print( v.RemovalCount )
-					if v.RemovalCount >= 3*#props_playerSpawns then
+
+					if v.RemovalCount >= 3*props_playerSpawnsCount then
 						v.beingRemoved = true
 						v.Owner:Notify( NOTIFY_ERROR, 4, "Props are not allowed to stay in the spawn area" )
 						v:Remove()
 					end
 				end
 			end
-					
+
 		end
-		
 	end
 end )
 
-
---[[hook.Add( "Think", "props_babyGod", function()
-	for k,v in pairs( player.GetAll() ) do
-		if not v:Alive() then continue end
-		
-		if not v.leftSpawn then
-			if not v.spawnPos then continue end
-			
-			if v.spawnPos:Distance( v:GetPos() ) >= 275 then
-				
-				v.leftSpawn = true
-				if PROPKILL.Config[ "babygod_time" ].default < 1 then
-					v.babyGod = false
-				else
-					timer.Create( "props_babyGod" .. v:UserID(), PROPKILL.Config[ "babygod_time" ].default, 1, function()
-						if not IsValid( v ) then return end
-						
-						v.babyGod = false
-					end )
-				end
-			
-			end
-		end
-	end
-end )]]
 hook.Add( "PlayerTick", "props_babyGod", function( pl, mv )
 	if not pl:Alive() then return end
-		
+
 	if not pl.leftSpawn then
 		if not pl.spawnPos then return end
-			
+
 		if pl.spawnPos:Distance( pl:GetPos() ) >= 275 then
-				
+
 			pl.leftSpawn = true
 			if PROPKILL.Config[ "babygod_time" ].default < 1 then
 				pl.babyGod = false
@@ -140,7 +105,7 @@ hook.Add( "PlayerTick", "props_babyGod", function( pl, mv )
 					pl.babyGod = false
 				end )
 			end
-			
+
 		end
 	end
 end )

@@ -18,7 +18,8 @@ local ReferenceTable =
 ["totaljoins"] = "total non-unique players joined",
 ["totalkills"] = "total kills across restarts",
 ["totalmessages"] = "total messages have been said by players",
-["totalfights"] = "total fights have been wagered"
+["totalfights"] = "total fights have been wagered",
+["otherspawns"] = "total non-props have been spawned across restarts"
 }
 
 

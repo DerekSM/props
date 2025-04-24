@@ -104,7 +104,7 @@ if SERVER then
 		
 		local mdl = arg[ 1 ] and arg[ 1 ] or pl:GetEyeTrace().Entity:GetModel()
 
-		for k,v in pairs( player.GetAll() ) do
+		for k,v in pairs( player.GetHumans() ) do
 			v:Notify( NOTIFY_GENERIC, 4, pl:Nick() .. " blocked " .. mdl, true )
 		end
 		
@@ -134,7 +134,7 @@ if SERVER then
 		
 		local mdl = arg[ 1 ] and arg[ 1 ] or pl:GetEyeTrace().Entity:GetModel()
 		
-		for k,v in pairs( player.GetAll() ) do
+		for k,v in pairs( player.GetHumans() ) do
 			v:Notify( NOTIFY_GENERIC, 4, pl:Nick() .. " unblocked " .. mdl, true )
 		end
 		

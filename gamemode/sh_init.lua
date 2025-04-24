@@ -16,7 +16,7 @@ PROPKILL.Colors["Blue"] = Color( 60,120,180,255 )
 
 GM.Name = "Props"
 GM.Author = "Shinycow"
-GM.Version = "1.3.1"
+GM.Version = "1.3.2"
 -- You (the server owner) should be fine to just remove the variable entirely if you don't want sounds
 GM.KillingSprees =
 {
@@ -176,21 +176,26 @@ if SERVER then
 	timer.Simple(1, function()
 		timer.Create( "props_RefreshTopPropsSession", PROPKILL.Config["toppropsdelay"].default, 0, function()
 				-- no props have been spawned
-			if table.Count( PROPKILL.TopPropsCache ) == 0 or #player.GetAll() == 0 then
+			if table.IsEmpty( PROPKILL.TopPropsCache ) or #player.GetAll() == 0 then
 				return
 			end
 
 			local sorted = {}
+			local SortedCount = 0
 			local output = {}
 
 			for k,v in next, PROPKILL.TopPropsCache do
-				sorted[ #sorted + 1 ] = { Model = k, Count = v }
+				SortedCount = SortedCount + 1
+				sorted[ SortedCount] = { Model = k, Count = v }
 			end
 
 			table.SortByMember( sorted, "Count" )
 
-			for i=1,#sorted do
-				if i > PROPKILL.Config[ "topprops" ].default then break end
+			for i=1,SortedCount do
+				if i > PROPKILL.Config[ "topprops" ].default then
+					SortedCount = i - 1
+					break
+				end
 
 				output[ i ] = { Model = sorted[ i ].Model, Count = sorted[ i ].Count }
 			end
@@ -198,8 +203,8 @@ if SERVER then
 			PROPKILL.TopPropsSession = output
 
 			net.Start( "props_UpdateTopPropsSession" )
-				net.WriteUInt( #PROPKILL.TopPropsSession, 6 )
-				for i=1,#PROPKILL.TopPropsSession do
+				net.WriteUInt( SortedCount, 6 )
+				for i=1,SortedCount do
 					net.WriteString( PROPKILL.TopPropsSession[ i ].Model )
 					net.WriteUInt( PROPKILL.TopPropsSession[ i ].Count, 14 )
 				end
@@ -216,23 +221,10 @@ if SERVER then
 		-- I promise im gonna fix it up
 	
 	function props_RefreshTopPropsTotal()
-		--if #player.GetAll() == 0 then
-		--	return
-		--end
-
 		local copy = table.Copy( PROPKILL.TopPropsTotal )
-		--table.Add( copy, PROPKILL.TopPropsSession )
 		local sorted = {}
+		local SortedCount = 0
 		local output = {}
-		
-		--[[for k,v in pairs( PROPKILL.TopPropsTotal or {} ) do
-			sorted[ #sorted + 1 ] = { Model = PROPKILL.TopPropsTotal[ k ].Model, Count = PROPKILL.TopPropsTotal[ k ].Count }
-		end
-		for k,v in pairs( PROPKILL.TopPropsSession or {} ) do
-			sorted[ #sorted + 1 ] = { Model = PROPKILL.TopPropsSession[ k ].Model, Count = PROPKILL.TopPropsSession[ k ].Count }
-		end]]
-		
-		--print( "test" )
 		
 		local hasmodels = {}
 		local sessioncopy = table.Copy( PROPKILL.TopPropsSession )
@@ -245,72 +237,14 @@ if SERVER then
 					end
 				end
 			end
-			
-			--[[for k,v in pairs( sessioncopy ) do
-				if hasmodels[ v.Model ] then
-					sessioncopy[ k ] = nil
-				end
-			end
-			
-			for k,v in pairs( sessioncopy ) do
-				sorted[ #sorted + 1 ] = { Model = v.Model, Count = v.Count }
-			end]]
+
 			
 			for k,v in next, sessioncopy do
 				if not hasmodels[ v.Model ] then
-					sorted[ #sorted + 1 ] = { Model = v.Model, Count = v.Count }
+					SortedCount = SortedCount + 1
+					sorted[ SortedCount ] = { Model = v.Model, Count = v.Count }
 				end
 			end
-			
-			--[[for k,v in pairs( hasmodels ) do
-				for a,b in pairs( copy ) do
-					for x,y in pairs( PROPKILL.TopPropsSession ) do
-						if PROPKILL.TopPropsTotalCache[ k ] then
-							if string.find( k, "tides" ) then
-								print( k, b.Count, y.Count, PROPKILL.TopPropsTotalCache[ k ], y.Count - PROPKILL.TopPropsTotalCache[ k ] )
-							end
-							b.Count = b.Count + (y.Count - PROPKILL.TopPropsTotalCache[ k ])
-						else
-							b.Count = b.Count + y.Count
-						end
-						PROPKILL.TopPropsTotalCache[ k ] = y.Count
-					end
-				end
-			end]]
-			
-			--[[local registered = {}
-			
-			for model,_ in pairs( hasmodels ) do
-				for k,v in pairs( copy ) do
-				
-					if v.Model != k then continue end 
-					if registered[ model ] then print( model ) continue end
-					
-					local found = nil
-					for a,b in pairs( PROPKILL.TopPropsSession ) do
-						if b.Model == model then
-							found = a
-							break
-						end
-					end
-				
-					if PROPKILL.TopPropsTotalCache[ model ] then
-						
-						v.Count = v.Count + (PROPKILL.TopPropsSession[ found ].Count - PROPKILL.TopPropsTotalCache[ model ])
-						print( "1", model, v.Count )
-					
-					else
-						
-						v.Count = v.Count + PROPKILL.TopPropsSession[ found ].Count
-						print( "2", model, v.Count )
-					
-					end
-					
-					PROPKILL.TopPropsTotalCache[ model ] = PROPKILL.TopPropsSession[ found ].Count
-					registered[ model ] = true
-				
-				end
-			end]]
 			
 			for k,v in next, copy do
 				if hasmodels[ v.Model ] then
@@ -325,52 +259,37 @@ if SERVER then
 					if PROPKILL.TopPropsTotalCache[ v.Model ] then
 						
 						v.Count = v.Count + ( PROPKILL.TopPropsSession[ found ].Count - PROPKILL.TopPropsTotalCache[ v.Model ] )
-						--print( "1", v.Model, v.Count )
 						
 					else
 					
 						v.Count = v.Count + PROPKILL.TopPropsSession[ found ].Count
-						--print( "2", v.Model, v.Count )
 					
 					end
 					
 					PROPKILL.TopPropsTotalCache[ v.Model ] = PROPKILL.TopPropsSession[ found ].Count
-					sorted[ #sorted + 1 ] = { Model = v.Model, Count = v.Count }
+					SortedCount = SortedCount + 1
+					sorted[ SortedCount ] = { Model = v.Model, Count = v.Count }
 				
 				else
 					
-					sorted[ #sorted + 1 ] = { Model = v.Model, Count = v.Count }
+					SortedCount = SortedCount + 1
+					sorted[ SortedCount ] = { Model = v.Model, Count = v.Count }
 				
 				end
 			end
-					
-					
-			
-			--[[for k,v in pairs( copy ) do
-				sorted[ #sorted + 1 ] = { Model = v.Model, Count = v.Count }
-			end]]
+
 		else
 			for k,v in next, PROPKILL.TopPropsSession do
-				sorted[ #sorted + 1 ] = { Model = v.Model, Count = v.Count }
+				SortedCount = SortedCount + 1
+				sorted[ SortedCount ] = { Model = v.Model, Count = v.Count }
 			end
 		end
-		
-		--[[for k,v in pairs( copy ) do
-			sorted[ #sorted + 1 ] = { Model = copy[ k ].Model, Count = copy[ k ].Count }
-		end]]
-		
-		--PrintTable( copy )
-		
-		
-		--PrintTable( sorted )
+
 		 
 		table.SortByMember( sorted, "Count" )
 		
-		for i=1,#sorted do
-				-- hardcoded at 50
-			--if i > 50 then break end
-			
-				-- hardcoded at 50, but just in case some guy decides to raise the configs max
+		for i=1,SortedCount do
+				-- Ideally no more than 50
 			if i > math.max( 50, PROPKILL.Config[ "topprops" ].default ) then break end
 			
 			output[ i ] = { Model = sorted[ i ].Model, Count = sorted[ i ].Count }
@@ -381,23 +300,25 @@ if SERVER then
 		
 		net.Start( "props_UpdateTopPropsTotal" )
 			net.WriteUInt( math.Clamp( #PROPKILL.TopPropsTotal, 0, PROPKILL.Config[ "topprops" ].default ), 6 )
+
 			for i=1,math.Clamp( #PROPKILL.TopPropsTotal, 0, PROPKILL.Config[ "topprops" ].default ) do
 				net.WriteString( PROPKILL.TopPropsTotal[ i ].Model )
 				net.WriteUInt( PROPKILL.TopPropsTotal[ i ].Count, 18 )
 			end
 		net.Broadcast()
 	end
-	timer.Create( "props_RefreshTopPropsTotal", 600, 0, function() props_RefreshTopPropsTotal() end )
+	timer.Create( "props_RefreshTopPropsTotal", 300, 0, function() props_RefreshTopPropsTotal() end )
 	
 	function props_SendTopPropsTotal( pl )
 		if #PROPKILL.TopPropsTotal == 0 then return end
+
 		net.Start( "props_UpdateTopPropsTotal" )
 			net.WriteUInt( math.Clamp( #PROPKILL.TopPropsTotal, 0, PROPKILL.Config[ "topprops" ].default ), 6 )
 			for i=1,math.Clamp( #PROPKILL.TopPropsTotal, 0, PROPKILL.Config[ "topprops" ].default ) do
 				net.WriteString( PROPKILL.TopPropsTotal[ i ].Model )
 				net.WriteUInt( PROPKILL.TopPropsTotal[ i ].Count, 18 )
 			end
-		net.Send( pl or player.GetAll() )
+		net.Send( pl or player.GetHumans() )
 	end
 end
 

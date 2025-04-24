@@ -12,6 +12,7 @@
 local PANEL = {}
 
 local draw = draw
+local math = math
 
 function PANEL:Init()
 	self:SetSize( math.ceil( ScrW() * 0.8027 ), math.ceil( ScrH() * 0.9111 ) )

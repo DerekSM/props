@@ -143,10 +143,11 @@ function PANEL:Init()
 	self.Grid.Content[ 2 ].WinnerInfo:SetPos( vsposx, vstxtsize_h + vsposy - 24 + 5)
 	self.Grid.Content[ 2 ].WinnerInfo.Think = function( self2 )
 		local col = {}
-		col.r = math.sin( RealTime() * 3.5 ) * 255
+		local mathsin = math.sin
+		col.r = mathsin( RealTime() * 3.5 ) * 255
 		col.r = math.max( col.r, 20 )
-		col.g = math.sin( RealTime() * 3.5 ) * 59
-		col.b = math.sin( RealTime() * 1.5 ) * 8
+		col.g = mathsin( RealTime() * 3.5 ) * 59
+		col.b = mathsin( RealTime() * 1.5 ) * 8
 		col.a = 255
 		self2:SetTextColor( col )
 	end

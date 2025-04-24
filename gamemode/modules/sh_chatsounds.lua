@@ -82,7 +82,7 @@ elseif SERVER then
 	end
 	
 	timer.Create( "props_AnnounceChatSoundToggle", 240, 0, function()
-		for k,v in next, player.GetAll() do
+		for k,v in next, player.GetHumans() do
 			notifyChatSounds( v )
 		end
 	end )
@@ -96,5 +96,3 @@ elseif SERVER then
 	end )
 	
 end
-	
-	

@@ -323,7 +323,7 @@ function GM:PauseBattle( pl )
 	timer.Stop( "props_Autostopfight" )
 	
 	if fighter then
-		for k,v in pairs( player.GetAll() ) do
+		for k,v in pairs( player.GetHumans() ) do
 			v:Notify( 0, 4, pl:Nick() .. " has paused the fight for " .. PROPKILL.Config[ "battle_pausetime" ].default .. " seconds" )
 		end
 		
@@ -340,12 +340,12 @@ function GM:PauseBattle( pl )
 				net.WriteUInt( 1, 2 )
 			net.Broadcast()
 			
-			for k,v in pairs( player.GetAll() ) do
+			for k,v in pairs( player.GetHumans() ) do
 				v:Notify( 0, 4, "The fight has been resumed!" )
 			end
 		end )
 	else
-		for k,v in pairs( player.GetAll() ) do
+		for k,v in pairs( player.GetHumans() ) do
 			v:Notify( 0, 4, pl:Nick() .. " has paused the fight" )
 		end
 	end
@@ -363,8 +363,7 @@ function GM:PauseBattle( pl )
 end
 
 function props_SendRecentBattles( pl )
-	local count = table.Count( PROPKILL.RecentBattles )
-	if count == 0 then return end
+	if table.IsEmpty( PROPKILL.RecentBattles ) then return end
 
 	table.SortByMember( PROPKILL.RecentBattles, "time", false )
 	local output = {}

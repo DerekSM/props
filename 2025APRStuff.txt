@@ -1,4 +1,10 @@
 **Changelog
+v1.3.2:
+/ Cleaned up code
+/ More optimizations.
+/ More responsive antinoob system
+/ Additional statistics
+/ Top Props (Total) will now update every 5 minutes vs old 10 minutes
 v1.3.1:
 / Fixed autorefresh breaking gamemode
 / More optimizations. Most are clientside, hopefully giving more FPS to players.
@@ -45,6 +51,33 @@ Cleanup DoPlayerDeath
 I think prop dormancy voting function was messed up? But I don't remember how
 Add another statistic for total battles fought if it doesn't already exist
 Add config for server owners to let players create their own bot paths
+Add Combat Achievements
+    - Announce to players when someone achieves one
+    - Add chat command to display to everyone how many achievements you've personally done.
+    - Have F4 menu tab with each achievement, along with percentage of players that have gotten it
+    - Example achievements
+        - "Fly Swatter" - Headsmash 5 players in one session.
+        - "You spin me right round" - Kill a player with a prop doing a fast rotation
+        - "360 noscope" - Kill a player after turning 360+ degrees after releasing a prop
+        - "Slow is smooth, smooth is.." - Kill a player while your wheelspeed <=30
+        - "Toy maker" - Kill a player with a small object. Think like a hula doll model.
+        - "No life" - Be on the server for two consecutive hours.
+        - "I'll be a good boy" - Kill ten players consecutively without triggering the antinoob system.
+        - "Smurf" - Reset your stats at least once
+        - "Killing spree" - Kill five players without dying yourself.
+        - "Midget Mania" - Kill three players while crouching.
+        - "I think I can fly" - Stay actively moving and airborne for 30 seconds
+        - "Nerfed" - Kill three players in a row without freezing any props and while not dying yourself.
+        - "I'll take the low ground" - Kill five players while on the ground.
+        - "Stand your ground" - Kill two players from the same spot.
+        - "Two players, one prop" - Kill two players with the same prop.
+        - "What was that?!" - Kill a player by a flyby.
+        - "Spawncamper" - Kill a player right outside antinoob's perimeter
+        - "The recluse" - Play 10 minutes without sending any messages
+        - "The Leader" - Become the leader at least once
+        - "Follow Me" - Maintain being the leader for five minutes
+        - "Vengeance" - Kill the player that killed you.
+        - "Domination" - Kill the same player five times without them killing you
 
 
 **Notes

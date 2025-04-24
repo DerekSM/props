@@ -36,9 +36,13 @@ end
 -- select keyword is generally faster for low-ish amounts of concatenations.
 function table.FastConcat( str_Separator, ... )
 	local Pre = {}
+	local PreCount = 0
 	local select = select
+		-- Basically a fast way of accessing varargs, traditionally done with {...}
 	for i=1,select("#", ...) do
-		Pre[#Pre + 1] = select(i, ...)
+			-- Keeping an outside counter actually speeds this up.
+		PreCount = PreCount + 1
+		Pre[PreCount] = select(i, ...)
 	end
 
 	return table.concat(Pre, str_Separator)

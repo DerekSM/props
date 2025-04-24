@@ -39,23 +39,6 @@ AddConfigItem( "dead_removeprops",
 	default = true,
 	type = "boolean",
 	desc = "Toggle removing dead player's props.",
-	--[[func = function( pl, new )
-		if not SERVER then return end
-		
-		if new == true then	
-			for k,v in pairs( ents.GetAll() ) do
-				
-				if v:GetClass() == "prop_physics" then
-					if v.Owner and IsValid(v.Owner) and not v.Owner:Alive() then
-					
-						v:Remove()
-					
-					end
-				end
-			
-			end
-		end
-	end,]]
 	}
 )
 

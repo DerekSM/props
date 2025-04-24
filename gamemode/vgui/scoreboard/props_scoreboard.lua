@@ -13,6 +13,7 @@ local PANEL = {}
 
 local draw = draw
 local surface = surface
+local math = math
 
 hook.Add( "Initialize", "props_RegisterScoreboardArrow", function()
 	timer.Simple(3, function()

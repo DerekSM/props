@@ -50,7 +50,8 @@ if SERVER then
 	hook.Add( "PlayerInitialSpawn", "kickbots", function( pl )
 		local pls = #player.GetAll()
 		local bos = #player.GetBots()
-			-- change to 1
+
+		-- change to 1
 		if pls - bos > PROPKILL.Config[ "bots_maxplayers" ].default then
 			for k,v in pairs( player.GetBots() ) do
 				v:Kick( " NO LONGER WELCOME " )
