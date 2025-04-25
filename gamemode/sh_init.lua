@@ -16,7 +16,7 @@ PROPKILL.Colors["Blue"] = Color( 60,120,180,255 )
 
 GM.Name = "Props"
 GM.Author = "Shinycow"
-GM.Version = "1.3.2"
+GM.Version = "1.3.3"
 -- You (the server owner) should be fine to just remove the variable entirely if you don't want sounds
 GM.KillingSprees =
 {
@@ -217,85 +217,47 @@ if SERVER then
 		end
 	end)
 	
-		-- please god let nobody look at this code
-		-- I promise im gonna fix it up
-	
+		-- Refactored code is 30-50% faster than before.
 	function props_RefreshTopPropsTotal()
-		local copy = table.Copy( PROPKILL.TopPropsTotal )
-		local sorted = {}
-		local SortedCount = 0
-		local output = {}
-		
-		local hasmodels = {}
-		local sessioncopy = table.Copy( PROPKILL.TopPropsSession )
-		
-		if #copy > 0 then
-			for k,v in next, copy do
-				for a,b in next, sessioncopy do
-					if v.Model == b.Model then
-						hasmodels[ v.Model ] = true
-					end
-				end
-			end
+		local TotalCopy = {}
+		local SessionCopy = {}
+		local Output = {}
 
-			
-			for k,v in next, sessioncopy do
-				if not hasmodels[ v.Model ] then
-					SortedCount = SortedCount + 1
-					sorted[ SortedCount ] = { Model = v.Model, Count = v.Count }
-				end
-			end
-			
-			for k,v in next, copy do
-				if hasmodels[ v.Model ] then
-				
-					local found = nil
-					for a,b in next, PROPKILL.TopPropsSession do
-						if b.Model == v.Model then
-							found = a
-						end
-					end
-					
-					if PROPKILL.TopPropsTotalCache[ v.Model ] then
-						
-						v.Count = v.Count + ( PROPKILL.TopPropsSession[ found ].Count - PROPKILL.TopPropsTotalCache[ v.Model ] )
-						
-					else
-					
-						v.Count = v.Count + PROPKILL.TopPropsSession[ found ].Count
-					
-					end
-					
-					PROPKILL.TopPropsTotalCache[ v.Model ] = PROPKILL.TopPropsSession[ found ].Count
-					SortedCount = SortedCount + 1
-					sorted[ SortedCount ] = { Model = v.Model, Count = v.Count }
-				
-				else
-					
-					SortedCount = SortedCount + 1
-					sorted[ SortedCount ] = { Model = v.Model, Count = v.Count }
-				
-				end
-			end
+			-- Convert the numeric table into a dictionary for easy comparison
+		for k,v in next, PROPKILL.TopPropsSession do
+			SessionCopy[v.Model] = v.Count
+		end
 
-		else
-			for k,v in next, PROPKILL.TopPropsSession do
-				SortedCount = SortedCount + 1
-				sorted[ SortedCount ] = { Model = v.Model, Count = v.Count }
+			-- Convert the numeric table into a dictionary for easy comparison
+		for k,v in next, PROPKILL.TopPropsTotal do
+			TotalCopy[v.Model] = v.Count
+		end
+
+			-- If we have the same model we can just add them together
+			-- If not, don't worry about it.
+		for k,v in next, TotalCopy do
+			if SessionCopy[ k ] != nil then
+				TotalCopy[ k ] = TotalCopy[k] + SessionCopy[k]
 			end
 		end
 
-		 
-		table.SortByMember( sorted, "Count" )
+			-- Convert the dictionary back to a numerical table, and we'll reuse SessionCopy table
+		SessionCopy = {}
+		local SessionCopyCount = 0
+		for k,v in next, TotalCopy do
+			SessionCopyCount = SessionCopyCount + 1
+			SessionCopy[SessionCopyCount] = {Model = k, Count = v}
+		end
+		table.SortByMember(SessionCopy, "Count")
 		
-		for i=1,SortedCount do
+		for i=1,SessionCopyCount do
 				-- Ideally no more than 50
 			if i > math.max( 50, PROPKILL.Config[ "topprops" ].default ) then break end
 			
-			output[ i ] = { Model = sorted[ i ].Model, Count = sorted[ i ].Count }
+			Output[ i ] = { Model = SessionCopy[ i ].Model, Count = SessionCopy[ i ].Count }
 		end
 		
-		PROPKILL.TopPropsTotal = output
+		PROPKILL.TopPropsTotal = Output
 		file.Write( "props/topprops.txt", pon.encode( PROPKILL.TopPropsTotal ) )
 		
 		net.Start( "props_UpdateTopPropsTotal" )
@@ -307,7 +269,7 @@ if SERVER then
 			end
 		net.Broadcast()
 	end
-	timer.Create( "props_RefreshTopPropsTotal", 300, 0, function() props_RefreshTopPropsTotal() end )
+	timer.Create( "props_RefreshTopPropsTotal", 240, 0, function() props_RefreshTopPropsTotal() end )
 	
 	function props_SendTopPropsTotal( pl )
 		if #PROPKILL.TopPropsTotal == 0 then return end
@@ -320,6 +282,7 @@ if SERVER then
 			end
 		net.Send( pl or player.GetHumans() )
 	end
+
 end
 
 if CLIENT then

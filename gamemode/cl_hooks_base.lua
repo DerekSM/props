@@ -20,7 +20,7 @@
 
 --]]
 function GM:Initialize()
-	for k,v in pairs( properties.List ) do
+	for k,v in next, properties.List do
 		if v.Order < 2000 and k != "remove" then
 			properties.List[ k ] = nil
 		end

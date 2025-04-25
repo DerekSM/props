@@ -198,26 +198,8 @@ local function CreateHUD( b_noMotd )
 	VGUI_LEADER:SetText( LeaderText )
 	VGUI_LEADER:SetPos( VGUI_LEADER:GetWide()/2 - textsizew/2, 3 )
 	VGUI_LEADER:SetFont( "props_HUDTextSmall" )
-	--VGUI_LEADER:SetTextColor( Color( 200, 200, 200, 255 ) )
-	--VGUI_LEADER:SetTextColor( Color( 127, 125, 125, 255 ) )
 	VGUI_LEADER:SetTextColor( Color( 230, 230, 230, 255 ) )
-	VGUI_LEADER.Think = function( self )
-		--[[local leader = props_GetLeader()
-		local textsizew, textsizeh = nil, nil
-		local sizew, sizeh = self:GetSize()
-		
-		if IsValid( leader ) then
-			local LeaderString = table.FastConcat(" ", "Leader:", FixLongName( leader:Nick(), 17 ), "(", leader:GetKillstreak(), ")" )
-			textsizew, textsizeh = surface.GetTextSize( LeaderString )
-			VGUI_LEADER:SetText( LeaderString )
-		else
-			textsizew, textsizeh = surface.GetTextSize( "Leader: ( 0 )" )
-			VGUI_LEADER:SetText( "Leader: ( 0 )" )
-		end
-		self:SetPos( sizew/2 - textsizew/2, 3 )]]
-	end
 	hook.Add( "OnNewLeaderFound", "ChangeLeaderText", function( leader )
-		--local leader = props_GetLeader()
 		local textsizew, textsizeh = nil, nil
 		local sizew, sizeh = VGUI_LEADER:GetSize()
 
@@ -243,8 +225,6 @@ local function CreateHUD( b_noMotd )
 		-- ( (panel height - the previous dlabels + gap) - the gap amount times the amount of boxes) / amount of boxes
 	VGUI_KILLSTREAK:SetSize( basesizew - 10, (basesizeh - (previousposy + previoussizeh + 5) - 15) / 2 )
 	VGUI_KILLSTREAK:SetBackColor( Color( 25, 25, 25, 255 ) )
-		-- when theres 3 of them use this
-	---------VGUI_KILLSTREAK:SetFillColor( Color( 76, 84, 255, 255 ) )
 	VGUI_KILLSTREAK:SetFillColor( Color( 206, 61, 38, 255 ) )
 	if propsPlayer.GetKillstreak then
 		VGUI_KILLSTREAK:SetBarValue( propsPlayer:GetKillstreak() / propsPlayer:GetBestKillstreak() )
@@ -273,8 +253,6 @@ local function CreateHUD( b_noMotd )
 	VGUI_KD:SetPos( 5, previoussizeh + previousposy + 5 )
 	VGUI_KD:SetSize( basesizew - 10, firstbarsizeh )
 	VGUI_KD:SetBackColor( Color( 25, 25, 25, 255 ) )
-		-- when there's 3 of them use this
-	-----------------VGUI_KD:SetFillColor( Color( 60, 166, 255, 255 ) )
 	VGUI_KD:SetFillColor( Color( 59, 59, 167, 255 ) )
 	if propsPlayer.GetKD then
 		VGUI_KD:SetBarValue( propsPlayer:GetKD() )
@@ -282,6 +260,7 @@ local function CreateHUD( b_noMotd )
 		VGUI_KD:SetBarValue( 1 )
 	end
 	VGUI_KD.PaintOver = function( self, w, h )
+		propsPlayer = IsValid(LocalPlayer():GetObserverTarget()) and LocalPlayer():GetObserverTarget() or LocalPlayer()
 		if not propsPlayer.GetKD then return end
 		surface.SetFont( "props_HUDTextSmall" )
 
@@ -310,10 +289,6 @@ local function CreateHUD( b_noMotd )
 			return
 		end
 		draw.RoundedBox( 0, 0, 0, w, h, Color( 47, 46, 46, 235 ) )
-	end
-	VGUI_PROPPANEL.Think = function( pnl )
-		--local basecontentpos_x, basecontentpos_y = VGUI_BASECONTENT:GetPos()
-		--pnl:SetPos( basecontentpos_x + 40, basecontentpos_y - VGUI_PROPPANEL:GetTall() + 1 )
 	end
 	hook.Add("props_BaseContentPositionChanged", "ChangePropPanelPositioning", function( basepnl, x, y )
 		VGUI_PROPPANEL:SetPos( x + 40, y - VGUI_PROPPANEL:GetTall() + 1 )
@@ -394,7 +369,7 @@ local function CreateIntroHUD()
 	local gmName_w, gmName_h = surface.GetTextSize( ( GM and GM.Name ) or GAMEMODE.Name )
 	surface.SetFont( "props_HUDTextMedium" )
 	local authorName_w, authorName_h = surface.GetTextSize( "Created by Shinycow" )
-	
+
 	VGUI_introGM = vgui.Create( "DLabel" )
 	VGUI_introGM:SetParent( VGUI_introBackground )
 	VGUI_introGM:SetPos( VGUI_introBackground:GetWide() / 2 - gmName_w / 2, ( VGUI_introBackground:GetTall() / 2 - (gmName_h - authorName_h) / 2 ) - (authorName_h + 20) )
@@ -431,7 +406,6 @@ function props_ShowBattlingHUD()
 	VGUI_BattleBack:SetKeyboardInputEnabled( true )
 	VGUI_BattleBack:ParentToHUD()
 	VGUI_BattleBack.Paint = function( self, w, h )
-		--draw.RoundedBox( 0, 0, 0, w, h, Color( 31, 31, 31, 235  ) )
 		draw.RoundedBox( 0, 0, 0, w, h, Color( 27, 26, 26, 235 ) )
 		self:DrawBackgroundBlur( 4 )
 	end

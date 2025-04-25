@@ -82,9 +82,6 @@ concommand.Add( "props_fightinvite", function()
 	local oldpos_x, oldpos_y = oldinvite:GetPos()
 	
 	invite:SetPos( 3, invite:GetTall() + oldpos_y + 3 )
-	
-	
-	--props_fightinvite = vgui.Create( "props_BattleInvitation" )
 end )
 
 concommand.Add("props_showfight", function()

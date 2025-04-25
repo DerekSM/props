@@ -213,7 +213,7 @@ function props_RefreshLeader()
 	local OldLeader = leader
 	leader = NULL
 	local temp_Killstreak = 0
-	for k,v in next, player.GetAll() do
+	for k,v in player.Iterator() do
 		if v:GetKillstreak() > temp_Killstreak then
 			leader = v
 			temp_Killstreak = v:GetKillstreak()

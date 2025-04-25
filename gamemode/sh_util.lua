@@ -31,6 +31,23 @@ function ChatPrint( msg )
 	end
 end
 
+-- https://gist.github.com/DarkWiiPlayer/a6496cbce062ebe5d534e4b881d4efef
+-- select keyword is generally faster for low-ish amounts of concatenations.
+function table.FastConcat( str_Separator, ... )
+	local Pre = {}
+	local PreCount = 0
+	local select = select
+		-- Basically a fast way of accessing varargs, traditionally done with {...}
+	for i=1,select("#", ...) do
+			-- Keeping an outside counter actually speeds this up.
+		PreCount = PreCount + 1
+		Pre[PreCount] = select(i, ...)
+	end
+
+	return table.concat(Pre, str_Separator)
+end
+
+
 Props_Benchmark = {}
 local benchmarks = {}
 
@@ -44,6 +61,7 @@ end
 
 function Props_Benchmark.Start( id, int_interations )
 	local Bench = benchmarks[ id ]
+	if not Bench then print("Error with Benchmark. Maybe the Init function was called before it existed?") return end
 	Bench.iterations = int_interations
 	--Bench.starttime = SysTime()
 	for i=1,int_interations do
@@ -60,14 +78,34 @@ function Props_Benchmark.End( id )
 	for k,v in next, Bench.iteration do
 		Average = Average + v
 	end
+
+	local TimeTaken = Average / Bench.iterations
+
 	if CLIENT then
-		LocalPlayer():ChatPrint( "Client: " .. string.format( Output, id, Average / Bench.iterations ) )
+		LocalPlayer():ChatPrint( "Client: " .. string.format( Output, id, TimeTaken ) )
 	else
-		print(string.format( Output, id, Average / Bench.iterations ))
+		print(string.format( Output, id, TimeTaken ))
 		if IsValid(Entity(1)) then
-			Entity(1):ChatPrint("Server: " .. string.format( Output, id, Average / Bench.iterations ))
+			Entity(1):ChatPrint("Server: " .. string.format( Output, id, TimeTaken ))
 		end
 	end
 
 	benchmarks[ id ] = nil
+
+	return TimeTaken
+end
+
+function Props_Benchmark.CompareTimes( time1, time2 )
+	local Output = "Benchmark one was different by about %f percent"
+
+	local PercentDifference = (math.abs(time1 - time2) / ((time1 + time2) / 2)) * 100
+
+	if CLIENT then
+		LocalPlayer():ChatPrint( "Client: " .. string.format( Output, PercentDifference ) )
+	else
+		print(string.format( Output, PercentDifference ) )
+		if IsValid(Entity(1)) then
+			Entity(1):ChatPrint("Server: " .. string.format( Output, PercentDifference ) )
+		end
+	end
 end

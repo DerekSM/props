@@ -269,7 +269,32 @@ function GM:PlayerDeath( pl, wep, killer )
 	pl.DeathTime = CurTime()
 end
 
--- APR 2025: What the fuck is this function? Clean it up
+
+local KillTypesAndColors =
+{
+	[ "longshot" ] = {"Longshot", Color( 190, 30, 220, 255 )},	-- light violet
+	[ "flyby" ] = {"Flyby", Color( 20, 150, 100, 255 )},		-- blue-green
+	[ "headsmash" ] = {"Headsmash", Color( 191, 255, 127, 255 )},	-- some gay color, shit green
+	[ "smash" ] = {"Smash", Color( 255, 204, 0, 255 )},		-- yellow-orange
+}
+local function DoPlayerDeathCleanedUp( prop_owner, deadplayer, killtype, b_NoRecordingKillType )
+	local hud_message = {}
+	local message = table.FastConcat( "", prop_owner:Nick(), " ", killtype, "'d ", deadplayer:Nick() )
+
+	hud_message = { txt = message, col = KillTypesAndColors[ killtype ][2] }
+	if not PROPKILL.Battling and not b_NoRecordingKillType then
+		_R.Player[ "Add" .. KillTypesAndColors[ killtype ][1] ]( prop_owner )
+	end
+
+	for k,v in player.Iterator() do
+		v:ConsoleMsg( Color( 200, 100, 200, 255 ), message )
+	end
+
+	PROPKILL.Statistics[ "total" .. killtype ] = ( PROPKILL.Statistics[ "total" .. killtype ] or 0 ) + 1
+
+	return killtype, hud_message
+end
+
 function GM:DoPlayerDeath( pl, killer, dmginfo )
 	pl:CreateRagdoll()
 	if not PROPKILL.Battling then
@@ -319,44 +344,16 @@ function GM:DoPlayerDeath( pl, killer, dmginfo )
 		end
 	end
 	
-		-- this is for below networking death message
-	local kill_type = "smash"
-	local hud_message = {}
-
-	local ktype_tbl =
-	{
-		[ "longshot" ] = Color( 190, 30, 220, 255 ),	-- light violet
-		[ "flyby" ] = Color( 20, 150, 100, 255 ),		-- blue-green
-		[ "headsmash" ] = Color( 191, 255, 127, 255 ),	-- some gay color, shit green
-		[ "smash" ] = Color( 255, 204, 0, 255 ),		-- yellow-orange
-	}
-
-	local function registerKilltype( sinput, b_NoAdd )
-		kill_type = sinput
-
-		local message = prop_owner:Nick() .. " " .. sinput .. "'d " .. pl:Nick()
-
-		hud_message = { txt = message, col = ktype_tbl[ sinput ] }
-		if not PROPKILL.Battling and not b_NoAdd then
-			_R.Player[ "Add" .. string.upper( string.Left( sinput, 1 ) ) .. string.Right( sinput, #sinput - 1 ) ]( prop_owner )
-		end
-
-		for k,v in next, player.GetAll() do
-			v:ConsoleMsg( Color( 200, 100, 200, 255 ), message )
-		end
-
-		PROPKILL.Statistics[ "total" .. sinput ] = ( PROPKILL.Statistics[ "total" .. sinput ] or 0 ) + 1
-	end
-	
+	local KillType, HUDMessage = "Smash", {}
 	if prop_owner != pl then
 		if prop_owner:GetPos():Distance( pl:GetPos() ) >= 4000 then
-			registerKilltype( "longshot" )
+			KillType, HUDMessage = DoPlayerDeathCleanedUp( prop_owner, pl, "longshot" )
 		elseif prop_owner:IsFlying() then
-			registerKilltype( "flyby" )
+			KillType, HUDMessage = DoPlayerDeathCleanedUp( prop_owner, pl, "flyby" )
 		elseif prop_owner.Headsmash and prop_owner.Headsmash == pl then
-			registerKilltype( "headsmash" )
+			KillType, HUDMessage = DoPlayerDeathCleanedUp( prop_owner, pl, "headsmash" )
 		else
-			registerKilltype( "smash", true )
+			KillType, HUDMessage = DoPlayerDeathCleanedUp( prop_owner, pl, "smash", true )
 		end
 	end
 	
@@ -379,15 +376,15 @@ function GM:DoPlayerDeath( pl, killer, dmginfo )
 		net.WriteEntity( pl )
 			-- killer
 		net.WriteEntity( prop_owner )
-		net.WriteString( kill_type )
+		net.WriteString( KillType )
 	net.Send( {pl, prop_owner} )
 	
-	if hud_message.txt then
+	if HUDMessage.txt then
 		net.Start( "PK_HUDMessage" )
-			net.WriteString( hud_message.txt )
-			net.WriteUInt( hud_message.col.r, 8 )
-			net.WriteUInt( hud_message.col.g, 8 )
-			net.WriteUInt( hud_message.col.b, 8 )
+			net.WriteString( HUDMessage.txt )
+			net.WriteUInt( HUDMessage.col.r, 8 )
+			net.WriteUInt( HUDMessage.col.g, 8 )
+			net.WriteUInt( HUDMessage.col.b, 8 )
 		net.Broadcast()
 	end
 	

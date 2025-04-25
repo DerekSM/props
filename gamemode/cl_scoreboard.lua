@@ -101,48 +101,14 @@ InfoScoreboard =
 	},
 }
 
-	-- add right click option to players to toggle voicechat
-	-- "Mute voice" / "Unmute voice"
-
-
-GRADIENT_HORIZONTAL = 0;
-GRADIENT_VERTICAL = 1;
-function draw.LinearGradient(x,y,w,h,from,to,dir,res)
-	dir = dir or GRADIENT_HORIZONTAL;
-	if dir == GRADIENT_HORIZONTAL then res = (res and res <= w) and res or w;
-	elseif dir == GRADIENT_VERTICAL then res = (res and res <= h) and res or h; end
-	for i=1,res do
-		surface.SetDrawColor(
-			Lerp(i/res,from.r,to.r),
-			Lerp(i/res,from.g,to.g),
-			Lerp(i/res,from.b,to.b),
-			Lerp(i/res,from.a,to.a)
-		);
-		if dir == GRADIENT_HORIZONTAL then surface.DrawRect(x + w * (i/res), y, w/res, h );
-		elseif dir == GRADIENT_VERTICAL then surface.DrawRect(x, y + h * (i/res), w, h/res ); end
-	end
-end
-
--- Example use
---function panel:Paint()
- --     draw.LinearGradient( 0, 0, self:GetWide(), self:GetTall(), color_white, color_black, GRADIENT_VERTICAL );
---end
-
-
--- credits : http://facepunch.com/showthread.php?t=1051898&p=27576273&viewfull=1#post27576273
-
-
 include( "vgui/scoreboard/props_scoreboard.lua" )
 include( "vgui/scoreboard/props_playerrow.lua" )
 include( "vgui/scoreboard/props_scoreboard_alt.lua" )
 include( "vgui/scoreboard/props_playerrow_alt.lua" )
 
---CreateClientConVar( "props_NewScoreboard", "0", true, true )
---local UseNewScoreboard = GetConVar( "props_NewScoreboard" )
 AddClientConfigItem( "props_NewScoreboard",
 	{
 	Name = "Show Alternate Scoreboard",
-	--Category = "Player Management",
 	default = false,
 	type = "boolean",
 	desc = "Show the new, singular scoreboard",

@@ -116,7 +116,7 @@ local function props_JoinTeam( pl, cmd, arg )
 		return
 	end
 	
-	for k,v in pairs( player.GetAll() ) do
+	for k,v in player.Iterator() do
 		PROPKILL.ChatText( v, team.GetColor( pl:Team() ), pl:Nick(), color_white, " joined team ", team.GetColor( teamid ), team.GetName( teamid ) )
 	end
 	

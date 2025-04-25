@@ -79,9 +79,6 @@ include( "sh_blockedmodels.lua" )
 include( "sh_speedy.lua" )
 
 include( "cl_scoreboard.lua" )
---include( "vgui/scoreboard/props_playerrow.lua" )
---include( "vgui/scoreboard/props_scoreboard.lua" )
---include( "vgui/scoreboard/props_scoreboard_alt.lua" )
 
 include( "cl_hud.lua" )
 include( "vgui/hud/horizontalbar.lua" )

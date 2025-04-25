@@ -113,7 +113,7 @@ net.Receive( "props_BattleInit", function()
 			end )
 		end
 		hook.Add("HUDPaint", "propkill_BattleInit", function()
-			draw.SimpleText( "Prepare to Battle", "ScoreboardDefaultTitle", (ScrW() * 0.5) - ( surface.GetTextSize( "Preparing Battle...", "ScoreboardDefaultTitle" ) * 0.5), ScrH() * 0.3, color_white, 0, 0 )
+			draw.SimpleText( "Prepare to Battle", "ScoreboardDefaultTitle", (ScrW() * 0.5) - ( surface.GetTextSize( "Prepare to Battle", "ScoreboardDefaultTitle" ) * 0.5), ScrH() * 0.3, color_white, 0, 0 )
 		end)
 		timer.Simple(4.8, function()
 			hook.Remove("HUDPaint", "propkill_BattleInit")

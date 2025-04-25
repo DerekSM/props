@@ -19,7 +19,10 @@ local ReferenceTable =
 ["totalkills"] = "total kills across restarts",
 ["totalmessages"] = "total messages have been said by players",
 ["totalfights"] = "total fights have been wagered",
-["otherspawns"] = "total non-props have been spawned across restarts"
+["otherspawns"] = "total non-props have been spawned across restarts",
+["totallongshot"] = "players have been longshot'd",
+["totalflyby"] = "players have been flyby'd",
+["totalsuicides"] = "players have killed themselves",
 }
 
 

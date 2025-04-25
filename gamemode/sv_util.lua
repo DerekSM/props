@@ -19,7 +19,7 @@
 
 --]]
 function util.CleanUpMap( b_Props )
-	for k,v in next, ents.GetAll() do
+	for k,v in ents.Iterator() do
 	
 			-- sounds
 		if v:GetClass() == "env_soundscape" or v:GetClass() == "ambient_generic"

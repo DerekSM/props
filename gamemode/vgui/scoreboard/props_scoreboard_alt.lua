@@ -119,7 +119,7 @@ function PANEL:Update()
     self.Content.TeamContent:Dock( TOP )
     self.Content.TeamContent.Paint = function() end
 
-    for k,v in next, player.GetAll() do
+    for k,v in player.Iterator() do
         self.Content.TeamContent.PlayerRow = self.Content.TeamContent:Add( "props_playerrow_alt" )
         self.Content.TeamContent.PlayerRow:Setup( v )
         self.Content.TeamContent.PlayerRow:SetWide( self.Content:GetWide() )

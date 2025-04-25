@@ -1,4 +1,10 @@
 **Changelog
+v1.3.3
+/ Refactored some of the DoPlayerDeath code
+/ Additional statistics
+/ Cleaned up code
+/ More optimizations
+/ Refactored props_RefreshTopPropsTotal
 v1.3.2:
 / Cleaned up code
 / More optimizations.
@@ -47,7 +53,6 @@ v1.2:
 
 **Todo
 Change antinoob's spawn protection system to an editable entity. Will allow for instant prop removal and no more looping through a sphere.
-Cleanup DoPlayerDeath
 I think prop dormancy voting function was messed up? But I don't remember how
 Add another statistic for total battles fought if it doesn't already exist
 Add config for server owners to let players create their own bot paths
@@ -78,6 +83,7 @@ Add Combat Achievements
         - "Follow Me" - Maintain being the leader for five minutes
         - "Vengeance" - Kill the player that killed you.
         - "Domination" - Kill the same player five times without them killing you
+Refactor TopPropsTotal code (sh_init.lua)
 
 
 **Notes
