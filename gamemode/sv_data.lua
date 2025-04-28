@@ -129,11 +129,11 @@ end
 
 function props_LoadCombatAchievements()
 	if file.Exists( "props/achievements/achievementdata.txt", "DATA" ) then
-		local data = pon.decode( file.Read( "props/achivements/achievementdata.txt", "DATA" ) )
+		local data = pon.decode( file.Read( "props/achievements/achievementdata.txt", "DATA" ) )
 
 		for k,v in next, PROPKILL.GetCombatAchievements() do
 			if data[k] then
-				v:SetCompletionRate( data.numCompletions )
+				v:SetCompletionRate( data[k].numCompletions )
 			end
 		end
 	end

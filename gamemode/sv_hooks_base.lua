@@ -91,6 +91,7 @@ function GM:Initialize()
 	end
 
 	props_LoadGamemodeConfig()
+	props_LoadCombatAchievements()
 		
 end
 

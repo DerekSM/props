@@ -9,6 +9,7 @@ hook.Add("OnAchievementUnlocked", "props_NetworkPlayerAchievement", function( pl
         -- If we want to get really tricky we
     Props_SendPlayerAchievementPercentages( player.GetHumans(), id )
     pl:SaveCombatAchievements()
+    props_SaveCombatAchievements()
 
     if PROPKILL.Config["achievements_playsound"].default then
         pl:EmitSound("vo/coast/odessa/female01/nlo_cheer03.wav", 30)

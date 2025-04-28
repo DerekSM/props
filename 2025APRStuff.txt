@@ -1,4 +1,6 @@
 **Changelog
+v1.4.1
+/ Fixed gamemode achievement data not saving/loading
 v1.4
 + Added Combat Achievements. Whether you're bored or looking for a challenge, these should keep you entertained.
 + Combat Achievements have their own gamemode config options found in the menu.
@@ -64,6 +66,8 @@ Change antinoob's spawn protection system to an editable entity. Will allow for 
 I think prop dormancy voting function was messed up? But I don't remember how
 Add another statistic for total battles fought if it doesn't already exist
 Add config for server owners to let players create their own bot paths
+(?) Add option to scoreboard to view a player's achievements
+(?) Keep tracking player achievement data even after unlocking. Can later review to see total headsmashes etc
 
 
 **Notes
