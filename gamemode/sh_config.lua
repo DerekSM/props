@@ -297,6 +297,37 @@ AddConfigItem( "battle_invitecooldown",
 	}
 )
 
+AddConfigItem( "achievements_save",
+	{
+	Name = "Save Player Achievements",
+	Category = "Achievements",
+	default = true,
+	type = "boolean",
+	desc = "Player achievements will persist across server restarts",
+	}
+)
+
+AddConfigItem( "achievements_announce",
+	{
+	Name = "Announce Player Achievements",
+	Category = "Achievements",
+	default = true,
+	type = "boolean",
+	desc = "Player achievements will be announced in the chatbox upon completion",
+	}
+)
+
+AddConfigItem( "achievements_playsound",
+	{
+	Name = "Play Player Achievements Sound",
+	Category = "Achievements",
+	default = true,
+	type = "boolean",
+	desc = "Players will emit a sound from themselves whenever they complete an achievement",
+	}
+)
+
+
 AddConfigItem( "removedoors",
 	{
 	Name = "Remove Doors",

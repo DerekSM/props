@@ -52,7 +52,7 @@ function GM:InitPostEntity()
 end
 
 function GM:Initialize()
-	file.CreateDir( "props" )
+	file.CreateDir( "props/achievements" )
 	
 	for k,v in next, properties.List do
 		if v.Order < 2000 and k != "remove" then
@@ -140,6 +140,7 @@ function GM:PlayerInitialSpawn( pl )
 		PROPKILL.ChatText( v, PROPKILL.Colors.Blue, pl:Nick(), color_white, " has connected to the server. (", PROPKILL.Colors.Blue, pl:SteamID(), color_white, ")" )
 	end
 	
+	pl:LoadCombatAchievements()
 	pl:LoadPropkillData()
 	
 	timer.CreatePlayer( pl, "pk_SavePlayerData", 15, 0, function()
@@ -173,6 +174,9 @@ function GM:PlayerInitialSpawn( pl )
 	
 	props_SendTopPropsTotal( pl )
 
+	timer.CreatePlayer( pl, "SendUpdatedAchievements", 12, 1, function()
+		Props_SendPlayerAllAchievementsCompleted( pl )
+	end )
 	
 	PROPKILL.Statistics[ "totaljoins" ] = (PROPKILL.Statistics[ "totaljoins" ] or 0) + 1
 	
@@ -309,8 +313,12 @@ function GM:DoPlayerDeath( pl, killer, dmginfo )
 
 	if killer:IsPlayer() then
 		prop_owner = killer
+		hook.Run("props_PropKilled", pl, dmginfo:GetInflictor())
 	else
 		prop_owner = killer.Owner and IsValid( killer.Owner ) and killer.Owner:IsPlayer() and killer.Owner or pl:GetNearestProp().Owner
+			-- All these different hooks and methods and net calls are really piling up
+			-- I need to clean up the whole gamemode
+		hook.Run("props_PropKilled", pl, killer)
 	end
 	
 	if not prop_owner and not PROPKILL.Battling then 
@@ -747,5 +755,6 @@ function GM:PlayerSay( pl, txt, teamchat )
 	pl.LastChatTime = CurTime() + 1.25
 	
 	PROPKILL.Statistics[ "totalmessages" ] = ( PROPKILL.Statistics[ "totalmessages" ] or 0 ) + 1
+	hook.Run("props_PlayerSay", pl, txt, teamchat)
 	return self.BaseClass:PlayerSay( pl, txt, teamchat )
 end

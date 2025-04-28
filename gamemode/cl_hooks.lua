@@ -291,7 +291,12 @@ net.Receive("PK_HUDMessage", function()
 	local data_int1 = net.ReadUInt( 8 )
 	local data_int2 = net.ReadUInt( 8 )
 	local data_int3 = net.ReadUInt( 8 )
-	surface.PlaySound("buttons/lightswitch2.wav")
+
+		-- Only play a sound for special kills
+	local stringfind = string.find
+	if stringfind(data_string, "headsmash'd" ) or stringfind(data_string, "flyby'd") or stringfind(data_string, "longshot'd") then
+		surface.PlaySound("buttons/lightswitch2.wav")
+	end
 
 	for k, v in next, MessageCache do
 		v.time = v.time + 0.8

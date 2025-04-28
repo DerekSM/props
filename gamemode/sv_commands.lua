@@ -270,6 +270,7 @@ local function props_ResetMyStats( pl, cmd, args )
 	pl:SetBestDeathstreak( 0 )
 	
 	pl:SavePropkillData()
+	hook.Run("props_PlayerResetStats", pl)
 end
 concommand.Add( "props_resetmystats", props_ResetMyStats )
 
@@ -278,3 +279,65 @@ concommand.Add( "props_resetmystats", props_ResetMyStats )
 concommand.Add( "undoall", function( pl )
 	pl:ConCommand( "gmod_cleanup props" )
 end )
+
+
+	-- Running props_achievements by itself will announce ALL achievements you've accomplished
+	-- Running props_achievements by it's fancy title will tell everyone WHEN you accomplished
+local function props_AnnounceMyAchievements( pl, cmd, args )
+	if not IsValid( pl ) then return end
+	if pl.LastAnnounced and pl.LastAnnounced > CurTime() then
+		pl:PrintMessage(HUD_PRINTCONSOLE, "Wait a few seconds before running again.")
+		return
+	end
+
+		-- We want specifics.
+	if args[1] and args[1] != " " then
+		-- check if its a valid fancy title, if not then let the player know.
+		local FullArg = table.concat(args, " ")
+		local Achievement = nil
+		for k,v in next, PROPKILL.GetCombatAchievements() do
+			if string.lower(v:GetFancyTitle()) == string.lower(FullArg) then
+				Achievement = v
+				break
+			end
+		end
+
+		if not Achievement then
+			pl:PrintMessage(HUD_PRINTCONSOLE, "props_achievements <Title>\n\tEg: props_achievements Killing spree")
+			return
+		end
+
+		if Achievement:GetProgression(pl) then
+			local AchievementData = pl.AchievementData[ Achievement:GetUniqueID() ]
+			for k,v in next, player.GetHumans() do
+				if AchievementData.UnlockedTime then
+					PROPKILL.ChatText( v, PROPKILL.Colors.Blue,
+						"Props: ", team.GetColor(pl:Team()), pl:Nick(),
+						color_white, " completed the \"" .. Achievement:GetFancyTitle() .. "\" achievement on " .. os.date("%d %b %Y", AchievementData.UnlockedTime)
+					)
+				else
+					PROPKILL.ChatText( v, PROPKILL.Colors.Blue,
+						"Props: ", team.GetColor(pl:Team()), pl:Nick(),
+						color_white, " completed the \"" .. Achievement:GetFancyTitle() .. "\" achievement before today"
+					)
+				end
+			end
+		end
+
+	else
+		local CountAchievements = 0
+		for k,v in next, pl.AchievementData or {} do
+			if v.Unlocked then
+				CountAchievements = CountAchievements + 1
+			end
+		end
+
+		for k,v in next, player.GetHumans() do
+			PROPKILL.ChatText( v, PROPKILL.Colors.Blue,
+				"Props: ", team.GetColor(pl:Team()), pl:Nick(), color_white, " has completed " .. CountAchievements .. "/" .. PROPKILL.CombatAchievementsCount .. " achievements" )
+		end
+	end
+
+	pl.LastAnnounced = CurTime() + 15
+end
+concommand.Add( "props_achievements", props_AnnounceMyAchievements )

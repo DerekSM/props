@@ -127,6 +127,15 @@ function timer.CreatePlayer( pl, identifier, delay, reps, callback )
 	pl.RemoveTimerDC[ identifier .. "_" .. pl:UserID() ] = true
 end
 
+function timer.DestroyPlayer( pl, identifier )
+	timer.Destroy( identifier .. "_" .. pl:UserID() )
+	pl.RemoveTimerDC[ identifier .. "_" .. pl:UserID() ] = nil
+end
+
+function timer.HasPlayer( pl, identifier )
+	return timer.Exists(identifier .. "_" ..pl:UserID() )
+end
+
 gameevent.Listen( "player_disconnect" )
 hook.Add( "player_disconnect", "props_DestroyPlayerTimers", function( data )
 	for k,v in pairs( Player( data.userid ).RemoveTimerDC or {} ) do

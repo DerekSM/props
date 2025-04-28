@@ -4,10 +4,10 @@ include( "props_teams.lua" )
 include( "props_config.lua" )
 include( "props_battle.lua" )
 include( "props_newbattle.lua" )
-include( "props_topprops.lua" )
 include( "props_stats.lua" )
 include( "props_topprops_new.lua" )
 include( "props_clientconfig.lua" )
+include( "props_achievements.lua" )
 
 -- 1440 x 900
 
@@ -32,7 +32,6 @@ function PANEL:Init()
 	
 	local teamsPanel = vgui.Create( "props_TeamsMenu", propSheets )
 	
-	--local propsPanel = vgui.Create( "props_TopPropsMenu", propSheets )
 	local propsnPanel = vgui.Create( "props_TopPropsNewMenu", propSheets )
 	
 	--[[local battlePanel = vgui.Create( "DPanelList", propSheets )
@@ -46,6 +45,7 @@ function PANEL:Init()
 	local battleNewPanel = vgui.Create( "props_BattleMenuNew", propSheets )
 	
 	--local statsPanel = vgui.Create( "props_StatsMenu", propSheets )
+	local achievementsPanel = vgui.Create( "props_AchievementsMenu", propSheets )
 	
 	local configPanel = nil
 	
@@ -57,11 +57,11 @@ function PANEL:Init()
 	local clientConfigPanel = vgui.Create( "props_ClientConfigMenu", propSheets )
 
 	
+		-- https://wiki.facepunch.com/gmod/Silkicons
 	local propSheetTeams = propSheets:AddSheet( "Team Selection", teamsPanel, "icon16/sport_football.png", false, false, "Join a team" )
-	--local propSheetProps = propSheets:AddSheet( "Top Props", propsPanel, "icon16/car.png", false, false, "View top list of props spawned" )
 	local propSheetPropsNew = propSheets:AddSheet( "Top Props", propsnPanel, "icon16/car.png", false, false, "View list of top props" )
-	--local propSheetFight = propSheets:AddSheet( "Battle", battlePanel, "icon16/bomb.png", false, false, "Fight a player 1-on-1" )
 	local propSheetFight2 = propSheets:AddSheet( "Battle", battleNewPanel, "icon16/bomb.png", false, false, "Fight a player 1-on-1" )
+	local propSheetAchievements = propSheets:AddSheet( "Achievements", achievementsPanel, "icon16/medal_gold_3.png", false, false, "View personal achievements and serverwide stats" )
 	--local propSheetStats = propSheets:AddSheet( "Statistics", statsPanel, "icon16/chart_bar.png", false, false, "View gamemode statistics!" )
 	
 	if canAccessConfig then

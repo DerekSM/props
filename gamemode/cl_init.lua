@@ -18,6 +18,7 @@ PROPKILL.Battling = PROPKILL.Battling or false
 PROPKILL.BattleAmount = PROPKILL.BattleAmount or 3
 PROPKILL.Battlers = PROPKILL.Battlers or {}
 PROPKILL.BattlePaused = PROPKILL.BattlePaused or false
+PROPKILL.Statistics = PROPKILL.Statistics or {}
 
 local function LoadModules()
 	local root = ((GM and GM.FolderName) or (GAMEMODE and GAMEMODE.FolderName) or "props") .. "/gamemode/modules/"
@@ -79,6 +80,8 @@ include( "sh_blockedmodels.lua" )
 include( "sh_speedy.lua" )
 
 include( "cl_scoreboard.lua" )
+include( "sh_achievements.lua" )
+include( "cl_achievements.lua" )
 
 include( "cl_hud.lua" )
 include( "vgui/hud/horizontalbar.lua" )

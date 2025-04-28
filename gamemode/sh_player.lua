@@ -118,12 +118,21 @@ end
 function _R.Player:SetKillstreak( i_Amt )
 	--if PROPKILL.Battling then return end
 
+	local OldKillstreak = self:GetKillstreak()
 	self:SetNW2Int( "Killstreak", i_Amt )
 	
 	if not PROPKILL.Battling then
 		if i_Amt > self:GetBestKillstreak() then
 			self:SetBestKillstreak( i_Amt )
 		end
+	end
+
+	local Leader = props_RefreshLeader()
+
+
+	-- We havent changed our killstreak if it's still the same...
+	if OldKillstreak != i_Amt then
+		hook.Run("props_PlayerKillstreakChanged", self, OldKillstreak, i_Amt, Leader == self)
 	end
 
 		-- Last minute addition. Notifies players that a killstreak was changed
@@ -198,9 +207,9 @@ end
 
 --]]
 
-local leader = NULL
+PROPKILL.Leader = PROPKILL.Leader or NULL
 function _R.Player:IsLeader()
-	if IsValid( leader ) and leader == self then
+	if IsValid( PROPKILL.Leader ) and PROPKILL.Leader == self then
 		return true
 	end
 	
@@ -210,22 +219,23 @@ end
 
 function props_RefreshLeader()
 		-- new lookup
-	local OldLeader = leader
-	leader = NULL
+	local OldLeader = PROPKILL.Leader
+	PROPKILL.Leader = NULL
 	local temp_Killstreak = 0
 	for k,v in player.Iterator() do
 		if v:GetKillstreak() > temp_Killstreak then
-			leader = v
+			PROPKILL.Leader = v
 			temp_Killstreak = v:GetKillstreak()
 		end
 	end
 
-	return IsValid( leader ) and leader or NULL, OldLeader != leader
+	hook.Run("props_RefreshedLeader", PROPKILL.Leader, OldLeader != PROPKILL.Leader)
+	return IsValid( PROPKILL.Leader ) and PROPKILL.Leader or NULL, OldLeader != PROPKILL.Leader
 end
 
 function props_GetLeader()
-	if IsValid( leader ) then
-		return leader
+	if IsValid( PROPKILL.Leader ) then
+		return PROPKILL.Leader
 	end
 
 	return props_RefreshLeader()
@@ -275,3 +285,13 @@ end
 function _R.Player:AddFightsLost( num )
 	self:SetFightsLost( self:GetFightsLost() + 1 )
 end
+
+	-- id can be either the identifier or the # in the table
+function _R.Player:HasCombatAchievement( id )
+	if isstring(id) then
+		return PROPKILL.GetCombatAchievementByUniqueID( id ) != nil
+	else
+		return PROPKILL.GetCombatAchievement( id ) != nil
+	end
+end
+

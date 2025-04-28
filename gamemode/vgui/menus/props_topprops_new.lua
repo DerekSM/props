@@ -74,7 +74,7 @@ function PANEL:RebuildMenu()
 		
 		pnl.m_iCols = math.floor( pnl.m_iCols )
 		
-		for k, panel in pairs( pnl.Items ) do
+		for k, panel in next, pnl.Items do
 			
 			local x = ( i%pnl.m_iCols ) * pnl.m_iColWide
 			local y = math.floor( i / pnl.m_iCols )  * pnl.m_iRowHeight

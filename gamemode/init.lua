@@ -48,7 +48,6 @@ util.AddNetworkString( "props_NetworkPlayerTotals" )
 util.AddNetworkString( "props_UpdateConfig" )
 util.AddNetworkString( "props_UpdateTopPropsSession" )
 util.AddNetworkString( "props_UpdateTopPropsTotal" )
-util.AddNetworkString( "props_ClearTopProps" )
 util.AddNetworkString( "props_FightInvite" )
 util.AddNetworkString( "props_ShowClicker" )
 util.AddNetworkString( "props_BattleInit" )
@@ -61,6 +60,10 @@ util.AddNetworkString( "props_PlaySoundURL" )
 util.AddNetworkString( "props_AnnounceNewKillstreak" )
 --util.AddNetworkString( "props_RequestGamemodeConfigSync" )
 --util.AddNetworkString( "props_SendGamemodeConfigSync" )
+util.AddNetworkString( "props_NetworkPlayerAchievement" )
+util.AddNetworkString( "props_NetworkPlayerAllAchievementPercentages" )
+util.AddNetworkString( "props_NetworkPlayerAchievementPercentages" )
+util.AddNetworkString( "props_NetworkPlayerAchievementsCompleted" )
 
 
 AddCSLuaFile( "sh_init.lua" )
@@ -73,9 +76,6 @@ AddCSLuaFile( "sh_kd.lua" )
 include( "sh_kd.lua" )
 
 AddCSLuaFile( "cl_init.lua" )
-
---AddCSLuaFile( "player_class/player_propkill.lua" )
---include( "player_class/player_propkill.lua" )
 
 AddCSLuaFile( "cl_hooks_base.lua" )
 AddCSLuaFile( "cl_hooks.lua" )
@@ -106,6 +106,12 @@ include( "sv_commands.lua" )
 AddCSLuaFile( "sh_speedy.lua")
 include( "sh_speedy.lua" )
 
+include( "sh_achievements.lua" )
+include( "sv_achievements.lua" )
+
+AddCSLuaFile( "sh_achievements.lua" )
+AddCSLuaFile( "cl_achievements.lua" )
+
 AddCSLuaFile( "cl_scoreboard.lua" )
 AddCSLuaFile( "vgui/scoreboard/props_scoreboard.lua" )
 AddCSLuaFile( "vgui/scoreboard/props_playerrow.lua" )
@@ -119,7 +125,6 @@ AddCSLuaFile( "cl_menus.lua" )
 AddCSLuaFile( "vgui/menus/dswitch.lua" )
 AddCSLuaFile( "vgui/menus/props_main.lua" )
 AddCSLuaFile( "vgui/menus/props_teams.lua" )
-AddCSLuaFile( "vgui/menus/props_topprops.lua" )
 AddCSLuaFile( "vgui/menus/props_battle.lua" )
 AddCSLuaFile( "vgui/menus/props_newbattle.lua" )
 AddCSLuaFile( "vgui/menus/props_config.lua" )
@@ -128,18 +133,19 @@ AddCSLuaFile( "vgui/menus/props_stats.lua" )
 AddCSLuaFile( "vgui/menus/props_battleresults.lua" )
 AddCSLuaFile( "vgui/menus/props_topprops_new.lua" )
 AddCSLuaFile( "vgui/menus/props_clientconfig.lua" )
+AddCSLuaFile( "vgui/menus/props_achievements.lua" )
 
 local pkfiles, pkfolders = file.Find( "gamemodes/" .. GM.FolderName .. "/gamemode/modules/*.lua", "GAME" )
 --PrintTable( pkfiles )
 for k,v in next, pkfiles do
 	if string.find( v, "sv_" ) then
-		print( "\n" .. GM.Name .. "; Found server module: " .. v )
+		print( GM.Name .. "; Found server module: " .. v )
 		include( "modules/" .. v )
 	elseif string.find(v, "cl_") then
-		print( "\n" .. GM.Name .. "; Found client module: " .. v )
+		print( GM.Name .. "; Found client module: " .. v )
 		AddCSLuaFile( "modules/" .. v )
 	else
-		print( "\n" .. GM.Name .."; Found shared module: " .. v )
+		print( GM.Name .."; Found shared module: " .. v )
 		include( "modules/" .. v )
 		AddCSLuaFile( "modules/" .. v )
 	end

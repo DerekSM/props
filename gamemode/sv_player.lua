@@ -76,12 +76,15 @@ end
 	
 function _R.Player:AddFlyby( i_Amt )
 	--self:SetNetVar( "Flybys", self:GetNetVar( "Flybys", 0 ) + 1 )
+
 	self:SetFlyby( self:GetFlybys() + (i_Amt or 1) )
 end
 function _R.Player:SetFlyby( i_Amt )
-	--i_Amt = tonumber( i_Amt )
-	--self:SetNetVar( "Flybys", i_Amt )
+	local OldFlybys = self:GetFlybys()
 	self:SetNW2Int( "Flybys", tonumber(i_Amt) )
+
+
+	hook.Run("props_PlayerFlybyChanged", self, OldFlybys, i_Amt)
 end
 function _R.Player:GetFlybys()
 	return self:GetNW2Int( "Flybys", 0 )
@@ -121,9 +124,10 @@ function _R.Player:AddLongshot( i_Amt )
 	self:SetLongshot( self:GetLongshots() + (i_Amt or 1) )
 end
 function _R.Player:SetLongshot( i_Amt )
-	--i_Amt = tonumber( i_Amt )
-	--self:SetNetVar( "Longshots", i_Amt )
+	local OldLongshot = self:GetLongshots()
 	self:SetNW2Int("Longshots", tonumber(i_Amt) )
+
+	hook.Run("props_PlayerLongshotChanged", self, OldLongshot, i_Amt)
 end
 function _R.Player:GetLongshots()
 	return self:GetNW2Int( "Longshots", 0 )
@@ -135,9 +139,10 @@ function _R.Player:AddHeadsmash( i_Amt )
 	self:SetHeadsmash( self:GetHeadsmash() + (i_Amt or 1) )
 end
 function _R.Player:SetHeadsmash( i_Amt )
-	--i_Amt = tonumber( i_Amt )
-	--self:SetNetVar( "Headsmash", i_Amt )
+	local OldHeadsmash = self:GetHeadsmash()
 	self:SetNW2Int("Headsmash", i_Amt)
+
+	hook.Run("props_PlayerHeadsmashChanged", self, OldHeadsmash, i_Amt)
 end
 function _R.Player:GetHeadsmash()
 	return self:GetNW2Int( "Headsmash", 0 )
@@ -212,10 +217,6 @@ function _R.Player:SendBattleInvite( target, killamt, propamt, funfight )
 			props_DeclineBattle( target, "props_declinebattle " .. self:UserID(), {self:UserID()} )
 			target:BotTalk( "I'm too good to battle you, " .. Player( self:UserID() ):Nick() )
 		end
-	
-	else
-		
-		print( "its not a bot" )
 		
 	end
 		

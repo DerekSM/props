@@ -67,6 +67,75 @@ function _R.Player:LoadPropkillData()
 			dataset[ i ]( self, data[ i ] )
 		end
 
+	else
+
+		PROPKILL.Statistics[ "totaluniquejoins" ] = (PROPKILL.Statistics[ "totaluniquejoins" ] or 0) + 1
+
+	end
+end
+
+
+	-- todo: allow saving progress if the achievement allows for it
+	-- Should we also save the datatable?
+function _R.Player:SaveCombatAchievements()
+	if not PROPKILL.Config["achievements_save"].default then return end
+
+	local steamid = string.gsub( self:SteamID(), ":", "_" )
+
+		--[[
+		["standyourground"]:
+                ["Progress"]    =       0
+                ["Unlocked"]    =       true
+                ["UnlockedTime"]        =       1745851560
+                ["datatable"]:
+
+		]]
+	local data = {}
+	for k,v in next, self.AchievementData do
+		if v.Unlocked then
+			data[k] = {Unlocked=true,UnlockedTime=v.UnlockedTime}
+		end
+	end
+
+	file.Write( "props/achievements/" .. steamid .. ".txt", pon.encode( data ) )
+end
+
+function _R.Player:LoadCombatAchievements()
+	local steamid = string.gsub( self:SteamID(), ":", "_" )
+	self.AchievementData = self.AchievementData or {}
+
+	if file.Exists( "props/achievements/" .. steamid .. ".txt", "DATA" ) then
+
+		local data = pon.decode( file.Read("props/achievements/" .. steamid .. ".txt", "DATA") )
+
+		for k,v in next, data do
+			self.AchievementData[ k ] = self.AchievementData[ k ] or {}
+			self.AchievementData[ k ] = v
+		end
+
+	end
+end
+
+	-- Save completion data.
+function props_SaveCombatAchievements()
+	local data = {}
+		-- Save it in table format to allow more information down the line, while maintaining backwards compatibility
+	for k,v in next, PROPKILL.GetCombatAchievements() do
+		data[ k ] = {numCompletions=v:GetCompletionRate()}
+	end
+
+	file.Write( "props/achievements/achievementdata.txt", pon.encode( data ) )
+end
+
+function props_LoadCombatAchievements()
+	if file.Exists( "props/achievements/achievementdata.txt", "DATA" ) then
+		local data = pon.decode( file.Read( "props/achivements/achievementdata.txt", "DATA" ) )
+
+		for k,v in next, PROPKILL.GetCombatAchievements() do
+			if data[k] then
+				v:SetCompletionRate( data.numCompletions )
+			end
+		end
 	end
 end
 

@@ -1,0 +1,34 @@
+local function NetworkLocalPlayerAchievement( len, EmptyOnClientside, Retried, AchievementID )
+    local Achievement = AchievementID or net.ReadString()
+        -- If we get an achievement immediately upon connection our entity may not be valid yet.
+    if not IsValid( LocalPlayer() ) then --and !Retried then
+        timer.Simple( 0.5, function()
+            NetworkLocalPlayerAchievement(len, nil, true, Achievement)
+        end )
+        return
+    end
+
+        -- We can probably go ahead and just send the # in the table vs a whole string
+    local AchievementTbl = PROPKILL.GetCombatAchievementByUniqueID( Achievement )
+
+    AchievementTbl:UnlockAchievement( LocalPlayer() )
+end
+net.Receive( "props_NetworkPlayerAchievement", NetworkLocalPlayerAchievement )
+
+net.Receive( "props_NetworkPlayerAchievementsCompleted", function( len )
+    local UniqueJoins = net.ReadUInt( 14 )
+    local CountAchievements = net.ReadUInt( 5 )
+
+    PROPKILL.Statistics["totaluniquejoins"] = UniqueJoins
+
+    for i=1,CountAchievements do
+        local Achievement = PROPKILL.GetCombatAchievementByUniqueID( net.ReadString() )
+        Achievement:SetCompletionRate( net.ReadUInt( 14 ) )
+        if net.ReadBool() then
+            Achievement:UnlockAchievement( LocalPlayer(), true )
+        end
+    end
+
+    hook.Run( "props_NetworkPlayerAchievementsCompleted" )
+end )
+
