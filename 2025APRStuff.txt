@@ -1,4 +1,10 @@
 **Changelog
+v1.4.2
++ Added seven new achievements
+/ Made "I think I can fly" achievement harder to cheese
++ Added ability to sort achievements by left clicking the top header (labeled "Achievement Name")
+/ Made achievements default sorted by title
+/ Fixed achievements menu updating every frame
 v1.4.1
 / Fixed gamemode achievement data not saving/loading
 v1.4
@@ -68,6 +74,9 @@ Add another statistic for total battles fought if it doesn't already exist
 Add config for server owners to let players create their own bot paths
 (?) Add option to scoreboard to view a player's achievements
 (?) Keep tracking player achievement data even after unlocking. Can later review to see total headsmashes etc
+Showcase a way to the player in achievements menu to differentiate between different difficulty levels.
+Allow right clicking Achievements header to sort by: Alphabetical order / difficulty / Percentage of players completed
+Fix "I think I can fly" having to wait until after "I know I can fly" is completed
 
 
 **Notes

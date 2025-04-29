@@ -13,6 +13,8 @@ local PANEL = {}
 
 function PANEL:Init()
 
+		-- SortMode 1 = Sort by Title, SortMode 2 = Sort by Difficulty, SortMode 3 = Sort by Percentage of Players Completed
+	self.SortMode = 1
 	self:SetPos( 15, 15 )
 	self:SetSize( self:GetParent():GetWide() - 30, self:GetParent():GetTall() - 30 )
 
@@ -31,6 +33,28 @@ function PANEL:Init()
 	local headertextsize_w, headertextsize_h = surface.GetTextSize( "Achievement Name" )
 	self.TitlePanel.TextName:SetSize( headertextsize_w, headertextsize_h )
 	self.TitlePanel.TextName:SetPos( 5, self.TitlePanel:GetTall() / 2 - headertextsize_h / 2 )
+	self.TitlePanel.TextName:SetMouseInputEnabled( true )
+	self.TitlePanel.TextName.DoClick = function( pnl )
+		local menu = DermaMenu( pnl )
+
+		local SortTitle = menu:AddOption( "Sort by Title", function() self:SetSortMode( 1 ) end )
+		local SortDifficulty = menu:AddOption( "Sort by Difficulty", function() self:SetSortMode( 2 ) end )
+		local SortCompleted = menu:AddOption( "Sort by Completed", function() self:SetSortMode( 3 ) end )
+
+		menu:AddSpacer()
+		menu:AddOption( "Close" )
+
+		menu:Open()
+
+		menu.Think = function()
+			if not IsValid( pnl ) then
+				menu:Hide()
+				if IsValid( menu ) then
+					menu:Remove()
+				end
+			end
+		end
+	end
 
     self.TitlePanel.TextPercentage = self.TitlePanel:Add( "DLabel" )
 	self.TitlePanel.TextPercentage:SetText( "Percentage of Players Completed" )
@@ -48,12 +72,70 @@ function PANEL:Init()
 	self.Content:SetSpaceY( 2 )
 	self.Content:Dock( FILL )
 
-    for k,v in next, PROPKILL.GetCombatAchievements() do
+	self:CallUpdate()
+
+end
+
+function PANEL:SetSortMode( mode )
+	self.SortMode = mode
+	self:CallUpdate()
+end
+
+function PANEL:GetSortMode()
+	return self.SortMode
+end
+
+function PANEL:CallUpdate()
+	print("updating")
+		-- Remove all contents children
+	self.Content:Clear()
+
+	local GetCombatAchievements = PROPKILL.GetCombatAchievements()
+	local OrganizedAchievements1 = {}
+	local OrganizedAchievementsFinal = {}
+
+		-- This uses GetCombatAchievementByFancyTitle which is slower, so we only use it for the first sort mode.
+	if self:GetSortMode() == 1 then
+		for k,v in next, GetCombatAchievements do
+			OrganizedAchievements1[ #OrganizedAchievements1 + 1 ] = v:GetFancyTitle()
+		end
+
+		table.sort(OrganizedAchievements1, function( a, b) return tostring(a) < tostring(b) end)
+
+		for i=1,#OrganizedAchievements1 do
+			local v = OrganizedAchievements1[i]
+
+			OrganizedAchievementsFinal[i] = PROPKILL.GetCombatAchievementByFancyTitle( v )
+		end
+	elseif self:GetSortMode() == 2 or self:GetSortMode() == 3 then
+		for k,v in next, GetCombatAchievements do
+			OrganizedAchievements1[ #OrganizedAchievements1 + 1 ] = k
+		end
+
+		table.sort(OrganizedAchievements1, function( a, b) return tostring(a) < tostring(b) end)
+
+		for i=1,#OrganizedAchievements1 do
+			local v = OrganizedAchievements1[i]
+
+			OrganizedAchievementsFinal[i] = PROPKILL.GetCombatAchievementByUniqueID( v )
+		end
+
+		if self:GetSortMode() == 2 then
+				-- In ascending order i.e easiest on top
+			table.SortByMember(OrganizedAchievementsFinal, "difficulty", true)
+		else
+			table.SortByMember(OrganizedAchievementsFinal, "numCompletions")
+		end
+	end
+
+    for k=1,#OrganizedAchievementsFinal do
+		local v = OrganizedAchievementsFinal[k]
+
             -- The individual bars. This will hold our text and also button to serve as a dropdown for more info.
         self.Content[ k ] = self.Content:Add( "DPanel" )
         self.Content[ k ]:SetSize( self:GetWide(), 50 )--self.Content[ k ]:GetTall() )
         self.Content[ k ].Paint = function( pnl, w, h)
-            if PROPKILL.GetCombatAchievement( k ):GetProgression( LocalPlayer() ) then
+            if PROPKILL.GetCombatAchievement( v:GetUniqueID() ):GetProgression( LocalPlayer() ) then
                     -- light greenish color
                 draw.RoundedBox( 0, 0, 0, w, h, Color( 110, 255, 110, 255 ) )
             else
@@ -73,20 +155,22 @@ function PANEL:Init()
 
             -- Percentage of Players Completed for each achievement
         self.Content[ k ].ContentPercentage = self.Content[ k ]:Add( "DLabel" )
-		self.Content[ k ].ContentPercentage:SetText( v:GetCompletionRate() )
+		self.Content[ k ].ContentPercentage:SetText( table.FastConcat("", v:GetCompletionRate() / (PROPKILL.Statistics["totaluniquejoins"] or 1) * 100, "%") )
 		self.Content[ k ].ContentPercentage:SetFont( "props_HUDTextTiny" )
 		self.Content[ k ].ContentPercentage:SetTextColor( Color( 90, 90, 90, 255 ) )
 		surface.SetFont( "props_HUDTextTiny" )
-		local contentnamesize_w, contentnamesize_h = surface.GetTextSize( v:GetCompletionRate() )
+		local contentnamesize_w, contentnamesize_h = surface.GetTextSize( table.FastConcat("", v:GetCompletionRate() / (PROPKILL.Statistics["totaluniquejoins"] or 1) * 100, "%") )
 		self.Content[ k ].ContentPercentage:SetSize( contentnamesize_w, contentnamesize_h )
-		self.Content[ k ].ContentPercentage:SetPos( self.Content[ k ]:GetWide() - contentnamesize_w - 15, self.Content[ k ]:GetTall() / 2 - contentnamesize_h / 2 )
+		self.Content[ k ].ContentPercentage:SetPos(
+			self.Content:GetWide() - contentnamesize_w - 15,
+			self.Content[ k ]:GetTall() / 2 - contentnamesize_h / 2
+		)
         self.Content[ k ].ContentPercentage.PerformLayout = function( pnl )
-            self.Content[ k ].ContentPercentage:SetText( table.FastConcat("", v:GetCompletionRate() / (PROPKILL.Statistics["totaluniquejoins"] or 1) * 100, "%") )
             surface.SetFont( "props_HUDTextTiny" )
             local contentnamesize_w, contentnamesize_h = surface.GetTextSize( table.FastConcat("", v:GetCompletionRate() / (PROPKILL.Statistics["totaluniquejoins"] or 1) * 100, "%") )
             self.Content[ k ].ContentPercentage:SetSize( contentnamesize_w, contentnamesize_h )
             self.Content[ k ].ContentPercentage:SetPos(
-                self.Content[ k ]:GetWide() - contentnamesize_w - 15,
+                self.Content:GetWide() - contentnamesize_w - 15,
                 self.Content[ k ]:GetTall() / 2 - contentnamesize_h / 2
             )
         end
@@ -115,7 +199,7 @@ function PANEL:Init()
 				end
 
 				self.Content[ k ].ButtonForDropdown.ContentInfo.DescriptionThings = self.Content[ k ].ButtonForDropdown.ContentInfo:Add( "DLabel" )
-				self.Content[ k ].ButtonForDropdown.ContentInfo.DescriptionThings:SetText( v:GetDescription() )
+				self.Content[ k ].ButtonForDropdown.ContentInfo.DescriptionThings:SetText( v:GetDescription() .. "\nDifficulty: " .. v.difficulty )
 				self.Content[ k ].ButtonForDropdown.ContentInfo.DescriptionThings:SetTextColor( Color( 240, 240, 240, 255 ) )
 				self.Content[ k ].ButtonForDropdown.ContentInfo.DescriptionThings:SetFont( "props_HUDTextSmall" )
 				self.Content[ k ].ButtonForDropdown.ContentInfo.DescriptionThings:SetPos( 10, 2 )
@@ -131,9 +215,10 @@ function PANEL:Init()
 
     hook.Add("props_NetworkPlayerAchievementsCompleted", "propsPanelAchievements_UpdateInformation", function()
         if not IsValid(self) then return end
-        self:InvalidateLayout()
-    end )
 
+        --self:InvalidateLayout()
+        self:CallUpdate()
+    end )
 end
 
 vgui.Register( "props_AchievementsMenu", PANEL )

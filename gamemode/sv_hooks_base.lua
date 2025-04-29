@@ -357,6 +357,10 @@ function GM:DoPlayerDeath( pl, killer, dmginfo )
 	if prop_owner != pl then
 		if prop_owner:GetPos():Distance( pl:GetPos() ) >= 4000 then
 			KillType, HUDMessage = DoPlayerDeathCleanedUp( prop_owner, pl, "longshot" )
+				-- We just did a double whammy. Call the hook SPECIFICALLY made for achievements
+			if prop_owner.Headsmash and prop_owner.Headsmash == pl then
+				hook.Run("props_DoubleWhammyLongshotHeadsmash", prop_owner, pl )
+			end
 		elseif prop_owner:IsFlying() then
 			KillType, HUDMessage = DoPlayerDeathCleanedUp( prop_owner, pl, "flyby" )
 		elseif prop_owner.Headsmash and prop_owner.Headsmash == pl then

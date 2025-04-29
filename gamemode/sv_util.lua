@@ -127,6 +127,19 @@ function timer.CreatePlayer( pl, identifier, delay, reps, callback )
 	pl.RemoveTimerDC[ identifier .. "_" .. pl:UserID() ] = true
 end
 
+function timer.CreatePlayerIfNotExists( pl, identifier, delay, reps, callback )
+	if not timer.HasPlayer( pl, identifier ) then
+		timer.Create( identifier .. "_" .. pl:UserID(), delay, reps, function()
+				-- add to global table and remove them on disconnect instead.
+			if not IsValid( pl ) then return end--timer.Destroy( identifier .. "_" .. pl:UserID() ) return end
+
+			callback()
+		end )
+		pl.RemoveTimerDC = pl.RemoveTimerDC or {}
+		pl.RemoveTimerDC[ identifier .. "_" .. pl:UserID() ] = true
+	end
+end
+
 function timer.DestroyPlayer( pl, identifier )
 	timer.Destroy( identifier .. "_" .. pl:UserID() )
 	pl.RemoveTimerDC[ identifier .. "_" .. pl:UserID() ] = nil

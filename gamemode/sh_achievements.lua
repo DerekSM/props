@@ -19,12 +19,12 @@
         - "360 noscope" - Kill a player after turning 360+ degrees after releasing a prop
         -D "Slow is smooth, smooth is.." - Kill a player while your wheelspeed <=30
         -D "Toy maker" - Kill a player with a small object. Think like a hula doll model.
-        - "No life" - Be on the server for two consecutive hours.
+        -D "No life" - Be on the server for two consecutive hours.
         - "I'll be a good boy" - Kill ten players consecutively without triggering the antinoob system.
         -D "Smurf" - Reset your stats at least once
         -D "Killing spree" - Kill five players without dying yourself.
         -D "Midget Mania" - Kill three players while crouching.
-        -D "I think I can fly" - Stay actively moving and airborne for 30 seconds
+        -D "I think I can fly" - Stay actively moving and airborne for 20 seconds
         -D "Nerfed" - Kill three players in a row without freezing any props and while not dying yourself.
         -D "I'll take the low ground" - Kill five players while on the ground.
         -D "Stand your ground" - Kill two players from the same spot.
@@ -40,6 +40,13 @@
         - "Baby(god) Killer" - Kill a player while your babygod is still active
         - "See you tomorrow" - Join the server two days in a row
         -D "The Completionist" - Unlock every achievement (that were made at the time of unlocking)
+        -D "I know I can fly" - Stay actively moving and airborne for 60 seconds
+        -D "Stomped" - Jump onto a player's head from at least a 2 story height
+        -D "Cancel my fall" - "Land in the middle of a frozen prop thats touching the ground while falling fast"
+        -D "Repetition is key" - "Using only one model, kill five players"
+        -D "Double Whammy" - "Kill a player with the kill being registered as BOTH a longshot AND a headsmash"
+        -D "Cool guys don't look at prop kills" - "Kill a player while being turned away from them"
+        - "Quit hitting yourself" - "Kill a player with their own prop"
 ]]
 PROPKILL.CombatAchievements = PROPKILL.CombatAchievements or {}
 PROPKILL.CombatAchievementsCount = 0
@@ -81,6 +88,16 @@ function PROPKILL.GetCombatAchievementByUniqueID( str_identifier )
     if not str_identifier then return nil, nil end
 
     return PROPKILL.CombatAchievements[ str_identifier ]
+end
+
+function PROPKILL.GetCombatAchievementByFancyTitle( str_identifier )
+    if not str_identifier then return nil, nil end
+
+    for k,v in next, PROPKILL.GetCombatAchievements() do
+        if v:GetFancyTitle() == str_identifier then
+            return v
+        end
+    end
 end
 
 function PROPKILL.DebugUnlockAchievement( pl )
@@ -198,7 +215,7 @@ function AchievementMeta:AddProgression( pl )
         return
     end
 
-    --pl:ChatPrint("We're adding to your progression. Current:" .. Progress + 1)
+    --pl:ChatPrint("We're adding to your progression - " .. self:GetFancyTitle() .. ". Current:" .. Progress + 1)
 
     local NewProgress = pl.AchievementData[ self:GetUniqueID() ].Progress + 1
     pl.AchievementData[ self:GetUniqueID() ].Progress = NewProgress
@@ -254,6 +271,7 @@ CA_SWATTER:AddListener( "props_PlayerHeadsmashChanged", LISTENER_SERVER, functio
     end
 end )
 
+
 local CA_SPINNER = PROPKILL.RegisterCombatAchievement(
     {
         id = "rotationalprop",
@@ -273,9 +291,7 @@ CA_SPINNER:AddListener( "props_PropKilled", LISTENER_SERVER, function( achieveme
     end
 end )
 
-    -- This is purposefully made doable by walking on props.
-    -- Maybe make a "I think I can fly 2"? "Frequent Flyer" ?
-    -- That would be way harder for the player; essentially you have to do a bunch of back and forth prop surfing
+
 CA_AIRBORNE = PROPKILL.RegisterCombatAchievement(
     {
         id = "airborne",
@@ -288,31 +304,87 @@ CA_AIRBORNE = PROPKILL.RegisterCombatAchievement(
 CA_AIRBORNE:SetGoal( 20 )
 CA_AIRBORNE:AddListener( "FinishMove", LISTENER_SERVER, function( achievement, pl, movedata )
     if achievement:GetProgression( pl ) then return end
-    if not timer.HasPlayer( pl, "props_CombatAchievementFlyer" ) then
 
-        timer.CreatePlayer( pl, "props_CombatAchievementFlyer", 1, 0, function()
-            if pl:GetGroundEntity() == Entity(0) or pl:WaterLevel() > 0 then
-                achievement:ResetProgression( pl )
-                return
-            end
-                -- We WOULD use :Velocity but that returns 0,0,0 when we are walking on props
-            if (pl.OldFlyerPos and pl.OldFlyerPos:DistToSqr( pl:GetPos() ) < 1936) then
-                achievement:ResetProgression( pl )
-                return
-            end
+    achievement:SetPlayerData( pl, "MovementVelocity", movedata:GetVelocity() )
+    timer.CreatePlayerIfNotExists( pl, "props_CombatAchievementFlyer", 1, 0, function()
+        if pl:GetGroundEntity() == Entity(0) or pl:WaterLevel() > 0
+        or not pl:Alive() or pl:Team() == TEAM_SPECTATOR then
+            achievement:ResetProgression( pl )
+            return
+        end
 
-            pl.OldFlyerPos = pl:GetPos()
+            -- We WOULD use :Velocity but that returns 0,0,0 when we are walking on props
+            -- Edit: Entity:Veloicty returns 0,0,0 on props, but movedata:Velocity doesn't.
+            -- Still, we already made this so we'll keep it mostly the same.
+        local OldFlyerPos = achievement:GetPlayerData(pl, "OldFlyerPos", pl:GetPos())
+
+            -- Pos = 180*180
+            -- Velocity = 520*520 (Slightly higher than anyone is able to run)
+        if (OldFlyerPos:DistToSqr( pl:GetPos() ) < 32400) and (achievement:GetPlayerData( pl, "MovementVelocity" ):LengthSqr() > 270400) then
+            achievement:ResetProgression( pl )
+        else
             achievement:AddProgression( pl )
-        end )
-
-    end
+        end
+        achievement:SetPlayerData( pl, "OldFlyerPos", pl:GetPos() )
+    end )
 end )
 CA_AIRBORNE:AddListener( "OnAchievementUnlocked", LISTENER_SERVER, function( achievement, pl, uniqueid, fancytitle )
-    timer.DestroyPlayer( pl, "props_CombatAchievementFlyer" )
+    if achievement:GetUniqueID() == uniqueid then
+        timer.DestroyPlayer( pl, "props_CombatAchievementFlyer" )
+    end
 end )
 CA_AIRBORNE:AddListener( "OnPlayerJump", LISTENER_SERVER, function( achievement, pl, speed )
     achievement:ResetProgression( pl )
 end )
+
+
+    -- This is purposefully made doable by walking on props.
+    -- Maybe make a "I think I can fly 2"? "Frequent Flyer" ?
+    -- That would be way harder for the player; essentially you have to do a bunch of back and forth prop surfing
+local CA_AIRBORNE2 = PROPKILL.RegisterCombatAchievement(
+    {
+        id = "airborne2",
+        title = "I know I can fly",
+        description = "Stay actively moving and airborne for 60 seconds",
+        type = "Time",
+        difficulty = 5
+    }
+)
+CA_AIRBORNE2:SetGoal( 60 )
+CA_AIRBORNE2:AddListener( "FinishMove", LISTENER_SERVER, function( achievement, pl, movedata )
+    if achievement:GetProgression( pl ) then return end
+
+    achievement:SetPlayerData( pl, "MovementVelocity", movedata:GetVelocity() )
+    timer.CreatePlayerIfNotExists( pl, "props_CombatAchievementFlyer2", 1, 0, function()
+        if pl:GetGroundEntity() == Entity(0) or pl:WaterLevel() > 0
+        or not pl:Alive() or pl:Team() == TEAM_SPECTATOR then
+            achievement:ResetProgression( pl )
+            return
+        end
+            -- We WOULD use :Velocity but that returns 0,0,0 when we are walking on props
+            -- Edit: Entity:Veloicty returns 0,0,0 on props, but movedata:Velocity doesn't.
+            -- Still, we already made this so we'll keep it mostly the same.
+        local OldFlyerPos = achievement:GetPlayerData(pl, "OldFlyerPos", pl:GetPos())
+
+            -- Pos = 180*180
+            -- Velocity = 520*520 (Slightly higher than anyone is able to run)
+        if (OldFlyerPos:DistToSqr( pl:GetPos() ) < 32400) and (achievement:GetPlayerData( pl, "MovementVelocity" ):LengthSqr() > 270400) then
+            achievement:ResetProgression( pl )
+        else
+            achievement:AddProgression( pl )
+        end
+        achievement:SetPlayerData( pl, "OldFlyerPos", pl:GetPos() )
+    end )
+end )
+CA_AIRBORNE2:AddListener( "OnAchievementUnlocked", LISTENER_SERVER, function( achievement, pl, uniqueid, fancytitle )
+    if achievement:GetUniqueID() == uniqueid then
+        timer.DestroyPlayer( pl, "props_CombatAchievementFlyer2" )
+    end
+end )
+CA_AIRBORNE2:AddListener( "OnPlayerJump", LISTENER_SERVER, function( achievement, pl, speed )
+    achievement:ResetProgression( pl )
+end )
+
 
 local CA_FIRSTBLOOD = PROPKILL.RegisterCombatAchievement(
     {
@@ -328,6 +400,7 @@ CA_FIRSTBLOOD:AddListener( "props_PlayerKillstreakChanged", LISTENER_SERVER, fun
     achievement:UnlockAchievement( killer )
     achievement:SetData("HasFirstBlood", true)
 end )
+
 
 local CA_WHEELSPEED = PROPKILL.RegisterCombatAchievement(
     {
@@ -348,6 +421,7 @@ CA_WHEELSPEED:AddListener( "props_PropKilled", LISTENER_SERVER, function( achiev
     end
 end )
 
+
     -- This ~should~ actually auto give you it when you first join, assuming you've had a flyby recorded in your data file
 local CA_FLYBY = PROPKILL.RegisterCombatAchievement(
     {
@@ -363,6 +437,7 @@ CA_FLYBY:AddListener( "props_PlayerFlybyChanged", LISTENER_SERVER, function( ach
         achievement:UnlockAchievement( pl )
     end
 end )
+
 
 local CA_TOYMAKER = PROPKILL.RegisterCombatAchievement(
     {
@@ -393,6 +468,7 @@ CA_TOYMAKER:AddListener( "props_PropKilled", LISTENER_SERVER, function( achievem
     end
 end )
 
+
 local CA_DOUBLEKILL = PROPKILL.RegisterCombatAchievement(
     {
         id = "doublekill",
@@ -415,6 +491,7 @@ CA_DOUBLEKILL:AddListener( "props_PropKilled", LISTENER_SERVER, function( achiev
     end
 end )
 
+
 local CA_SMURF = PROPKILL.RegisterCombatAchievement(
     {
         id = "smurf",
@@ -429,6 +506,7 @@ CA_SMURF:AddListener( "props_PlayerResetStats", LISTENER_SERVER, function( achie
 
     achievement:UnlockAchievement( pl )
 end )
+
 
 local CA_LEADER = PROPKILL.RegisterCombatAchievement(
     {
@@ -502,6 +580,7 @@ CA_MIDGET:AddListener( "props_PropKilled", LISTENER_SERVER, function( achievemen
     end
 end )
 
+
 local CA_KILLINGSPREE = PROPKILL.RegisterCombatAchievement(
     {
         id = "killingspree",
@@ -542,7 +621,6 @@ CA_NERFED:AddListener( "OnPhysgunFreeze", LISTENER_SERVER, function( achievement
     if ent:GetClass() != "prop_physics" then return end
     if achievement:GetProgression( pl ) then return end
 
-    pl:ChatPrint("froze")
     achievement:ResetProgression( pl )
 
 end )
@@ -551,6 +629,7 @@ CA_NERFED:AddListener( "PlayerDeath", LISTENER_SERVER, function( achievement, pl
 
     achievement:ResetProgression( pl )
 end )
+
 
 local CA_LOWGROUND = PROPKILL.RegisterCombatAchievement(
     {
@@ -572,11 +651,12 @@ CA_LOWGROUND:AddListener( "props_PropKilled", LISTENER_SERVER, function( achieve
     end
 end )
 
+
 local CA_COMPLETIONIST = PROPKILL.RegisterCombatAchievement(
     {
         id = "completionist",
         title = "The Completionist",
-        description = "Unlock every achievement (that were made at the time of unlocking)",
+        description = "Unlock every achievement (that existed at the time of unlocking)",
         type = "Trigger",
         difficulty = 5
     }
@@ -595,6 +675,171 @@ CA_COMPLETIONIST:AddListener( "OnAchievementUnlocked", LISTENER_SERVER, function
     end
 end )
 
+
+local CA_STOMPED = PROPKILL.RegisterCombatAchievement(
+    {
+        id = "stomped",
+        title = "Stomped",
+        description = "Jump onto a player's head from at least a 2 story height",
+        type = "Trigger",
+        difficulty = 1
+    }
+)
+CA_STOMPED:AddListener( "OnPlayerJump", LISTENER_SERVER, function( achievement, pl, speed )
+    if achievement:GetProgression( pl ) then return end
+    achievement:SetPlayerData( pl, "JumpHeight", pl:GetPos().z )
+    achievement:SetPlayerData( pl, "JumpTime", CurTime() )
+end )
+CA_STOMPED:AddListener( "OnPlayerHitGround", LISTENER_SERVER, function( achievement, pl, b_water, b_floater, i_speed )
+    if achievement:GetProgression( pl ) then return end
+    if pl:IsBot() then return end
+        -- This includes bots
+    if not pl:GetGroundEntity():IsPlayer() then return end
+
+    if (achievement:GetPlayerData( pl, "JumpHeight", pl:GetPos().z ) - pl:GetPos().z > 130)
+        and achievement:GetPlayerData( pl, "JumpTime", CurTime() ) - CurTime() < 7 then
+
+        achievement:UnlockAchievement( pl )
+    end
+end )
+
+local CA_CAUGHT = PROPKILL.RegisterCombatAchievement(
+    {
+        id = "cancelmyfall",
+        title = "Cancel my fall",
+        description = "Land in the middle of a frozen prop thats touching the ground while falling fast",
+        type = "Trigger",
+        difficulty = 2
+    }
+)
+CA_CAUGHT:AddListener( "FinishMove", LISTENER_SERVER, function( achievement, pl, movedata )
+    if achievement:GetProgression( pl ) then return end
+    if pl:IsBot() then return end
+    achievement:SetPlayerData( pl, "MovementVelocity", movedata:GetVelocity():LengthSqr() )
+
+    if not timer.HasPlayer( pl, "props_CombatAchievementCancelMyFall" ) then
+
+        timer.CreatePlayer( pl, "props_CombatAchievementCancelMyFall", 1, 0, function()
+            if not pl:Alive() or pl:Team() == TEAM_SPECTATOR then return end
+            if IsValid( pl:GetGroundEntity() ) or pl:GetGroundEntity() == Entity(0) then
+                achievement:SetPlayerData( pl, "LastVelocity", nil )
+                return
+            end
+
+                -- Interestingly, if we land in a frozen prop our velocity drops massively (but above zero) and then stays (mostly) stagnant!
+           -- print(pl:GetVelocity():LengthSqr())
+
+            local GetCurVelocity = pl:GetVelocity():LengthSqr()
+            local GetLastVelocity = achievement:GetPlayerData( pl, "LastVelocity", GetCurVelocity )
+            local GetMoveDataVelocity = achievement:GetPlayerData( pl, "MovementVelocity", GetCurVelocity )
+
+            --print("division", GetLastVelocity / GetCurVelocity)
+            --print("mv vel", achievement:GetPlayerData( pl, "MovementVelocity"), 0 )
+
+                -- Weird mechanic with getting stuck in props
+            if GetLastVelocity / GetCurVelocity > 7
+            and GetMoveDataVelocity > 0 and GetMoveDataVelocity < 100 then
+
+                    achievement:UnlockAchievement( pl )
+
+            end
+
+            achievement:SetPlayerData( pl, "LastVelocity", pl:GetVelocity():LengthSqr() )
+        end )
+
+    end
+end )
+
+
+local CA_REPETITION = PROPKILL.RegisterCombatAchievement(
+    {
+        id = "repetition",
+        title = "Repetition is key",
+        description = "Using only one model, kill five players",
+        type = "Counter",
+        difficulty = 3
+    }
+)
+CA_REPETITION:SetGoal( 5 )
+CA_REPETITION:AddListener( "props_PropKilled", LISTENER_SERVER, function( achievement, pl, prop )
+    if prop:GetClass() != "prop_physics" or not prop.Owner then return end
+
+    local Killer = prop.Owner
+    if achievement:GetProgression( Killer ) then return end
+
+    achievement:AddProgression( Killer )
+
+end )
+CA_REPETITION:AddListener( "PlayerSpawnedProp", LISTENER_SERVER, function( achievement, pl, model, ent )
+    if achievement:GetProgression( pl ) then return end
+
+    if achievement:GetPlayerData( pl, "SpawnedModel" ) then
+        if achievement:GetPlayerData( pl, "SpawnedModel" ) != model then
+            achievement:ResetProgression( pl )
+            return
+        end
+    end
+
+    achievement:SetPlayerData( pl, "SpawnedModel", model )
+end )
+
+
+local CA_WHAMMY = PROPKILL.RegisterCombatAchievement(
+    {
+        id = "doublywhammy",
+        title = "Double Whammy",
+        description = "Kill a player with the kill being registered as BOTH a longshot AND a headsmash",
+        type = "Trigger",
+        difficulty = 5
+    }
+)
+CA_WHAMMY:AddListener( "props_DoubleWhammyLongshotHeadsmash", LISTENER_SERVER, function( achievement, killer, deadplayer )
+    if achievement:GetProgression( killer ) then return end
+
+    achievement:UnlockAchievement( killer )
+end )
+
+
+local CA_LOOKAWAY = PROPKILL.RegisterCombatAchievement(
+    {
+        id = "lookaway",
+        title = "Cool guys don't look at prop kills",
+        description = "Kill a player while being turned away from them",
+        type = "Trigger",
+        difficulty = 3
+    }
+)
+CA_LOOKAWAY:AddListener( "props_PropKilled", LISTENER_SERVER, function( achievement, deadplayer, prop )
+    if prop:GetClass() != "prop_physics" or not prop.Owner then return end
+
+    local Killer = prop.Owner
+    if achievement:GetProgression( Killer ) then return end
+
+    local Dist = prop:GetPos() - Killer:GetShootPos()
+    local Product = Killer:GetAimVector():Dot(Dist) / Dist:Length()
+
+    if Product <= -0.2 then
+        achievement:UnlockAchievement( Killer )
+    end
+end )
+
+
+local CA_NOLIFE = PROPKILL.RegisterCombatAchievement(
+    {
+        id = "nolife",
+        title = "No life",
+        description = "Be on the server for two consecutive hours",
+        type = "Trigger",
+        difficulty = 4
+    }
+)
+CA_NOLIFE:AddListener( "PlayerInitialSpawn", LISTENER_SERVER, function( achievement, pl )
+    if achievement:GetProgression( pl ) then return end
+
+    timer.CreatePlayer( pl, "props_CombatAchievementNoLife", 2*60*60, 1, function()
+        achievement:UnlockAchievement( pl )
+    end )
+end )
 
     -- Todo: Finish later
 --[[local CA_NOSCOPE = PROPKILL.RegisterCombatAchievement(
