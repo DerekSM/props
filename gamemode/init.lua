@@ -72,9 +72,6 @@ include( "sh_init.lua" )
 AddCSLuaFile( "sh_config.lua" )
 include( "sh_config.lua" )
 
-AddCSLuaFile( "sh_kd.lua" )
-include( "sh_kd.lua" )
-
 AddCSLuaFile( "cl_init.lua" )
 
 AddCSLuaFile( "cl_hooks_base.lua" )
@@ -121,6 +118,7 @@ AddCSLuaFile( "vgui/scoreboard/props_playerrow_alt.lua" )
 AddCSLuaFile( "cl_hud.lua" )
 AddCSLuaFile( "vgui/hud/horizontalbar.lua" )
 
+AddCSLuaFile( "cl_commands.lua" )
 AddCSLuaFile( "cl_menus.lua" )
 AddCSLuaFile( "vgui/menus/dswitch.lua" )
 AddCSLuaFile( "vgui/menus/props_main.lua" )

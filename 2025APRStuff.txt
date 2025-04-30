@@ -1,4 +1,19 @@
 **Changelog
+v1.5.0
+/ Lowered chat delay from 1.25 seconds to 1 second
++ Added config option to change chat delay
++ Added config option to change if players should be chat rate limited (i.e anti-spam)
++ Added config option to change how long a mute is if reached chat limit
+/ Fixed headmash achievement potentially progressing by mistake
++ Added four more achievements (longshots, noscopes, and recluse)
+/ Fixed graphical issue for sliders on config options with a minimum of 1.
++ Added client config option to change default achievement sorting method
+/ Fixed F4 team selection menu not popping up after player first connects
+/ Fixed jump height to match sandbox/base gamemodes
+/ Moved all base gamemode clientside console commands to cl_commands.lua
+/ Moved all remaining base gamemode serverside console commands to sv_commands.lua
+/ Fixed "I think I can fly" and "I know I can fly" achievements after last update
+/ Updated "Cancel my fall" achievement to be harder to cheese
 v1.4.2
 + Added seven new achievements
 / Made "I think I can fly" achievement harder to cheese
@@ -75,8 +90,7 @@ Add config for server owners to let players create their own bot paths
 (?) Add option to scoreboard to view a player's achievements
 (?) Keep tracking player achievement data even after unlocking. Can later review to see total headsmashes etc
 Showcase a way to the player in achievements menu to differentiate between different difficulty levels.
-Allow right clicking Achievements header to sort by: Alphabetical order / difficulty / Percentage of players completed
-Fix "I think I can fly" having to wait until after "I know I can fly" is completed
+I think I can Fly and I know I can Fly are broken rn: If you just stand on a prop in the sky it'll unlock
 
 
 **Notes

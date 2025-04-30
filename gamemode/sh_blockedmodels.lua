@@ -81,66 +81,6 @@ if SERVER then
 		file.Write( "props/blockedmodels.txt", pon.encode( PROPKILL.BlockedModels ) )
 	end
 	
-	concommand.Add( "props_blockmodel", function( pl, cmd, arg )
-		if not IsValid( pl ) then
-			if not arg[ 1 ] then
-				print( "\nProps: Can't block model: No model given!" )
-				return
-			end
-			
-			PROPKILL.AddBlockedModel( arg[ 1 ], arg[ 2 ] and tobool( arg[ 2 ] ) or false )
-			return
-		end
-		
-		if not pl:IsSuperAdmin() then
-			pl:Notify( NOTIFY_ERROR, 4, "Access denied" )
-			return
-		end
-		
-		if not arg[ 1 ] and not IsValid( pl:GetEyeTrace().Entity ) then
-			pl:Notify( NOTIFY_ERROR, 4, "Can't block model: No model given!", true )
-			return
-		end
-		
-		local mdl = arg[ 1 ] and arg[ 1 ] or pl:GetEyeTrace().Entity:GetModel()
-
-		for k,v in pairs( player.GetHumans() ) do
-			v:Notify( NOTIFY_GENERIC, 4, pl:Nick() .. " blocked " .. mdl, true )
-		end
-		
-		PROPKILL.AddBlockedModel( mdl, arg[ 2 ] and tobool( arg[ 2 ] ) or false )
-	end )
-	
-	concommand.Add( "props_unblockmodel", function( pl, cmd, arg )
-		if not IsValid( pl ) then
-			if not arg[ 1 ] then
-				print( "\nProps: Can't unblock model: No model given!" )
-				return
-			end
-			
-			PROPKILL.RemoveBlockedModel( arg[ 1 ] )
-			return
-		end
-		
-		if not pl:IsSuperAdmin() then
-			pl:Notify( NOTIFY_ERROR, 4, "Access denied" )
-			return
-		end
-		
-		if not arg[ 1 ] and not IsValid( pl:GetEyeTrace().Entity ) then
-			pl:Notify( NOTIFY_ERROR, 4, "Can't block model: No model given!", true )
-			return
-		end
-		
-		local mdl = arg[ 1 ] and arg[ 1 ] or pl:GetEyeTrace().Entity:GetModel()
-		
-		for k,v in pairs( player.GetHumans() ) do
-			v:Notify( NOTIFY_GENERIC, 4, pl:Nick() .. " unblocked " .. mdl, true )
-		end
-		
-		PROPKILL.RemoveBlockedModel( arg[ 1 ] )
-	end )
-	
 else
 
 	net.Receive( "props_UpdateBlockedModels", function()

@@ -26,9 +26,23 @@ net.Receive( "props_NetworkPlayerAchievementsCompleted", function( len )
         Achievement:SetCompletionRate( net.ReadUInt( 14 ) )
         if net.ReadBool() then
             Achievement:UnlockAchievement( LocalPlayer(), true )
+        else
+                -- This was added solely for server debugging. Hopefully doesn't cause any issues
+            Achievement:LockAchievement( LocalPlayer() )
         end
     end
 
     hook.Run( "props_NetworkPlayerAchievementsCompleted" )
 end )
 
+AddClientConfigItem( "props_DefaultAchievementSorting",
+	{
+	Name = "Default Achievement Sorting",
+	default = 1,
+    min = 1,
+	max = 3,
+	type = "integer",
+	decimals = 0,
+	desc = "Default method of sorting achievements menu. 1=Title;2=Difficulty;3=Percentage Completed",
+	}
+)

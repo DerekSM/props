@@ -47,6 +47,14 @@ function table.FastConcat( str_Separator, ... )
 	return table.concat(Pre, str_Separator)
 end
 
+function math.DeltaAngle( current, new )
+	local Delta = (new - current) % 360
+	if Delta > 180 then Delta = Delta - 360 end
+	if Delta < -180 then Delta = Delta + 360 end
+
+	return Delta
+end
+
 
 Props_Benchmark = {}
 local benchmarks = {}

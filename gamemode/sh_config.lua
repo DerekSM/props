@@ -241,6 +241,44 @@ AddConfigItem("player_canspawnragdolls",
 	}
 )
 
+
+	-- There's still a game built-in chat delay. Nothing we can really do about that.
+AddConfigItem("player_chatdelay",
+	{
+	Name = "Player Chat Delay",
+	Category = "Player Management",
+		-- Old versions of gamemode used to be 1.25 seconds
+	default = 1,
+	min = 0,
+	max = 60,
+	type = "integer",
+	desc = "How long before a player can send another message",
+	}
+)
+
+AddConfigItem("player_chatratelimit",
+	{
+	Name = "Player Chat Anti-spam",
+	Category = "Player Management",
+	default = true,
+	type = "boolean",
+	desc = "Turn on rate limiting for players that spam the chat",
+	}
+)
+
+AddConfigItem("player_chatratelimit_time",
+	{
+	Name = "Player Chat Spam Mute Time",
+	Category = "Player Management",
+		-- This is the base mute time. We actually add a random variable to this.
+	default = 10,
+	min = 0,
+	max = 60,
+	type = "integer",
+	desc = "How long should a player be temporarily muted for",
+	}
+)
+
 AddConfigItem("sounds_playkillingsprees",
 	{
 	Name = "Play killing spree sounds",

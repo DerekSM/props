@@ -56,22 +56,21 @@ function PANEL:Init()
             self.Content[ k ].Content:SetDecimals( v.decimals or 0 )
             self.Content[ k ].Content.Scratch:SetDecimals( v.decimals or 0 )
             self.Content[ k ].Content:SetValue( v.currentvalue )
-            --self.configCategories[ category ].Panel[ k ].Content.Label:Remove()
-            self.Content[ k ].Content.Slider:SetSlideX( v.currentvalue / ( v.max or 50 ) )
             self.Content[ k ].Content.Slider.OnMouseReleased = function( pnl )
                 pnl:SetDragging( false )
                 pnl:MouseCapture( false )
-
-               -- PROPKILL.Config[ k ].default = math.Round( self.configCategories[ category ].Panel[ k ].Content:GetValue(), v.decimals or 0 )
             end
             self.Content[ k ].Content.Slider.Knob.OnMouseReleased = function( pnl, mousecode )
-               -- PROPKILL.Config[ k ].default = math.Round( self.configCategories[ category ].Panel[ k ].Content:GetValue(), v.decimals or 0 )
+                if not v.listening then
+                    ChangeClientConfigValue( k, math.Round( self.Content[ k ].Content:GetValue(), v.decimals or 0 ) )
+                end
 
                 return DLabel.OnMouseReleased( pnl, mousecode )
             end
             self.Content[ k ].Content.TextArea.OnEnter = function( pnl )
-                --RunConsoleCommand( "props_changesetting", k, math.Round( pnl:GetValue(), v.decimals or 0 ) )
-                --PROPKILL.Config[ k ].default = math.Round( self.configCategories[ category ].Panel[ k ].Content:GetValue(), v.decimals or 0 )
+                if not v.listening then
+                    ChangeClientConfigValue( k, math.Round( self.Content[ k ].Content:GetValue(), v.decimals or 0 ) )
+                end
             end
             self.Content[ k ].Content.OnValueChanged = function( pnl, val )
                 if not v.listening then return end

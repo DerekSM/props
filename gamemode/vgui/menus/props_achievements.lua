@@ -14,7 +14,7 @@ local PANEL = {}
 function PANEL:Init()
 
 		-- SortMode 1 = Sort by Title, SortMode 2 = Sort by Difficulty, SortMode 3 = Sort by Percentage of Players Completed
-	self.SortMode = 1
+	self.SortMode = PROPKILL.ClientConfig["props_DefaultAchievementSorting"].currentvalue
 	self:SetPos( 15, 15 )
 	self:SetSize( self:GetParent():GetWide() - 30, self:GetParent():GetTall() - 30 )
 

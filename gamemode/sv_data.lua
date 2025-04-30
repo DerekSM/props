@@ -13,6 +13,12 @@ local _R = debug.getregistry()
 
 function _R.Player:SavePropkillData()
 	local steamid = string.gsub( self:SteamID(), ":", "_" )
+
+	if self.PropkillDataError then
+		print( [[ERROR SAVING PROPKILL DATA: ]] .. self:Nick() .. [[ (]] .. self:SteamID() .. [[ )
+			Couldn't load data. Now quitting to prevent accidental overwrite.]] )
+		return
+	end
 	
 	local data = 
 	{
@@ -61,6 +67,7 @@ function _R.Player:LoadPropkillData()
 			if not data[ i ] then
 				print( [[ERROR LOADING PLAYER DATA: ]] .. self:Nick() .. [[ (]] .. self:SteamID() .. [[ )
 				            Couldn't load number ]] .. i )
+				self.PropkillDataError = true
 				return
 			end
 			
@@ -72,6 +79,8 @@ function _R.Player:LoadPropkillData()
 		PROPKILL.Statistics[ "totaluniquejoins" ] = (PROPKILL.Statistics[ "totaluniquejoins" ] or 0) + 1
 
 	end
+
+	hook.Run("props_PlayerDataLoaded", self)
 end
 
 

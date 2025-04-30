@@ -220,6 +220,8 @@ function GM:PlayerSpawn( pl )
 	pl:SetWalkSpeed( 250 )
 	pl:SetRunSpeed( 380 )
 	pl:SetHealth( 1 )
+		-- Matches sandbox/base gamemodes
+	pl:SetJumpPower( 200 )
 	pl:SetPlayerColor( Vector( pl:GetInfo( "cl_playercolor" ) ) )
 	GAMEMODE:PlayerLoadout( pl )
 	GAMEMODE:PlayerSetModel( pl )
@@ -751,7 +753,51 @@ function GM:SetupPlayerVisibility( pl )
 	end
 end
 
+	-- Can even take this a step further and introduce exponential anti-spam
+	-- But we won't do that unless requested
 function GM:PlayerSay( pl, txt, teamchat )
+	pl.LastChatTime = pl.LastChatTime or CurTime()
+	pl.ChatHistory = pl.ChatHistory or {}
+
+	if pl.LastChatTime > CurTime() then
+		if pl.LastChatTime - PROPKILL.Config["player_chatdelay"].default > CurTime() then
+			pl:PrintMessage(HUD_PRINTCONSOLE, "You've been chat limited. WAIT!")
+		end
+		return ""
+	end
+
+	if PROPKILL.Config["player_chatratelimit"].default then
+
+			-- How far back are the past messages taken into account.
+			-- We do a random integer to help prevent cheesing the system.
+		local ChatWindowTimePeriod = math.random(7,11)
+		for i=1,#pl.ChatHistory do
+			local v = pl.ChatHistory[i]
+
+			if CurTime() - v > ChatWindowTimePeriod then
+				pl.ChatHistory[i] = nil
+			end
+		end
+
+			-- They've triggered our anti-spam
+		if #pl.ChatHistory > 5 then
+			local MuteTime = PROPKILL.Config["player_chatratelimit_time"].default
+			pl.LastChatTime = CurTime() + math.random(MuteTime, MuteTime + 3)
+				-- Reset their history
+			pl.ChatHistory = {}
+			return ""
+		end
+	end
+
+	pl.LastChatTime = CurTime() + PROPKILL.Config["player_chatdelay"].default
+	table.insert( pl.ChatHistory, 1, CurTime() )
+
+	PROPKILL.Statistics[ "totalmessages" ] = ( PROPKILL.Statistics[ "totalmessages" ] or 0 ) + 1
+	hook.Run("props_PlayerSay", pl, txt, teamchat)
+	return self.BaseClass:PlayerSay( pl, txt, teamchat )
+end
+
+--[[function GM:PlayerSay( pl, txt, teamchat )
 	pl.LastChatTime = pl.LastChatTime or CurTime()
 	if pl.LastChatTime > CurTime() then return "" end
 	
@@ -762,4 +808,4 @@ function GM:PlayerSay( pl, txt, teamchat )
 	PROPKILL.Statistics[ "totalmessages" ] = ( PROPKILL.Statistics[ "totalmessages" ] or 0 ) + 1
 	hook.Run("props_PlayerSay", pl, txt, teamchat)
 	return self.BaseClass:PlayerSay( pl, txt, teamchat )
-end
+end]]

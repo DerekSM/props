@@ -16,7 +16,7 @@
     - Example achievements
         -D "Fly Swatter" - Headsmash 5 players in one session.
         -D "You spin me right round" - Kill a player with a prop doing a fast rotation
-        - "360 noscope" - Kill a player after turning 360+ degrees after releasing a prop
+        -D "360 noscope" - Kill a player after turning 360+ degrees after releasing a prop
         -D "Slow is smooth, smooth is.." - Kill a player while your wheelspeed <=30
         -D "Toy maker" - Kill a player with a small object. Think like a hula doll model.
         -D "No life" - Be on the server for two consecutive hours.
@@ -31,7 +31,7 @@
         -D "Two players, one prop" - Kill two players with the same prop.
         -D "What was that?!" - Kill a player by a flyby.
         - "Spawncamper" - Kill a player right outside antinoob's perimeter
-        - "The recluse" - Play 10 minutes without sending any messages
+        -D "The recluse" - Play 10 minutes without sending any messages
         -D "The Leader" - Become the leader at least once
         - "Follow Me" - Maintain being the leader for five minutes
         - "Vengeance" - Kill the player that killed you.
@@ -47,6 +47,9 @@
         -D "Double Whammy" - "Kill a player with the kill being registered as BOTH a longshot AND a headsmash"
         -D "Cool guys don't look at prop kills" - "Kill a player while being turned away from them"
         - "Quit hitting yourself" - "Kill a player with their own prop"
+        -D "I Love Longshots" - "Perform 20 longshots (not required to be in one session)"
+        -D "720 noscope" - Kill a player after turning 720+ degrees after releasing a prop
+        - "Go clip yourself" - "Push yourself through a wall"
 ]]
 PROPKILL.CombatAchievements = PROPKILL.CombatAchievements or {}
 PROPKILL.CombatAchievementsCount = 0
@@ -194,6 +197,27 @@ function AchievementMeta:UnlockAchievement( pl, b_clientinitialJoin )
     hook.Run("OnAchievementUnlocked", pl, self:GetUniqueID(), self:GetFancyTitle())
 end
 
+    -- This is just for debugging
+function AchievementMeta:LockAchievement( pl )
+    pl.AchievementData = pl.AchievementData or {}
+    pl.AchievementData[ self:GetUniqueID() ] = {Unlocked=false,Progress=0,datatable={}}
+
+    if not SERVER then return end
+
+    self:SetCompletionRate( math.max(self:GetCompletionRate() - 1, 0) )
+    local AchievementID = self:GetUniqueID()
+
+    Props_SendPlayerAllAchievementsCompleted( pl )
+        -- Broadcast to the rest of the players the percentage of players completed
+        -- If we want to get really tricky we
+    Props_SendPlayerAchievementPercentages( player.GetHumans(), AchievementID )
+    pl:SaveCombatAchievements()
+    props_SaveCombatAchievements()
+
+        -- Still announce it, but only to the player.
+    pl:ChatPrint("You've re-locked achievement " .. self:GetFancyTitle())
+end
+
 function AchievementMeta:GetProgression( pl )
     pl.AchievementData = pl.AchievementData or {}
     pl.AchievementData[ self:GetUniqueID() ] = pl.AchievementData[ self:GetUniqueID() ] or {Unlocked=false,Progress=0,datatable={}}
@@ -270,6 +294,10 @@ CA_SWATTER:AddListener( "props_PlayerHeadsmashChanged", LISTENER_SERVER, functio
         achievement:AddProgression( pl )
     end
 end )
+    -- Since headsmashes are recorded to the player's file and this is a session based achievement
+CA_SWATTER:AddListener( "props_PlayerDataLoaded", LISTENER_SERVER, function( achievement, pl )
+    achievement:ResetProgression( pl )
+end )
 
 
 local CA_SPINNER = PROPKILL.RegisterCombatAchievement(
@@ -320,7 +348,7 @@ CA_AIRBORNE:AddListener( "FinishMove", LISTENER_SERVER, function( achievement, p
 
             -- Pos = 180*180
             -- Velocity = 520*520 (Slightly higher than anyone is able to run)
-        if (OldFlyerPos:DistToSqr( pl:GetPos() ) < 32400) and (achievement:GetPlayerData( pl, "MovementVelocity" ):LengthSqr() > 270400) then
+        if (OldFlyerPos:DistToSqr( pl:GetPos() ) < 32400) or (achievement:GetPlayerData( pl, "MovementVelocity", pl:GetVelocity() ):LengthSqr() < 270400) then
             achievement:ResetProgression( pl )
         else
             achievement:AddProgression( pl )
@@ -368,7 +396,7 @@ CA_AIRBORNE2:AddListener( "FinishMove", LISTENER_SERVER, function( achievement, 
 
             -- Pos = 180*180
             -- Velocity = 520*520 (Slightly higher than anyone is able to run)
-        if (OldFlyerPos:DistToSqr( pl:GetPos() ) < 32400) and (achievement:GetPlayerData( pl, "MovementVelocity" ):LengthSqr() > 270400) then
+        if (OldFlyerPos:DistToSqr( pl:GetPos() ) < 32400) or (achievement:GetPlayerData( pl, "MovementVelocity", pl:GetVelocity() ):LengthSqr() < 270400) then
             achievement:ResetProgression( pl )
         else
             achievement:AddProgression( pl )
@@ -730,23 +758,29 @@ CA_CAUGHT:AddListener( "FinishMove", LISTENER_SERVER, function( achievement, pl,
            -- print(pl:GetVelocity():LengthSqr())
 
             local GetCurVelocity = pl:GetVelocity():LengthSqr()
-            local GetLastVelocity = achievement:GetPlayerData( pl, "LastVelocity", GetCurVelocity )
+            local GetLastVelocity = achievement:GetPlayerData( pl, "LastVelocity", pl:GetVelocity() )--GetCurVelocity )
             local GetMoveDataVelocity = achievement:GetPlayerData( pl, "MovementVelocity", GetCurVelocity )
 
             --print("division", GetLastVelocity / GetCurVelocity)
             --print("mv vel", achievement:GetPlayerData( pl, "MovementVelocity"), 0 )
 
                 -- Weird mechanic with getting stuck in props
-            if GetLastVelocity / GetCurVelocity > 7
-            and GetMoveDataVelocity > 0 and GetMoveDataVelocity < 100 then
-
-                    achievement:UnlockAchievement( pl )
+            if GetLastVelocity:LengthSqr() / GetCurVelocity > 7
+            and GetMoveDataVelocity > 0 and GetMoveDataVelocity < 100
+            and pl:GetVelocity().z - GetLastVelocity.z > 240 then
+                --print(GetLastVelocity:LengthSqr(), GetCurVelocity, pl:GetVelocity().z, pl:GetVelocity().z - GetLastVelocity.z)
+                achievement:UnlockAchievement( pl )
 
             end
 
-            achievement:SetPlayerData( pl, "LastVelocity", pl:GetVelocity():LengthSqr() )
+            achievement:SetPlayerData( pl, "LastVelocity", pl:GetVelocity() )--:LengthSqr() )
         end )
 
+    end
+end )
+CA_CAUGHT:AddListener( "OnAchievementUnlocked", LISTENER_SERVER, function( achievement, pl, uniqueid, fancytitle )
+    if achievement:GetUniqueID() == uniqueid then
+        timer.DestroyPlayer( pl, "props_CombatAchievementCancelMyFall" )
     end
 end )
 
@@ -841,8 +875,25 @@ CA_NOLIFE:AddListener( "PlayerInitialSpawn", LISTENER_SERVER, function( achievem
     end )
 end )
 
-    -- Todo: Finish later
---[[local CA_NOSCOPE = PROPKILL.RegisterCombatAchievement(
+    -- This ~may~ actually auto give you it when you first join, assuming you've had enough longshots recorded in your data file
+local CA_LOVELONGSHOT = PROPKILL.RegisterCombatAchievement(
+    {
+        id = "lovelongshots", -- Don't change
+        title = "I Love Longshots",
+        description = "Perform 20 longshots (not required to be in one session)",
+        type = "Counter",
+        difficulty = 3,  -- Still working out if I want to even include a difficulty paramater. 1 thru 5?
+    }
+)
+CA_LOVELONGSHOT:SetGoal( 20 )
+CA_LOVELONGSHOT:AddListener( "props_PlayerLongshotChanged", LISTENER_SERVER, function( achievement, pl, oldflyby, newflyby )
+    if newflyby >= achievement:GetGoal() then
+        achievement:UnlockAchievement( pl )
+    end
+end )
+
+
+local CA_NOSCOPE = PROPKILL.RegisterCombatAchievement(
     {
         id = "noscope",
         title = "360 noscope",
@@ -855,7 +906,7 @@ CA_NOSCOPE:AddListener( "PhysgunDrop", LISTENER_SERVER, function( achievement, p
     if ent:GetClass() != "prop_physics" then return end
     if achievement:GetProgression( pl ) then return end
 
-    achievement:SetPlayerData( pl, "DroppedPropStartEyeAngleY", pl:EyeAngles().y )
+    achievement:SetPlayerData( pl, "TotalRotation", 0 )
     achievement:SetPlayerData( pl, "DroppedProp", ent)
         -- This is specifically to check if too much time has elapsed since dropping of the prop and killing a player.
     achievement:SetPlayerData( pl, "DroppedPropTime", CurTime() )
@@ -869,21 +920,123 @@ CA_NOSCOPE:AddListener( "Move", LISTENER_SERVER, function( achievement, pl, mv )
         -- If 4 seconds have passed after the player dropped a prop then quit tracking
     if (CurTime() - achievement:GetPlayerData( pl, "DroppedPropTime", 0 )) > 4 then return end
 
-
     local MoveAngleY = mv:GetAngles().y
-    local OldMoveAngleY = achievement:GetPlayerData( pl, "OldMoveAngleY" )
+    local LastMoveAngleY = achievement:GetPlayerData( pl, "OldMoveAngleY", mv:GetAngles().y )
+    local ChangeInMoveAngle = math.DeltaAngle(LastMoveAngleY, MoveAngleY)
 
-    if OldMoveAngleY and OldMoveAngleY == MoveAngleY then return end
-
-    PrintTable(achievement:GetAllPlayerData( pl ))
-
-    achievement:SetPlayerData( pl, "MoveAngleY", MoveAngleY - achievement:GetPlayerData( pl, "OldMoveAngleY", 0 ) )
+    achievement:SetPlayerData( pl, "TotalRotation", achievement:GetPlayerData( pl, "TotalRotation", 0 ) + math.abs(ChangeInMoveAngle) )
     achievement:SetPlayerData( pl, "OldMoveAngleY", MoveAngleY )
-    --print( achievement:GetPlayerData( pl, "MoveAngleY" ) )
+end )
+CA_NOSCOPE:AddListener( "props_PropKilled", LISTENER_SERVER, function( achievement, deadplayer, prop )
+    if prop:GetClass() != "prop_physics" or not prop.Owner then return end
+
+    local Killer = prop.Owner
+    if achievement:GetProgression( Killer ) then return end
+
+
+    if achievement:GetPlayerData( Killer, "TotalRotation", 0 ) <= 360 then
+            -- Reset their rotation in case they kill a SECOND player with the same prop within the timeframe.
+        achievement:ResetProgression( Killer )
+    else
+        achievement:UnlockAchievement( Killer )
+    end
 end )
 CA_NOSCOPE:AddListener("OnReloaded", LISTENER_SERVER, function( achievement )
     for k,v in next, player.GetHumans() do
-        print("reset")
         achievement:ResetProgression( v )
     end
-end )]]
+end )
+
+
+local CA_NOSCOPE720 = PROPKILL.RegisterCombatAchievement(
+    {
+        id = "noscope720",
+        title = "720 noscope",
+        description = "Kill a player after turning 720+ degrees after releasing a prop",
+        type = "Trigger",
+        difficulty = 5
+    }
+)
+CA_NOSCOPE720:AddListener( "PhysgunDrop", LISTENER_SERVER, function( achievement, pl, ent )
+    if ent:GetClass() != "prop_physics" then return end
+    if achievement:GetProgression( pl ) then return end
+
+    achievement:SetPlayerData( pl, "TotalRotation", 0 )
+    achievement:SetPlayerData( pl, "DroppedProp", ent)
+        -- This is specifically to check if too much time has elapsed since dropping of the prop and killing a player.
+    achievement:SetPlayerData( pl, "DroppedPropTime", CurTime() )
+end )
+CA_NOSCOPE720:AddListener( "Move", LISTENER_SERVER, function( achievement, pl, mv )
+    if pl:IsBot() then return end
+    if achievement:GetProgression( pl ) then return end
+    if pl != Entity(1) then return end -- TEMPORARY. REMOVE.
+        -- If the player either has never dropped a prop OR the prop was removed
+    if not IsValid(achievement:GetPlayerData( pl, "DroppedProp", NULL )) then return end
+        -- If 4 seconds have passed after the player dropped a prop then quit tracking
+    if (CurTime() - achievement:GetPlayerData( pl, "DroppedPropTime", 0 )) > 4 then return end
+
+    local MoveAngleY = mv:GetAngles().y
+    local LastMoveAngleY = achievement:GetPlayerData( pl, "OldMoveAngleY", mv:GetAngles().y )
+    local ChangeInMoveAngle = math.DeltaAngle(LastMoveAngleY, MoveAngleY)
+
+    achievement:SetPlayerData( pl, "TotalRotation", achievement:GetPlayerData( pl, "TotalRotation", 0 ) + math.abs(ChangeInMoveAngle) )
+    achievement:SetPlayerData( pl, "OldMoveAngleY", MoveAngleY )
+end )
+CA_NOSCOPE720:AddListener( "props_PropKilled", LISTENER_SERVER, function( achievement, deadplayer, prop )
+    if prop:GetClass() != "prop_physics" or not prop.Owner then return end
+
+    local Killer = prop.Owner
+    if achievement:GetProgression( Killer ) then return end
+
+
+    if achievement:GetPlayerData( Killer, "TotalRotation", 0 ) <= 720 then
+            -- Reset their rotation in case they kill a SECOND player with the same prop within the timeframe.
+        achievement:ResetProgression( Killer )
+    else
+        achievement:UnlockAchievement( Killer )
+    end
+end )
+CA_NOSCOPE720:AddListener("OnReloaded", LISTENER_SERVER, function( achievement )
+    for k,v in next, player.GetHumans() do
+        achievement:ResetProgression( v )
+    end
+end )
+
+
+local CA_RECLUSE = PROPKILL.RegisterCombatAchievement(
+    {
+        id = "recluse",
+        title = "The recluse",
+        description = "Play 10 minutes without sending any messages",
+        type = "Time",
+        difficulty = 1
+    }
+)
+CA_RECLUSE:SetGoal( 10 )
+CA_RECLUSE:AddListener( "PlayerInitialSpawn", LISTENER_SERVER, function( achievement, pl )
+    if achievement:GetProgression( pl ) then return end
+
+    timer.CreatePlayer( pl, "props_CombatAchievementRecluse", 60, 0, function()
+        achievement:AddProgression( pl )
+    end )
+end )
+    -- I don't care if the message didn't show up. They tried to send a message.
+CA_RECLUSE:AddListener( "PlayerSay", LISTENER_SERVER, function( achievement, pl )
+    if achievement:GetProgression( pl ) then return end
+
+    achievement:ResetProgression( pl )
+end )
+    -- AFAIK There's literally no other way to tell if someone's trying to talk or is talking.
+    -- Player:IsSpeaking doesn't work serverside
+CA_RECLUSE:AddListener( "PlayerButtonDown", LISTENER_SERVER, function( achievement, pl, button )
+    if achievement:GetProgression( pl ) then return end
+
+    if button == KEY_X then
+        achievement:ResetProgression( pl )
+    end
+end )
+CA_RECLUSE:AddListener( "OnAchievementUnlocked", LISTENER_SERVER, function( achievement, pl, uniqueid, fancytitle )
+    if achievement:GetUniqueID() == uniqueid then
+        timer.DestroyPlayer( pl, "props_CombatAchievementRecluse" )
+    end
+end )

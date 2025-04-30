@@ -145,11 +145,14 @@ local function CreateHUD( b_noMotd )
 	end
 	
 		-- saved for now.
-	if not b_noMotd and ULib and ULib.ucl.query( LocalPlayer(), "ulx who" ) and GetConVarString( "ulx_showMotd" ) == "1" then
-		if not PROPKILL.Config[ "ulx_showmotd" ] or PROPKILL.Config[ "ulx_showmotd" ].default then
+	--if not b_noMotd and ULib and ULib.ucl.query( LocalPlayer(), "ulx who" ) and GetConVarString( "ulx_showMotd" ) == "1" then
+	if not b_noMotd then
+		if PROPKILL.Config[ "ulx_showmotd" ] and PROPKILL.Config[ "ulx_showmotd" ].default then
 			RunConsoleCommand( "ulx", "motd" )
 		else
-			RunConsoleCommand( "props_menu" )
+			if not props_HasOpenedMenuBefore then
+				RunConsoleCommand( "props_menu" )
+			end
 		end 
 	end
 	
