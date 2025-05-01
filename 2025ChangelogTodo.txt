@@ -1,4 +1,7 @@
 **Changelog
+v1.5.1
+/ Fix networking achievements
+/ "Cool guys don't look at prop kills" achievement won't be triggered by killing yourself
 v1.5.0
 / Lowered chat delay from 1.25 seconds to 1 second
 + Added config option to change chat delay
@@ -90,7 +93,7 @@ Add config for server owners to let players create their own bot paths
 (?) Add option to scoreboard to view a player's achievements
 (?) Keep tracking player achievement data even after unlocking. Can later review to see total headsmashes etc
 Showcase a way to the player in achievements menu to differentiate between different difficulty levels.
-I think I can Fly and I know I can Fly are broken rn: If you just stand on a prop in the sky it'll unlock
+Add right click ability to completed achievements in menu. Will run props_achievements [Title]
 
 
 **Notes

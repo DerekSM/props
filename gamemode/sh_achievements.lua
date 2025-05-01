@@ -50,6 +50,7 @@
         -D "I Love Longshots" - "Perform 20 longshots (not required to be in one session)"
         -D "720 noscope" - Kill a player after turning 720+ degrees after releasing a prop
         - "Go clip yourself" - "Push yourself through a wall"
+        - "15 in 15" - "Perform 15 flybys in 15 minutes"
 ]]
 PROPKILL.CombatAchievements = PROPKILL.CombatAchievements or {}
 PROPKILL.CombatAchievementsCount = 0
@@ -92,6 +93,7 @@ function PROPKILL.GetCombatAchievementByUniqueID( str_identifier )
 
     return PROPKILL.CombatAchievements[ str_identifier ]
 end
+PROPKILL.GetAchievementByUniqueID = PROPKILL.GetCombatAchievementByUniqueID
 
 function PROPKILL.GetCombatAchievementByFancyTitle( str_identifier )
     if not str_identifier then return nil, nil end
@@ -102,6 +104,7 @@ function PROPKILL.GetCombatAchievementByFancyTitle( str_identifier )
         end
     end
 end
+PROPKILL.GetAchievementByFancyTitle = PROPKILL.GetCombatAchievementByFancyTitle
 
 function PROPKILL.DebugUnlockAchievement( pl )
     for k,v in next, PROPKILL.GetCombatAchievements() do
@@ -285,7 +288,7 @@ local CA_SWATTER = PROPKILL.RegisterCombatAchievement(
         description = "Headsmash 5 players in one session.",
         type = "Counter",
         save_progression = false,   -- Should we save their progress over restarts?
-        difficulty = 1,  -- Still working out if I want to even include a difficulty paramater. 1 thru 5?
+        difficulty = 2,  -- Still working out if I want to even include a difficulty paramater. 1 thru 5?
     }
 )
 CA_SWATTER:SetGoal( 5 )
@@ -848,6 +851,7 @@ CA_LOOKAWAY:AddListener( "props_PropKilled", LISTENER_SERVER, function( achievem
 
     local Killer = prop.Owner
     if achievement:GetProgression( Killer ) then return end
+    if Killer == deadplayer then return end
 
     local Dist = prop:GetPos() - Killer:GetShootPos()
     local Product = Killer:GetAimVector():Dot(Dist) / Dist:Length()

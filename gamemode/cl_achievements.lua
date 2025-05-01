@@ -35,6 +35,17 @@ net.Receive( "props_NetworkPlayerAchievementsCompleted", function( len )
     hook.Run( "props_NetworkPlayerAchievementsCompleted" )
 end )
 
+net.Receive( "props_NetworkPlayerAchievementPercentages", function( len)
+    PROPKILL.Statistics["totaluniquejoins"] = net.ReadUInt(14)
+
+    local AchievementID = net.ReadString()
+    local AchievementsCompletionRate = net.ReadUInt( 14 )
+
+    PROPKILL.GetCombatAchievementByUniqueID(AchievementID):SetCompletionRate(AchievementsCompletionRate)
+        -- Hopefully this is only used for props_achievements menu (so we can update all players looking at the menu)
+    hook.Run( "props_NetworkPlayerAchievementsCompleted" )
+end )
+
 AddClientConfigItem( "props_DefaultAchievementSorting",
 	{
 	Name = "Default Achievement Sorting",
