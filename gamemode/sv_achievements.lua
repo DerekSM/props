@@ -65,3 +65,12 @@ function Props_SendPlayerAllAchievementsCompleted( pl )
         end
     net.Send( pl )
 end
+
+hook.Add("OnSettingChanged", "DontPotentiallyCorruptPlayerAchievements", function( pl, setting, beforeChange, change )
+    if setting == "achievements_enabled" and change == "true" then
+        for k,v in next, player.GetHumans() do
+            PROPKILL.ChatText( v, PROPKILL.Colors.Blue,
+			"Props: ", color_white, "Gamemode achievements setting has been changed. A map change is required to save player data." )
+        end
+    end
+end )

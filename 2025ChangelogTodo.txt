@@ -1,4 +1,19 @@
 **Changelog
+v1.6.0
+/ Refresh Gamemode config menu if another admin changes a setting while the menu is open
++ Added Fun Facts module. On initial join player's will be given gamemode/propkill lore information.
+/ Increased delay for notifying how to disable chat sounds.
+/ Fixed achievement completion rates when the gamemode is autorefreshed.
+/ Changed the "I'll take the low ground" achievement to require all five kills to be done consecutively.
++ Added ability to disable achievements with configuration menu.
++ Added config option to change how often the TOTAL Top Props are refreshed
+/ (Major fix) Fixed top props total counting issue. It continously added session props count.
++ Added ability to announce your achievement completion from the menu.
+/ Repositioned client config to stop cutting off achievement description text
++ Admins in Gamemode config menu will have their settings updated when another admin changes a setting.
+/ Refactored Gamemode config menu including a partial new redesign
++ Added ability to search for config options in Gamemode config menu
+/ Changed the design skin for top props menu
 v1.5.1
 / Fix networking achievements
 / "Cool guys don't look at prop kills" achievement won't be triggered by killing yourself
@@ -93,8 +108,10 @@ Add config for server owners to let players create their own bot paths
 (?) Add option to scoreboard to view a player's achievements
 (?) Keep tracking player achievement data even after unlocking. Can later review to see total headsmashes etc
 Showcase a way to the player in achievements menu to differentiate between different difficulty levels.
-Add right click ability to completed achievements in menu. Will run props_achievements [Title]
-
+Achievements percentage of players completed is still broken?? Or is it because we were testing on bots?
+    ^ I think we fixed it
+Add ability to search gamemode configs (keynames/titles/descriptions should all be included in the search)
+Eventually only network TopPropsTotal that has CHANGED from last time instead of sending the whole table
 
 **Notes
 The gamemode is messy and I'm probably not going to do anything about it..

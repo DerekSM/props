@@ -34,7 +34,7 @@ function PANEL:Init()
 	self.TitlePanel.TextName:SetSize( headertextsize_w, headertextsize_h )
 	self.TitlePanel.TextName:SetPos( 5, self.TitlePanel:GetTall() / 2 - headertextsize_h / 2 )
 	self.TitlePanel.TextName:SetMouseInputEnabled( true )
-	self.TitlePanel.TextName.DoClick = function( pnl )
+	local function TitlePanelClickSort( pnl )
 		local menu = DermaMenu( pnl )
 
 		local SortTitle = menu:AddOption( "Sort by Title", function() self:SetSortMode( 1 ) end )
@@ -55,6 +55,8 @@ function PANEL:Init()
 			end
 		end
 	end
+	self.TitlePanel.TextName.DoClick = function( pnl ) TitlePanelClickSort( pnl ) end
+	self.TitlePanel.TextName.DoRightClick = function( pnl ) TitlePanelClickSort( pnl ) end
 
     self.TitlePanel.TextPercentage = self.TitlePanel:Add( "DLabel" )
 	self.TitlePanel.TextPercentage:SetText( "Percentage of Players Completed" )
@@ -86,7 +88,6 @@ function PANEL:GetSortMode()
 end
 
 function PANEL:CallUpdate()
-	print("updating")
 		-- Remove all contents children
 	self.Content:Clear()
 
@@ -142,6 +143,9 @@ function PANEL:CallUpdate()
                 draw.RoundedBox( 0, 0, 0, w, h, Color( 180, 180, 180, 255 ) )
             end
         end
+        if PROPKILL.GetCombatAchievement( v:GetUniqueID() ):GetProgression( LocalPlayer() ) then
+			self.Content[ k ].LocalPlayerAccomplished = true
+		end
 
             -- Achievement title
         self.Content[ k ].ContentTitle = self.Content[ k ]:Add( "DLabel" )
@@ -185,7 +189,7 @@ function PANEL:CallUpdate()
 		self.Content[ k ].ButtonForDropdown.Paint = function( self, w, h )
 			--draw.RoundedBox( 0, 0, 0, w, h, Color( 255, 80, 80, 0 ) )
 		end
-		self.Content[ k ].ButtonForDropdown.DoClick = function( self2 )
+		self.Content[ k ].ButtonForDropdown.DoClick = function( pnl )
 			if IsValid( self.Content[ k ].ButtonForDropdown.ContentInfo ) then
 				--self.RightPanel.RecentContentPanel:RemoveItem( self.Content[ k ].ButtonForDropdown.ContentInfo )
 				self.Content[ k ].ButtonForDropdown.ContentInfo:Remove()
@@ -205,19 +209,56 @@ function PANEL:CallUpdate()
 				self.Content[ k ].ButtonForDropdown.ContentInfo.DescriptionThings:SetPos( 10, 2 )
 				self.Content[ k ].ButtonForDropdown.ContentInfo.DescriptionThings:SizeToContents()
 
+
+				self.Content[ k ].ButtonForDropdown.ContentInfo.AnnounceCompletion = self.Content[ k ].ButtonForDropdown.ContentInfo:Add( "DButton" )
+				self.Content[ k ].ButtonForDropdown.ContentInfo.AnnounceCompletion:SetText( "Announce Completion" )
+				--self.Content[ k ].ButtonForDropdown.ContentInfo.DescriptionThings:SetTextColor( Color( 240, 240, 240, 255 ) )
+				self.Content[ k ].ButtonForDropdown.ContentInfo.AnnounceCompletion:SetFont( "props_HUDTextTiny" )
+				self.Content[ k ].ButtonForDropdown.ContentInfo.AnnounceCompletion:SizeToContents()
+				self.Content[ k ].ButtonForDropdown.ContentInfo.AnnounceCompletion:SetPos(
+					self.Content[ k ].ButtonForDropdown.ContentInfo:GetWide() - self.Content[ k ].ButtonForDropdown.ContentInfo.AnnounceCompletion:GetWide() - 10,
+					self.Content[ k ].ButtonForDropdown.ContentInfo:GetTall() - self.Content[ k ].ButtonForDropdown.ContentInfo.AnnounceCompletion:GetTall() - 5
+				)
+				self.Content[ k ].ButtonForDropdown.ContentInfo.AnnounceCompletion:SetVisible( self.Content[ k ].LocalPlayerAccomplished )
+				self.Content[ k ].ButtonForDropdown.ContentInfo.AnnounceCompletion.DoClick = function( pnl )
+					RunConsoleCommand("props_achievements", self.Content[ k ].ContentTitle:GetText())
+				end
+
                     -- Positions this new panel (aka the dropdown info) to right underneath our Achievement Title panel
                     -- Gives the illusion if a dropdown
 				self.Content[ k ].ButtonForDropdown.ContentInfo:MoveToAfter( self.Content[ k ] )
 			end
 		end
+			-- Opted instead for a button in the dropdown panel
+		--[[self.Content[ k ].ButtonForDropdown.DoRightClick = function( pnl )
+			if not self.Content[ k ].LocalPlayerAccomplished then return end
+
+			local menu = DermaMenu( pnl )
+
+			local AnnounceCompletion = menu:AddOption( "Announce completion", function() RunConsoleCommand("props_achievements", self.Content[ k ].ContentTitle:GetText()) end )
+
+			menu:AddSpacer()
+			menu:AddOption( "Close" )
+
+			menu:Open()
+
+			menu.Think = function()
+				if not IsValid( pnl ) then
+					menu:Hide()
+					if IsValid( menu ) then
+						menu:Remove()
+					end
+				end
+			end
+		end]]
 
     end
 
-    hook.Add("props_NetworkPlayerAchievementsCompleted", "propsPanelAchievements_UpdateInformation", function()
-        if not IsValid(self) then return end
+    hook.Add("props_NetworkPlayerAchievementsCompleted", self, function( pnl )
+        if not IsValid(pnl) then return end
 
         --self:InvalidateLayout()
-        self:CallUpdate()
+        pnl:CallUpdate()
     end )
 end
 

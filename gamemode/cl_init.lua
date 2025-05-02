@@ -84,6 +84,7 @@ include( "cl_achievements.lua" )
 
 include( "cl_hud.lua" )
 include( "vgui/hud/horizontalbar.lua" )
+include( "vgui/skins/props.lua")
 
 include( "cl_commands.lua" )
 include( "cl_menus.lua" )

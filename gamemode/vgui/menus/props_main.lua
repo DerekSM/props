@@ -45,8 +45,11 @@ function PANEL:Init()
 	local battleNewPanel = vgui.Create( "props_BattleMenuNew", propSheets )
 	
 	--local statsPanel = vgui.Create( "props_StatsMenu", propSheets )
-	local achievementsPanel = vgui.Create( "props_AchievementsMenu", propSheets )
-	
+	local achievementsPanel = nil
+	if PROPKILL.Config["achievements_enabled"].default then
+		achievementsPanel = vgui.Create( "props_AchievementsMenu", propSheets )
+	end
+
 	local configPanel = nil
 	
 	local canAccessConfig = hook.Call( "PlayerCanChangeSetting", GAMEMODE, LocalPlayer(), nil )
@@ -61,7 +64,9 @@ function PANEL:Init()
 	local propSheetTeams = propSheets:AddSheet( "Team Selection", teamsPanel, "icon16/sport_football.png", false, false, "Join a team" )
 	local propSheetPropsNew = propSheets:AddSheet( "Top Props", propsnPanel, "icon16/car.png", false, false, "View list of top props" )
 	local propSheetFight2 = propSheets:AddSheet( "Battle", battleNewPanel, "icon16/bomb.png", false, false, "Fight a player 1-on-1" )
-	local propSheetAchievements = propSheets:AddSheet( "Achievements", achievementsPanel, "icon16/medal_gold_3.png", false, false, "View personal achievements and serverwide stats" )
+	if PROPKILL.Config["achievements_enabled"].default then
+		local propSheetAchievements = propSheets:AddSheet( "Achievements", achievementsPanel, "icon16/medal_gold_3.png", false, false, "View personal achievements and serverwide stats" )
+	end
 	--local propSheetStats = propSheets:AddSheet( "Statistics", statsPanel, "icon16/chart_bar.png", false, false, "View gamemode statistics!" )
 	
 	if canAccessConfig then

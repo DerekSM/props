@@ -88,6 +88,8 @@ end
 	-- Should we also save the datatable?
 function _R.Player:SaveCombatAchievements()
 	if not PROPKILL.Config["achievements_save"].default then return end
+		-- Always load their combat achievements but saving depends on enabled or not.
+	if not PROPKILL.Config["achievements_enabled"].default then return end
 
 	local steamid = string.gsub( self:SteamID(), ":", "_" )
 
@@ -187,4 +189,5 @@ function props_LoadGamemodeConfig()
 			end
 		end
 	end
+	hook.Run("props_GamemodeConfigLoaded")
 end

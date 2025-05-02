@@ -13,10 +13,11 @@ PROPKILL = PROPKILL or {}
 PROPKILL.Config = PROPKILL.Config or {}
 PROPKILL.Colors = {}
 PROPKILL.Colors["Blue"] = Color( 60,120,180,255 )
+PROPKILL.Colors["Yellow"] = Color( 180,170,60,255 )
 
 GM.Name = "Props"
 GM.Author = "Shinycow"
-GM.Version = "1.5.1"
+GM.Version = "1.6.0"
 -- You (the server owner) should be fine to just remove the variable entirely if you don't want sounds
 GM.KillingSprees =
 {
@@ -224,53 +225,78 @@ if SERVER then
 		local Output = {}
 
 			-- Convert the numeric table into a dictionary for easy comparison
-		for k,v in next, PROPKILL.TopPropsSession do
+		for i=1,#PROPKILL.TopPropsSession do
+			local v = PROPKILL.TopPropsSession[i]
 			SessionCopy[v.Model] = v.Count
 		end
 
 			-- Convert the numeric table into a dictionary for easy comparison
-		for k,v in next, PROPKILL.TopPropsTotal do
-			TotalCopy[v.Model] = v.Count
+		for i=1,#PROPKILL.TopPropsTotal do
+			local v = PROPKILL.TopPropsTotal[i]
+			TotalCopy[v.Model] = {Count=v.Count, LastSessionCount=v.LastSessionCount or 0}
 		end
 
 			-- If we have the same model we can just add them together
 			-- If not, don't worry about it.
 		for k,v in next, TotalCopy do
 			if SessionCopy[ k ] != nil then
-				TotalCopy[ k ] = TotalCopy[k] + SessionCopy[k]
+					-- old way
+				-- 1000 + 30 = 1030 total props (new sesssion prop)
+				-- 1030 + 40 = 1070 total props (same session, 10 more props)
+					-- new way as of 1.6.0
+				-- 1000 + 30-0 = 1030 total props (new session prop)
+				-- 1030 + 40-30 = 1040 total props (same session, 10 more props)
+				v.Count = v.Count + (SessionCopy[k] - v.LastSessionCount)
 			end
 		end
 
-			-- Convert the dictionary back to a numerical table, and we'll reuse SessionCopy table
-		SessionCopy = {}
-		local SessionCopyCount = 0
+			-- Convert the dictionary back to a numerical table
+		local PreOutputCopy = {}
+		local PreOutputCopyCount = 0
 		for k,v in next, TotalCopy do
-			SessionCopyCount = SessionCopyCount + 1
-			SessionCopy[SessionCopyCount] = {Model = k, Count = v}
+			PreOutputCopyCount = PreOutputCopyCount + 1
+			PreOutputCopy[PreOutputCopyCount] = {Model = k, Count = v.Count, LastSessionCount = SessionCopy[k] or 0}
 		end
-		table.SortByMember(SessionCopy, "Count")
+		table.SortByMember(PreOutputCopy, "Count")
 		
-		for i=1,SessionCopyCount do
+		for i=1,PreOutputCopyCount do
 				-- Ideally no more than 50
 			if i > math.max( 50, PROPKILL.Config[ "topprops" ].default ) then break end
+			local v = PreOutputCopy[ i ]
 			
-			Output[ i ] = { Model = SessionCopy[ i ].Model, Count = SessionCopy[ i ].Count }
+			Output[ i ] = { Model = v.Model, Count = v.Count, LastSessionCount = v.LastSessionCount }
 		end
 		
 		PROPKILL.TopPropsTotal = Output
-		file.Write( "props/topprops.txt", pon.encode( PROPKILL.TopPropsTotal ) )
+			-- One final loop to clear our LastCount before saving the data.
+			-- This ~should~ prevent new game sessions from making errors.
+			-- Alternatively we could just ignore the .LastCount when loading from file
+		for i=1,#Output do
+			local v = Output[ i ]
+
+			v.LastCount = nil
+		end
+		file.Write( "props/topprops.txt", pon.encode( Output ) )
 		
 		net.Start( "props_UpdateTopPropsTotal" )
-			net.WriteUInt( math.Clamp( #PROPKILL.TopPropsTotal, 0, PROPKILL.Config[ "topprops" ].default ), 6 )
+			net.WriteUInt( math.Clamp( #Output, 0, PROPKILL.Config[ "topprops" ].default ), 6 )
 
-			for i=1,math.Clamp( #PROPKILL.TopPropsTotal, 0, PROPKILL.Config[ "topprops" ].default ) do
-				net.WriteString( PROPKILL.TopPropsTotal[ i ].Model )
-				net.WriteUInt( PROPKILL.TopPropsTotal[ i ].Count, 18 )
+			for i=1,math.Clamp( #Output, 0, PROPKILL.Config[ "topprops" ].default ) do
+				net.WriteString( Output[ i ].Model )
+				net.WriteUInt( Output[ i ].Count, 18 )
 			end
 		net.Broadcast()
 	end
-	timer.Create( "props_RefreshTopPropsTotal", 240, 0, function() props_RefreshTopPropsTotal() end )
-	
+		-- Hack to let the new config option work
+	timer.Simple(1, function()
+		timer.Create( "props_RefreshTopPropsTotal", PROPKILL.Config["toppropstotaldelay"].default, 0, function() props_RefreshTopPropsTotal() end )
+	end )
+	hook.Add("OnSettingChanged", "ListenForTopPropsSetting", function( pl, setting )
+		if setting == "toppropstotaldelay" then
+			timer.Adjust("props_RefreshTopPropsTotal", PROPKILL.Config["toppropstotaldelay"].default)
+		end
+	end)
+
 	function props_SendTopPropsTotal( pl )
 		if #PROPKILL.TopPropsTotal == 0 then return end
 
@@ -313,6 +339,6 @@ if CLIENT then
 			PROPKILL.TopPropsTotal[ i ] = { Model = net.ReadString(), Count = net.ReadUInt( 18 ) }
 		end
 		
-		hook.Call( "props_UpdateTopPropsTotal", GAMEMODE )
+		hook.Run( "props_UpdateTopPropsTotal" )
 	end )
 end

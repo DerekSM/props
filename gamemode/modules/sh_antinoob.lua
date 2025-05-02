@@ -37,6 +37,7 @@ AddConfigItem( "babygod",
 	Category = "Player Management",
 	type = "boolean",
 	desc = "When players spawn they will have temp godmode.",
+	tags = {"temporary","antinoob"}
 	}
 )
 
@@ -47,6 +48,7 @@ AddConfigItem( "babygod_time",
 	default = 1.55,
 	type = "integer",
 	desc = "Spawned players have godmode for this long.",
+	tags = {"babygod","temporary","antinoob"}
 	}
 )
 
@@ -57,6 +59,7 @@ AddConfigItem( "spawnprotection",
 	default = true,
 	type = "boolean",
 	desc = "Toggle anti-spawnblock.",
+	tags = {"antinoob"}
 	}
 )
 

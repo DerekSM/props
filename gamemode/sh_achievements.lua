@@ -67,7 +67,7 @@ function PROPKILL.RegisterCombatAchievement( tblAchievements, ... )
     if not tblAchievements.id then print("reeeeeee") return end
     tblAchievements.datatable = {}
 
-    setmetatable(tblAchievements, AchievementMeta) --PROPKILL.CombatAchievements)
+    setmetatable(tblAchievements, AchievementMeta)
 
         -- If autorefresh, make sure we reset our values that shouldn't change
     if PROPKILL.CombatAchievements[ tblAchievements.id ] then
@@ -152,15 +152,22 @@ function AchievementMeta:AddListener( hook_listener, listening_type, callback )
        -- print("who am i", self, hook_listener )
         --print(self:GetUniqueID())
         hook.Add( hook_listener, "propsCA_" .. self:GetUniqueID(), function( ... )
+            if not PROPKILL.Config["achievements_enabled"].default then return end
+
             callback( self, ... )
         end )
     end
 
     if (listening_type == LISTENER_CLIENT or listening_type == LISTENER_SHARED) and CLIENT then
         --print("client or shared hook")
-        hook.Add( hook_listener, "propsCA_" .. self:GetUniqueID(), callback )
+        hook.Add( hook_listener, "propsCA_" .. self:GetUniqueID(), function( ... )
+            if not PROPKILL.Config["achievements_enabled"].default then return end
+
+            callback( self, ... )
+        end )
     end
 end
+
 
 function AchievementMeta:GetGoal()
     return self.goal or 1
@@ -180,9 +187,15 @@ end
 
 function AchievementMeta:SetCompletionRate( num )
     self.numCompletions = num
+    if PROPKILL.CombatAchievements[ self:GetUniqueID() ]:GetCompletionRate() != num then
+            -- Added because just the above only affects the AchievementMeta table, while the below affects referencing outside this file
+            -- Seems to only be an issue with autorefresh (and those with :AddProgress)
+        PROPKILL.CombatAchievements[ self:GetUniqueID() ]:SetCompletionRate( num )
+    end
 end
 
 function AchievementMeta:UnlockAchievement( pl, b_clientinitialJoin )
+    if not PROPKILL.Config["achievements_enabled"].default then return end
     local HasUnlocked, Progress = self:GetProgression( pl )
     if HasUnlocked then
         if SERVER then
@@ -231,9 +244,10 @@ function AchievementMeta:GetProgression( pl )
 end
 
 function AchievementMeta:AddProgression( pl )
+    if not PROPKILL.Config["achievements_enabled"].default then return end
     local HasUnlocked, Progress = self:GetProgression( pl )
     if HasUnlocked then
-        --pl:ChatPrint("You've already unlocked " .. self:GetFancyTitle())
+       -- pl:ChatPrint("You've already unlocked " .. self:GetFancyTitle())
         return
     end
     if not self:GetGoal() then
@@ -666,7 +680,7 @@ local CA_LOWGROUND = PROPKILL.RegisterCombatAchievement(
     {
         id = "groundkill",
         title = "I'll take the low ground",
-        description = "Kill five players while on the ground.",
+        description = "Kill five players in a row while on the ground.",
         type = "Counter",
         difficulty = 1
     }
@@ -674,11 +688,15 @@ local CA_LOWGROUND = PROPKILL.RegisterCombatAchievement(
 CA_LOWGROUND:SetGoal( 5 )
 CA_LOWGROUND:AddListener( "props_PropKilled", LISTENER_SERVER, function( achievement, pl, prop )
     if prop:GetClass() != "prop_physics" or not prop.Owner then return end
-    if achievement:GetProgression( pl ) then return end
 
     local Killer = prop.Owner
+
+    if achievement:GetProgression( Killer ) then return end
+
     if Killer:GetGroundEntity() == Entity(0) then
         achievement:AddProgression( Killer )
+    else
+        achievement:ResetProgression( Killer )
     end
 end )
 
@@ -871,7 +889,7 @@ local CA_NOLIFE = PROPKILL.RegisterCombatAchievement(
         difficulty = 4
     }
 )
-CA_NOLIFE:AddListener( "PlayerInitialSpawn", LISTENER_SERVER, function( achievement, pl )
+CA_NOLIFE:AddListener( "props_PlayerDataLoaded", LISTENER_SERVER, function( achievement, pl )
     if achievement:GetProgression( pl ) then return end
 
     timer.CreatePlayer( pl, "props_CombatAchievementNoLife", 2*60*60, 1, function()
@@ -1017,7 +1035,7 @@ local CA_RECLUSE = PROPKILL.RegisterCombatAchievement(
     }
 )
 CA_RECLUSE:SetGoal( 10 )
-CA_RECLUSE:AddListener( "PlayerInitialSpawn", LISTENER_SERVER, function( achievement, pl )
+CA_RECLUSE:AddListener( "props_PlayerDataLoaded", LISTENER_SERVER, function( achievement, pl )
     if achievement:GetProgression( pl ) then return end
 
     timer.CreatePlayer( pl, "props_CombatAchievementRecluse", 60, 0, function()

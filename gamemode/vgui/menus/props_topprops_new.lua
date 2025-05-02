@@ -15,6 +15,7 @@ function PANEL:Init()
 	self:SetPos( 20, 20 )
 	self:SetSize( self:GetParent():GetWide() - 40, self:GetParent():GetTall() - 40 )
 	
+	self:SetSkin("Props")
 	self:RebuildMenu()
 	
 end

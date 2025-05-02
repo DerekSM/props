@@ -117,6 +117,7 @@ AddCSLuaFile( "vgui/scoreboard/props_playerrow_alt.lua" )
 
 AddCSLuaFile( "cl_hud.lua" )
 AddCSLuaFile( "vgui/hud/horizontalbar.lua" )
+AddCSLuaFile( "vgui/skins/props.lua" )
 
 AddCSLuaFile( "cl_commands.lua" )
 AddCSLuaFile( "cl_menus.lua" )

@@ -38,7 +38,7 @@ function PANEL:Init()
         surface.SetFont( "props_HUDTextTiny" )
 		local panelTextSize_w, panelTextSize_h = surface.GetTextSize( v.desc )
 
-		local LabelXPosition = 135
+		local LabelXPosition = 80
 
 		self.Content[ k ].Text = self.Content[ k ].FreedomPanel:Add( "DLabel" )
 		self.Content[ k ].Text:SetPos( LabelXPosition, 3 )

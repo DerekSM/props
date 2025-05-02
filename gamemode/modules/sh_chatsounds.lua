@@ -81,7 +81,7 @@ elseif SERVER then
 		pl:ChatPrint( "Turn off chatsounds by using the Client Config in the F4 menu" )
 	end
 	
-	timer.Create( "props_AnnounceChatSoundToggle", 240, 0, function()
+	timer.Create( "props_AnnounceChatSoundToggle", 280, 0, function()
 		for k,v in next, player.GetHumans() do
 			notifyChatSounds( v )
 		end

@@ -36,7 +36,7 @@ function GM:OnSettingChanged( pl, setting_id, s_from, s_to )
 			v:ChatPrint( string.format( txt, "SOMEONE", setting_id, s_to or "nothing" ) )
 		end
 		
-		canChange = hook.Call( "PlayerCanChangeSetting", GAMEMODE, v, setting_id )
+		canChange = hook.Run( "PlayerCanChangeSetting", v, setting_id )
 		if canChange then
 			configList[ #configList + 1 ] = v
 		end

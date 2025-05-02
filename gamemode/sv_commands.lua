@@ -56,17 +56,17 @@ local function props_ChangeSetting( pl, cmd, arg )
 		local beforeChange = PROPKILL.Config[ setting ].default
 		
 		PROPKILL.Config[ setting ].default = tonumber( change )
-		hook.Call( "OnSettingChanged", GAMEMODE, pl, setting, tostring( beforeChange ), tostring( change ) )
+		hook.Run( "OnSettingChanged", pl, setting, tostring( beforeChange ), tostring( change ) )
 	elseif PROPKILL.Config[ setting ].type == "boolean" then
 		change = tobool( change )
 		
 		local beforeChange = PROPKILL.Config[ setting ].default
 		
 		PROPKILL.Config[ setting ].default = change
-		hook.Call( "OnSettingChanged", GAMEMODE, pl, setting, tostring( beforeChange ), tostring( change ) )
+		hook.Run( "OnSettingChanged", pl, setting, tostring( beforeChange ), tostring( change ) )
 	elseif PROPKILL.Config[ setting ].type == "button" then	
 		PROPKILL.Config[ setting ].func( pl )
-		hook.Call( "OnSettingChanged", GAMEMODE, pl, setting )
+		hook.Run( "OnSettingChanged", pl, setting )
 	end
 end
 concommand.Add( "props_changesetting", props_ChangeSetting )
@@ -356,6 +356,10 @@ local function props_AnnounceMyAchievements( pl, cmd, args )
 	if not IsValid( pl ) then return end
 	if pl.LastAnnounced and pl.LastAnnounced > CurTime() then
 		pl:PrintMessage(HUD_PRINTCONSOLE, "Wait a few seconds before running again.")
+		return
+	end
+	if not PROPKILL.Config["achievements_enabled"].default then
+		pl:PrintMessage(HUD_PRINTCONSOLE, "Achievements are disabled.")
 		return
 	end
 

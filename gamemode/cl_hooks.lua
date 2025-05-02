@@ -81,6 +81,8 @@ net.Receive( "props_UpdateConfig", function()
 	elseif setting_type == "boolean" then
 		PROPKILL.Config[ setting ].default = tobool( new_value )
 	end
+
+	hook.Run("props_UpdateConfig", setting, setting_type, new_value)
 end )
 
 net.Receive( "props_UpdateFullConfig", function()

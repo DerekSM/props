@@ -97,7 +97,19 @@ AddConfigItem( "toppropsdelay",
 	min = 1,
 	max = 300,
 	type = "integer",
-	desc = "How often the session's top spawned props should be refreshed"
+	desc = "How often (in seconds) the session's top spawned props should be refreshed"
+	}
+)
+
+AddConfigItem( "toppropstotaldelay",
+	{
+	Name = "Top Props Total Delay",
+	Category = "Misc",
+	default = 240,
+	min = 2,
+	max = 600,
+	type = "integer",
+	desc = "How often (in seconds) the server's total top spawned props should be refreshed"
 	}
 )
 
@@ -120,6 +132,7 @@ AddConfigItem( "battle_defaultkills",
 	max = 100,
 	type = "integer",
 	desc = "Default kills to end the fight if player doesn't supply chosen amount.",
+	tags = {"fight"}
 	}
 )
 
@@ -132,6 +145,7 @@ AddConfigItem( "battle_minkills",
 	max = 10,
 	type = "integer",
 	desc = "Minimum amount of kills a player can choose to fight.",
+	tags = {"fight"}
 	}
 )
 
@@ -144,6 +158,7 @@ AddConfigItem( "battle_maxkills",
 	max = 30,
 	type = "integer",
 	desc = "Maximum amount of kills a player can choose to fight.",
+	tags = {"fight"}
 	}
 )
 
@@ -156,6 +171,7 @@ AddConfigItem( "battle_defaultprops",
 	max = 5,
 	type = "integer",
 	desc = "Default prop limit to use if player doesn't choose one.",
+	tags = {"fight"}
 	}
 )
 
@@ -168,6 +184,7 @@ AddConfigItem( "battle_minprops",
 	max = 3,
 	type = "integer",
 	desc = "Minimum prop limit a player can choose to fight with.",
+	tags = {"fight"}
 	}
 )
 
@@ -180,6 +197,7 @@ AddConfigItem( "battle_maxprops",
 	max = 5,
 	type = "integer",
 	desc = "Maximum prop limit a player can choose to fight with.",
+	tags = {"fight"}
 	}
 )
 
@@ -192,6 +210,7 @@ AddConfigItem( "battle_time",
 	max = 15,
 	type = "integer",
 	desc = "How long the battle should last in minutes",
+	tags = {"fight"}
 	}
 )
 
@@ -204,6 +223,7 @@ AddConfigItem( "battle_pausetime",
 	max = 120,
 	type = "integer",
 	desc = "How long a battle pause should last in seconds",
+	tags = {"fight"}
 	}
 )
 
@@ -253,6 +273,7 @@ AddConfigItem("player_chatdelay",
 	max = 60,
 	type = "integer",
 	desc = "How long before a player can send another message",
+	tags = {"chat"}
 	}
 )
 
@@ -263,6 +284,7 @@ AddConfigItem("player_chatratelimit",
 	default = true,
 	type = "boolean",
 	desc = "Turn on rate limiting for players that spam the chat",
+	tags = {"mute"}
 	}
 )
 
@@ -275,7 +297,7 @@ AddConfigItem("player_chatratelimit_time",
 	min = 0,
 	max = 60,
 	type = "integer",
-	desc = "How long should a player be temporarily muted for",
+	desc = "How long should a player be temporarily muted for after chat spam",
 	}
 )
 
@@ -320,6 +342,7 @@ AddConfigItem( "battle_cooldown",
 	max = 15 * 60,
 	type = "integer",
 	desc = "How long after a battle until a player can start a new one",
+	tags = {"fight"}
 	}
 )
 
@@ -332,8 +355,20 @@ AddConfigItem( "battle_invitecooldown",
 	max = 5 * 60,
 	type = "integer",
 	desc = "How long after a player sent a battle request can he send another",
+	tags = {"fight"}
 	}
 )
+
+AddConfigItem( "achievements_enabled",
+	{
+	Name = "Enable Player Achievements",
+	Category = "Achievements",
+	default = true,
+	type = "boolean",
+	desc = "Player achievements will be enabled. A map change may be required.",
+	}
+)
+
 
 AddConfigItem( "achievements_save",
 	{
@@ -390,6 +425,7 @@ AddConfigItem( "removedoors",
 			
 		end
 	end,
+	tags = {"button"}
 	}
 )
 
@@ -418,5 +454,6 @@ AddConfigItem( "respawndoors",
 		
 		PROPKILL.StoredEntities = {}
 	end,
+	tags = {"button"}
 	}
 )

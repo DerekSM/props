@@ -6,7 +6,8 @@
 				/_______  /|___|  /__|___|  / ____|\___  >____/ \/\_/  
 						\/      \/        \/\/         \/              
 
-		Some dumb facts about the gamemode - mostly statistics
+		Statisics that the gamemode accumulates from normal playing.
+		A lot of these are from older versions and so servers that update to this will show the old data! (This is good)
 ]]--
 
 if not PROPKILL.Statistics then return end
@@ -15,7 +16,8 @@ local ReferenceTable =
 {
 ["propspawns"] = "total props have been spawned acrossed restarts",
 ["totalheadsmash"] = "players had their heads smashed",
-["totaljoins"] = "total non-unique players joined",
+["totaljoins"] = "total non-unique players have joined",
+["totaluniquejoins"] = "total unique players have joined.",
 ["totalkills"] = "total kills across restarts",
 ["totalmessages"] = "total messages have been said by players",
 ["totalfights"] = "total fights have been wagered",
@@ -23,6 +25,7 @@ local ReferenceTable =
 ["totallongshot"] = "players have been longshot'd",
 ["totalflyby"] = "players have been flyby'd",
 ["totalsuicides"] = "players have killed themselves",
+["totalsmash"] = "total non-special kills have been performed.",
 }
 
 
