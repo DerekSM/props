@@ -33,7 +33,7 @@ AddConfigItem( "wheelspeed_enforce",
 		
 		local amount = 0
 		
-		for k,v in pairs( player.GetAll() ) do
+		for k,v in pairs( player.GetHumans() ) do
 		
 			if tonumber( v:GetInfo( "physgun_wheelspeed" ) ) >= PROPKILL.Config[ "wheelspeed_amount" ].default then
 				amount = amount + 1

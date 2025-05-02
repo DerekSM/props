@@ -23,12 +23,17 @@ function PANEL:Init()
     self.TitlePanel = self:Add( "DPanel" )
     self.TitlePanel:Dock( TOP )
     self.TitlePanel:SetSize( self:GetWide(), 50 )--self.Content[ k ]:GetTall() )
-    --self.TitlePanel.Paint = function() end
+    self.TitlePanel.Paint = function( pnl, w, h )
+		 --draw.RoundedBox( 0, 0, 0, w, h, Color(70, 80, 90, 255 ) )
+		 --draw.RoundedBox( 0, 0, 0, w, h, Color( 40, 40, 40, 255 ) )
+		 --draw.RoundedBox( 0, 0, 0, w, h, Color( 0, 51, 102, 255 ) )
+		 draw.RoundedBox( 0, 0, 0, w, h, Color( 80, 90, 100, 255 ))
+	end
 
     self.TitlePanel.TextName = self.TitlePanel:Add( "DLabel" )
 	self.TitlePanel.TextName:SetText( "Achievement Name" )
 	self.TitlePanel.TextName:SetFont( "props_HUDTextSmall" )
-	self.TitlePanel.TextName:SetTextColor( Color( 90, 90, 90, 255 ) )
+	self.TitlePanel.TextName:SetTextColor( Color(230,230,230,255) )--Color( 90, 90, 90, 255 ) )
 	surface.SetFont( "props_HUDTextSmall" )
 	local headertextsize_w, headertextsize_h = surface.GetTextSize( "Achievement Name" )
 	self.TitlePanel.TextName:SetSize( headertextsize_w, headertextsize_h )
@@ -61,7 +66,7 @@ function PANEL:Init()
     self.TitlePanel.TextPercentage = self.TitlePanel:Add( "DLabel" )
 	self.TitlePanel.TextPercentage:SetText( "Percentage of Players Completed" )
 	self.TitlePanel.TextPercentage:SetFont( "props_HUDTextSmall" )
-	self.TitlePanel.TextPercentage:SetTextColor( Color( 90, 90, 90, 255 ) )
+	self.TitlePanel.TextPercentage:SetTextColor( Color(230,230,230,255) ) --Color( 90, 90, 90, 255 ) )
 	surface.SetFont( "props_HUDTextSmall" )
 	local headertextsize_w, headertextsize_h = surface.GetTextSize( "Percentage of Players Completed" )
 	self.TitlePanel.TextPercentage:SetSize( headertextsize_w, headertextsize_h )
@@ -222,6 +227,9 @@ function PANEL:CallUpdate()
 				self.Content[ k ].ButtonForDropdown.ContentInfo.AnnounceCompletion:SetVisible( self.Content[ k ].LocalPlayerAccomplished )
 				self.Content[ k ].ButtonForDropdown.ContentInfo.AnnounceCompletion.DoClick = function( pnl )
 					RunConsoleCommand("props_achievements", self.Content[ k ].ContentTitle:GetText())
+				end
+				self.Content[ k ].ButtonForDropdown.ContentInfo.AnnounceCompletion.Paint = function( pnl, w, h)
+					draw.RoundedBox( 0, 0, 0, w, h, Color( 255, 255, 255, 255 ) )
 				end
 
                     -- Positions this new panel (aka the dropdown info) to right underneath our Achievement Title panel

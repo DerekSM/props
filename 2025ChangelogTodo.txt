@@ -1,4 +1,7 @@
 **Changelog
+v1.6.1
+/ Fixed the force wheelspeed button when a bot is online.
+/ Changed color of Achievements header
 v1.6.0
 / Refresh Gamemode config menu if another admin changes a setting while the menu is open
 + Added Fun Facts module. On initial join player's will be given gamemode/propkill lore information.
