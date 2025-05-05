@@ -2,7 +2,6 @@ local PANEL = {}
 
 include( "props_teams.lua" )
 include( "props_config.lua" )
-include( "props_battle.lua" )
 include( "props_newbattle.lua" )
 include( "props_stats.lua" )
 include( "props_topprops_new.lua" )

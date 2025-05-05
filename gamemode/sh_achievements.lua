@@ -51,6 +51,11 @@
         -D "720 noscope" - Kill a player after turning 720+ degrees after releasing a prop
         - "Go clip yourself" - "Push yourself through a wall"
         - "15 in 15" - "Perform 15 flybys in 15 minutes"
+        - "Random" - "Complete a random number of combined achievements during a single session."
+            - E.g "14 kills and all of them have to be crouching flybys" or "7 kills they all have to qualify for 'Toy Maker'"
+            - Or "Kill 5 players without dying and while looking away from them"
+            - This random achievement would be ranked 5/5 because the only way to find out is by bruteforce or pure luck.
+            - Players can already unlock the other achievements. This is an entirely different achievement.
 ]]
 PROPKILL.CombatAchievements = PROPKILL.CombatAchievements or {}
 PROPKILL.CombatAchievementsCount = 0
@@ -976,7 +981,7 @@ local CA_NOSCOPE720 = PROPKILL.RegisterCombatAchievement(
         title = "720 noscope",
         description = "Kill a player after turning 720+ degrees after releasing a prop",
         type = "Trigger",
-        difficulty = 5
+        difficulty = 4
     }
 )
 CA_NOSCOPE720:AddListener( "PhysgunDrop", LISTENER_SERVER, function( achievement, pl, ent )

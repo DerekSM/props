@@ -9,6 +9,11 @@
 		Battling tab
 ]]--
 
+--[[Color palette ideas
+https://colormagic.app/palette/6815aa1585aa24c2b2b6475a
+https://colorhunt.co/palette/222831393e46948979dfd0b8
+]]
+
 local PANEL = {}
 
 function PANEL:Init()
@@ -21,11 +26,15 @@ function PANEL:Init()
 	self.BattleTypePanel:SetWide( self:GetWide() )
 	self.BattleTypePanel:SetTall( 60 )
 	--self.BattleTypePanel:Dock( TOP )
+	self.BattleTypePanel.Paint = function( pnl, w, h )
+			-- 1v1 Player Battling background color
+		draw.RoundedBox( 0, 0, 0, w, h, Color( 34, 40, 49, 255 ) )
+	end
 	
 	self.BattleTypeText = self.BattleTypePanel:Add( "DLabel" )
 	self.BattleTypeText:SetText( "1v1 Player Battling" )
 	self.BattleTypeText:SetFont( "props_HUDTextLarge" )
-	self.BattleTypeText:SetTextColor( Color( 62, 62, 62, 255 ) )
+	self.BattleTypeText:SetTextColor( Color(223,208,184,255) ) --Color( 62, 62, 62, 255 ) )
 	surface.SetFont( "props_HUDTextLarge" )
 	local typetextsize_w, typetextsize_h = surface.GetTextSize( "1v1 Player Battling" )
 	self.BattleTypeText:SetSize( typetextsize_w, typetextsize_h )
@@ -38,13 +47,16 @@ function PANEL:Init()
 	self.LeftPanel:SetWide( 280 )
 	self.LeftPanel:SetTall( self:GetTall() - (self.BattleTypePanel:GetTall() + battletypepos_y) )
 	--self.LeftPanel:Dock( LEFT )
+	self.LeftPanel.Paint = function( pnl, w, h )
+		draw.RoundedBox( 0, 0, 0, w, h, Color( 34, 40, 49, 255 ) )
+	end
 	
 	self.LeftPanel.AvatarPanel = self.LeftPanel:Add( "DPanel" )
 	self.LeftPanel.AvatarPanel:SetPos( 15, 4 )
 	self.LeftPanel.AvatarPanel:SetWide( 88 )
 	self.LeftPanel.AvatarPanel:SetTall( 88 )
 	self.LeftPanel.AvatarPanel.Paint = function( self, w, h )
-		draw.RoundedBox( 0, 0, 0, w, h, Color( 90, 90, 90, 255 ) )
+		draw.RoundedBox( 0, 0, 0, w, h, Color( 148, 137, 121, 255 ) )
 	end
 	
 	self.LeftPanel.AvatarPanel.Image = self.LeftPanel.AvatarPanel:Add( "AvatarImage" )
@@ -98,7 +110,7 @@ function PANEL:Init()
 	self.LeftPanel.FragLimitPanel.Text:SetPos( 0, 1 )
 	self.LeftPanel.FragLimitPanel.Text:SetText( "Kill Limit" )
 	self.LeftPanel.FragLimitPanel.Text:SetFont( "props_HUDTextTiny" )
-	self.LeftPanel.FragLimitPanel.Text:SetTextColor( Color( 90, 90, 90, 255 ) ) --color_white )
+	self.LeftPanel.FragLimitPanel.Text:SetTextColor( Color(223,208,184,255) ) --color_white )
 	self.LeftPanel.FragLimitPanel.Text:SizeToContents()
 	
 	surface.SetFont( "props_HUDTextTiny" )
@@ -127,7 +139,7 @@ function PANEL:Init()
 	self.LeftPanel.TimePanel.Text:SetPos( 0, 1 )
 	self.LeftPanel.TimePanel.Text:SetText( "Prop Limit" )
 	self.LeftPanel.TimePanel.Text:SetFont( "props_HUDTextTiny" )
-	self.LeftPanel.TimePanel.Text:SetTextColor( Color( 90, 90, 90, 255 ) ) --color_white )
+	self.LeftPanel.TimePanel.Text:SetTextColor( Color(223,208,184,255) ) --color_white )
 	self.LeftPanel.TimePanel.Text:SizeToContents()
 	
 	surface.SetFont( "props_HUDTextTiny" )
@@ -181,12 +193,13 @@ function PANEL:Init()
 	self.LeftPanel.AdvOptions.Text:SetPos( 0, 0 )
 	self.LeftPanel.AdvOptions.Text:SetText( "Advanced Options")
 	self.LeftPanel.AdvOptions.Text:SetFont( "props_HUDTextTiny" )
-	self.LeftPanel.AdvOptions.Text:SetTextColor( Color( 90, 90, 90, 255 ) ) 
+	self.LeftPanel.AdvOptions.Text:SetTextColor( Color(223,208,184,255) )
 	self.LeftPanel.AdvOptions.Text:SizeToContents()
 	
 	self.LeftPanel.AdvOptions.pButton = self.LeftPanel.AdvOptions:Add( "DButton" )
 	self.LeftPanel.AdvOptions.pButton:SetWide( 70 )
 	self.LeftPanel.AdvOptions.pButton:SetTall( 17 )
+	self.LeftPanel.AdvOptions.pButton:SetTextColor( Color( 223, 208, 184, 255 ) )
 	self.LeftPanel.AdvOptions.pButton:SetText( "" )
 	self.LeftPanel.AdvOptions.pButton:SetPos( self.LeftPanel.AdvOptions:GetWide() - self.LeftPanel.AdvOptions.pButton:GetWide(), 0 )
 	local advoptions =
@@ -195,7 +208,6 @@ function PANEL:Init()
 		["playerdormant"] = {"Player Dormancy", false},
 		["propdormant"] = {"Prop Dormancy", true},
 	}
-	
 	self.LeftPanel.AdvOptions.pButton.DoClick = function( pnl )
 		local menu = DermaMenu( pnl )
 		
@@ -234,6 +246,11 @@ function PANEL:Init()
 			end
 		end
 	end
+	local CategoryDownArrow = GWEN.CreateTextureNormal( 496, 272+32, 15, 15 )
+	self.LeftPanel.AdvOptions.pButton.Paint = function( pnl, w, h )
+		draw.RoundedBox( 0, 0, 0, w, h, Color( 57, 62, 70, 255 ) )
+		CategoryDownArrow( w - 15, h / 2 - 8, 15, 15, Color( 223, 208, 184, 255 )  )
+	end
 		
 	
 	
@@ -245,13 +262,16 @@ function PANEL:Init()
 	self.RightPanel:SetPos( self.LeftPanel:GetWide() + 2 + 5, battletypepos_y + self.BattleTypePanel:GetTall() + 5 )
 	self.RightPanel:SetWide( self:GetWide() - ((self.LeftPanel:GetWide() + 2) + 5) + 2 )
 	self.RightPanel:SetTall( self:GetTall() - (self.BattleTypePanel:GetTall() + battletypepos_y) )
+	self.RightPanel.Paint = function( pnl, w, h )
+		draw.RoundedBox( 0, 0, 0, w, h, Color( 34, 40, 49, 255 ) )
+	end
 	
 	self.RightPanel.RecentHeaderPanel = self.RightPanel:Add( "DPanel" )
 	self.RightPanel.RecentHeaderPanel:SetPos( 5, 5 )
 	self.RightPanel.RecentHeaderPanel:SetWide( self.RightPanel:GetWide() - 10 )
 	self.RightPanel.RecentHeaderPanel:SetTall( 40 )
 	self.RightPanel.RecentHeaderPanel.Paint = function( self, w, h )
-		draw.RoundedBox( 0, 0, 0, w, h, Color( 180, 180, 180, 255 ) )
+		draw.RoundedBox( 0, 0, 0, w, h, Color( 34, 40, 49, 255 ) )
 	end
 	
 	local headerpos_x, headerpos_y = self.RightPanel.RecentHeaderPanel:GetPos()
@@ -259,7 +279,7 @@ function PANEL:Init()
 	self.RightPanel.RecentHeaderPanel.Text = self.RightPanel.RecentHeaderPanel:Add( "DLabel" )
 	self.RightPanel.RecentHeaderPanel.Text:SetText( "Recent Battles" )
 	self.RightPanel.RecentHeaderPanel.Text:SetFont( "props_HUDTextMedium" )
-	self.RightPanel.RecentHeaderPanel.Text:SetTextColor( Color( 90, 90, 90, 255 ) )
+	self.RightPanel.RecentHeaderPanel.Text:SetTextColor( Color(223,208,184,255) )
 	surface.SetFont( "props_HUDTextMedium" )
 	local headertextsize_w, headertextsize_h = surface.GetTextSize( "Recent Battles" )
 	self.RightPanel.RecentHeaderPanel.Text:SetSize( headertextsize_w, headertextsize_h )
@@ -271,13 +291,14 @@ function PANEL:Init()
 	self.RightPanel.RecentLabelPanel:SetTall( 20 )
 	self.RightPanel.RecentLabelPanel.Paint = function( self, w, h )
 			-- comment out later?
-		draw.RoundedBox( 0, 0, 0, w, h, Color( 180, 180, 180, 255 ) )
+		--draw.RoundedBox( 0, 0, 0, w, h, Color( 180, 180, 180, 255 ) )
+		draw.RoundedBox( 0, 0, 0, w, h, Color( 34, 40, 49, 255 ) )
 	end
 	
 	self.RightPanel.RecentLabelPanel.ColumnName = self.RightPanel.RecentLabelPanel:Add( "DLabel" )
 	self.RightPanel.RecentLabelPanel.ColumnName:SetText( "Names" )
 	self.RightPanel.RecentLabelPanel.ColumnName:SetFont( "props_HUDTextSmall" )
-	self.RightPanel.RecentLabelPanel.ColumnName:SetTextColor( Color( 90, 90, 90, 255 ) )
+	self.RightPanel.RecentLabelPanel.ColumnName:SetTextColor( Color(223,208,184,255) )
 	surface.SetFont( "props_HUDTextSmall" )
 	local columnnamesize_w, columnnamesize_h = surface.GetTextSize( "Names" )
 	self.RightPanel.RecentLabelPanel.ColumnName:SetSize( columnnamesize_w, columnnamesize_h )
@@ -286,7 +307,7 @@ function PANEL:Init()
 	self.RightPanel.RecentLabelPanel.ColumnWinner = self.RightPanel.RecentLabelPanel:Add( "DLabel" )
 	self.RightPanel.RecentLabelPanel.ColumnWinner:SetText( "Winner" )
 	self.RightPanel.RecentLabelPanel.ColumnWinner:SetFont( "props_HUDTextSmall" )
-	self.RightPanel.RecentLabelPanel.ColumnWinner:SetTextColor( Color( 90, 90, 90, 255 ) )
+	self.RightPanel.RecentLabelPanel.ColumnWinner:SetTextColor( Color(223,208,184,255) )
 	surface.SetFont( "props_HUDTextSmall" )
 	local columnwinnersize_w, columnwinnersize_h = surface.GetTextSize( "Winner" )
 	self.RightPanel.RecentLabelPanel.ColumnWinner:SetSize( columnwinnersize_w, columnwinnersize_h )
@@ -295,7 +316,7 @@ function PANEL:Init()
 	self.RightPanel.RecentLabelPanel.ColumnScore = self.RightPanel.RecentLabelPanel:Add( "DLabel" )
 	self.RightPanel.RecentLabelPanel.ColumnScore:SetText( "Score" )
 	self.RightPanel.RecentLabelPanel.ColumnScore:SetFont( "props_HUDTextSmall" )
-	self.RightPanel.RecentLabelPanel.ColumnScore:SetTextColor( Color( 90, 90, 90, 255 ) )
+	self.RightPanel.RecentLabelPanel.ColumnScore:SetTextColor( Color(223,208,184,255) )
 	surface.SetFont( "props_HUDTextSmall" )
 	local columnscoresize_w, columnscoresize_h = surface.GetTextSize( "Score" )
 	self.RightPanel.RecentLabelPanel.ColumnScore:SetSize( columnscoresize_w, columnscoresize_h )
@@ -395,7 +416,7 @@ function PANEL:Init()
 		self.RightPanel.RecentContentPanel[ "recent" .. k ]:SetWide( self.RightPanel.RecentContentPanel:GetWide() )
 		self.RightPanel.RecentContentPanel[ "recent" .. k ]:SetTall( 35 )
 		self.RightPanel.RecentContentPanel[ "recent" .. k ].Paint = function( self, w, h )
-			draw.RoundedBox( 0, 0, 0, w, h, Color( 80, 80, 80, 255 ) )
+			draw.RoundedBox( 0, 0, 0, w, h, Color( 57, 62, 70, 255 ) )
 		end
 		
 		self.RightPanel.RecentContentPanel[ "recent" .. k .. "button" ] = self.RightPanel.RecentContentPanel[ "recent" .. k ]:Add( "DButton" )
@@ -416,7 +437,8 @@ function PANEL:Init()
 				self.RightPanel.RecentContentPanel[ "recent" .. k .. "button" ].ContentInfo:SetWide( self.RightPanel.RecentContentPanel:GetWide() )
 				self.RightPanel.RecentContentPanel[ "recent" .. k .. "button" ].ContentInfo:SetTall( 105 )
 				self.RightPanel.RecentContentPanel[ "recent" .. k .. "button" ].ContentInfo.Paint = function( self, w, h )
-					draw.RoundedBox( 0, 0, 0, w, h, Color( 110, 110, 110, 255 ) )
+					--draw.RoundedBox( 0, 0, 0, w, h, Color( 110, 110, 110, 255 ) )
+					draw.RoundedBox( 0, 0, 0, w, h, Color( 130, 130, 130, 255 ) )
 				end
 				
 				self.RightPanel.RecentContentPanel[ "recent" .. k .. "button" ].ContentInfo.DescriptionThings = self.RightPanel.RecentContentPanel[ "recent" .. k .. "button" ].ContentInfo:Add( "DLabel" )
@@ -466,7 +488,7 @@ function PANEL:Init()
 		self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentNames = self.RightPanel.RecentContentPanel[ "recent" .. k ]:Add( "DLabel" )
 		self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentNames:SetText( v.Names )
 		self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentNames:SetFont( setnames == 0 and "props_HUDTextTiny" or setnames == 1 and "props_HUDTextVeryTiny" or setnames == 2 and "props_HUDTextULTRATiny" )
-		self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentNames:SetTextColor( Color( 230, 230, 230, 255 ) )
+		self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentNames:SetTextColor( Color( 148, 137, 121, 255 ) )
 		surface.SetFont( "props_HUDTextSmall" )
 		local contentnamesize_w, contentnamesize_h = surface.GetTextSize( v.Names )
 		self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentNames:SetSize( contentnamesize_w, contentnamesize_h )
@@ -475,7 +497,7 @@ function PANEL:Init()
 		self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentWinner = self.RightPanel.RecentContentPanel[ "recent" .. k ]:Add( "DLabel" )
 		self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentWinner:SetText( FixLongName( v.winner, 17 ) )
 		self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentWinner:SetFont( setnames == 0 and "props_HUDTextTiny" or setnames == 1 and "props_HUDTextVeryTiny" or setnames == 2 and "props_HUDTextULTRATiny" )
-		self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentWinner:SetTextColor( Color( 230, 230, 230, 255 ) )
+		self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentWinner:SetTextColor( Color( 148, 137, 121, 255 ) )
 		surface.SetFont( "props_HUDTextSmall" )
 		local contentwinnersize_w, contentwinnersize_h = surface.GetTextSize( FixLongName( v.winner, 17 ) )
 		self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentWinner:SetSize( contentwinnersize_w, contentwinnersize_h )
@@ -483,6 +505,7 @@ function PANEL:Init()
 		
 		self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentScore = self.RightPanel.RecentContentPanel[ "recent" .. k ]:Add( "DLabel" )
 		self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentScore:SetText( v.score )
+		self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentScore:SetTextColor( Color( 148, 137, 121, 255 ) )
 		self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentScore:SetFont( "props_HUDTextTiny" )
 		local contentscoresize_w, contentscoresize_h = surface.GetTextSize( v.score )
 		self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentScore:SetSize( contentscoresize_w, contentscoresize_h )
@@ -522,6 +545,7 @@ function PANEL:Init()
 	
 	self.RightPanel.StartButton = self.RightPanel:Add( "DButton" )
 	self.RightPanel.StartButton:SetText( "START BATTLE" )
+	self.RightPanel.StartButton:SetTextColor( Color( 223, 208, 184, 255 ) )
 	self.RightPanel.StartButton:SetFont( "props_HUDTextSmall" )
 	self.RightPanel.StartButton:SetWide( self.RightPanel.RecentContentPanel:GetWide() - 40 )
 	--self.RightPanel:GetTall() - ( headerpos_y + self.RightPanel.RecentHeaderPanel:GetTall() + self.RightPanel.RecentLabelPanel:GetTall() ) - (5 + 55) )
@@ -538,8 +562,18 @@ function PANEL:Init()
 		local pl = self.LeftPanel.ListView:GetLine( self.LeftPanel.ListView:GetSelectedLine() ):GetValue( 3 )
 		RunConsoleCommand( "props_requestbattle", pl, self.LeftPanel.FragLimitPanel.Wang:GetValue(), self.LeftPanel.TimePanel.Wang:GetValue(), tostring( advoptions[ "funfight" ][ 2 ] ), tostring( advoptions[ "playerdormant" ][ 2 ] ), tostring( advoptions[ "propdormant" ][ 2 ] ) )--tostring( self.LeftPanel.FunFightPanel.Checkbox:GetChecked() ) )
 	end
+	self.RightPanel.StartButton.Paint = function( pnl, w, h )
+		-- "START" button background color
+		draw.RoundedBox( 0, 0, 0, w, h, Color( 57, 62, 70, 255 ) )
+	end
+
 	
-	
+end
+
+function PANEL:Paint( w, h )
+		-- Actual background color of panel. So basically the borders and divider.
+		-- this does not include the "base" color of the Tab
+	draw.RoundedBox( 0, 0, 0, w, h, Color( 148, 137, 121, 255 ) )
 end
 
 vgui.Register( "props_BattleMenuNew", PANEL )

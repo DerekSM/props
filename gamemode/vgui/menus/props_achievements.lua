@@ -9,6 +9,11 @@
 		Clientside menu for viewing achievements
 ]]--
 
+--[[Color palette ideas
+https://colormagic.app/palette/6815aa1585aa24c2b2b6475a
+https://colorhunt.co/palette/222831393e46948979dfd0b8
+]]
+
 local PANEL = {}
 
 function PANEL:Init()

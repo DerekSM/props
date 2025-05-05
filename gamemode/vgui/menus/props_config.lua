@@ -36,13 +36,51 @@ function PANEL:Init()
 	self.CatList = self:Add("DCategoryList")
 	self.CatList:Dock( FILL )
 
-	local AddedCategories = {}
+		-- This little hack will resize the individual settings panels based on whether scrollbar is visible
+	self.CatList.OnScrollbarAppear = function( pnl )
+		local VerticalScrollbar = pnl:GetVBar()
+		for k,categories in next, self.AddedCategories do
+			for k2, panels in next, categories.Contents:GetChildren() do
+				if VerticalScrollbar:IsVisible() then
+					--print("Scrollbar active. Changing position.")
+					local ScrollbarWidth  = VerticalScrollbar:GetWide()
+					panels.OldPanelWide = panels:GetWide()
+
+					panels:SetWide(
+						panels.OldPanelWide - math.floor(ScrollbarWidth / 2)
+					)
+				else
+					--print("Scrollbar inactive. Resetting position.")
+					panels:SetWide( panels.OldPanelWide )
+				end
+			end
+		end
+	end
+	oldCatPerformLayout = self.CatList.PerformLayout
+	self.CatList.PerformLayout = function( pnl )
+		oldCatPerformLayout( pnl )
+
+			-- This is because we need to set our sizes of our config item panels.
+			-- Without this initial check we will get unreliable sizes being returned.
+		if not pnl.FirstPerformLayoutDone then
+			pnl.FirstPerformLayoutDone = true
+			self:CreateConfigItems()
+			return
+		end
+	end
+
+	self.AddedCategories = {}
 	self.ScrollPanels = {}
 	self.Content = {}
 
 	--local CategoryDownArrow = GWEN.CreateTextureNormal( 496, 272+32, 15, 15 )
+
+
+	local ConfigCount = 0
 	for k,v in SortedPairs( PROPKILL.Config ) do
-		if not AddedCategories[v.Category] then
+		ConfigCount = ConfigCount + 1
+
+		if not self.AddedCategories[v.Category] then
 			local Category = self.CatList:Add( v.Category )
 			Category:SetAnimTime( 0 )
 			Category:SetSkin( "Props" )
@@ -55,38 +93,59 @@ function PANEL:Init()
 			else
 				Category:SetExpanded( false )
 			end
-			--[[Category.Paint = function( pnl, w, h)
-				draw.RoundedBox( 0, 0, 0, w, h,  Color( 112, 128, 144, 255 ) )
-				CategoryDownArrow( CategoryHeaderTextSize + 8, h / 2 - 8, 15, 15, Color(220,20,60,255) )
-			end]]
 
-			AddedCategories[v.Category] = Category
+			self.AddedCategories[v.Category] = Category
 
-			self.Content[v.Category] = vgui.Create("DIconLayout")
+			self.Content[v.Category] = vgui.Create("DIconLayout", Category)
 			self.Content[v.Category]:SetSpaceY( 2 )
+			self.Content[v.Category]:SetSpaceX( 2 )
 			self.Content[v.Category]:Dock( FILL )
+			self.Content[v.Category]:DockMargin(1,0,0,0)
+			oldPerformLayout = self.Content[v.Category].PerformLayout
 			Category:SetContents(self.Content[v.Category])
 		end
 
+	end
+
+	self.configPanelSaveButton = self:Add( "DButton" )
+	self.configPanelSaveButton:Dock( BOTTOM )
+	self.configPanelSaveButton:DockMargin( 0, 15, 0, 2 )
+	self.configPanelSaveButton:SetText( "Save Settings To File")
+	self.configPanelSaveButton.DoClick = function()
+		RunConsoleCommand("props_savesettings")
+	end
+
+	hook.Add("props_UpdateConfig", self, function( pnl, setting, setting_type, newvalue )
+		if not IsValid(pnl) then return end
+
+		local PKConfig = PROPKILL.Config[setting]
+
+		pnl.Content[ PKConfig.Category ][ setting ].Content:SetValue( newvalue )
+	end)
+end
+
+function PANEL:CreateConfigItems()
+	for k,v in SortedPairs( PROPKILL.Config ) do
 			-- Will hold our individual labels with buttons/numslider/checkboxes
 		self.Content[v.Category][ k ] = self.Content[v.Category]:Add("DPanel")
-		self.Content[v.Category][ k ]:SetSize( self:GetWide(), 50 )
-		--[[self.Content[v.Category][ k ].Paint = function( pnl, w, h )
-			draw.RoundedBox( 0, 0, 0, w, h,  Color( 180, 180, 180, 255 ) )
-			--draw.RoundedBox( 0, 0, 0, w, h, Color( ))
-		end]]
-		self.Content[v.Category][ k ].PerformLayout = function( pnl, w, h )
-			pnl:SetSize( self:GetWide(), 50 )
-		end
+		self.Content[v.Category][ k ]:SetSize( self.CatList:GetWide() / 2 - 4, 65 )
 
-		local LabelXPosition = 80
+		local LabelXPosition = 5
+		local LabelWrappedAround = false
+		local LabelFontName = "props_HUDTextTiny"
+		local LabelOverallTextWidth = self.CatList:GetWide() / 2 - 8 - LabelXPosition
+		surface.SetFont( LabelFontName )
+
+		local LabelTextSizeWidth = surface.GetTextSize( v.desc )
 
 		self.Content[v.Category][ k ].Description = self.Content[v.Category][ k ]:Add( "DLabel" )
 		self.Content[v.Category][ k ].Description:SetPos( LabelXPosition, 3 )
-		self.Content[v.Category][ k ].Description:SetFont( "props_HUDTextTiny" )
+		self.Content[v.Category][ k ].Description:SetFont( LabelFontName )
 		self.Content[v.Category][ k ].Description:SetText( v.desc )
+		self.Content[v.Category][ k ].Description:SetWrap( true )
 		self.Content[v.Category][ k ].Description:SetTextColor( Color( 90, 90, 90, 255 ) )
-		self.Content[v.Category][ k ].Description:SizeToContents()
+		self.Content[v.Category][ k ].Description:SetWide( LabelOverallTextWidth )
+		self.Content[v.Category][ k ].Description:SetAutoStretchVertical( true )
 		self.Content[v.Category][ k ].Description.PerformLayout = function( pnl )
 			self.Content[v.Category][ k ].Description:SetPos( LabelXPosition, 3 )
 		end
@@ -96,10 +155,15 @@ function PANEL:Init()
 			self.Content[v.Category][ k ].Content:SetText( v.Name )
 			self.Content[v.Category][ k ].Content:SetValue( v.default )
 			if v.tags then self.Content[v.Category][ k ].Content.Tags = v.tags end
-			self.Content[v.Category][ k ].Content.Label:SetFont( "props_HUDTextTiny" )
+			self.Content[v.Category][ k ].Content.Label:SetFont( LabelFontName )
 			self.Content[v.Category][ k ].Content.Label:SetTextColor( Color( 45, 45, 45, 255 ) )
 			self.Content[v.Category][ k ].Content:SizeToContents()
-			self.Content[v.Category][ k ].Content:SetPos( LabelXPosition, 25 )--(400 / 2) + 3, 25 )
+				-- If our text is wrapping around (assume its only ONE wrap), and reposition our next item
+			if LabelTextSizeWidth > LabelOverallTextWidth then
+				self.Content[v.Category][ k ].Content:SetPos( LabelXPosition, 40 )--(400 / 2) + 3, 25 )
+			else
+				self.Content[v.Category][ k ].Content:SetPos( LabelXPosition, 25 )--(400 / 2) + 3, 25 )
+			end
 			self.Content[v.Category][ k ].Content.Button.Toggle = function( pnl )
 				if not pnl:GetChecked() then
 					pnl:SetValue( true )
@@ -111,7 +175,12 @@ function PANEL:Init()
 			end
 		elseif v.type == "integer" then
 			self.Content[v.Category][ k ].Content = self.Content[v.Category][ k ]:Add( "DNumSlider" )
-			self.Content[v.Category][ k ].Content:SetPos( LabelXPosition, 15 )
+				-- If our text is wrapping around (assume its only ONE wrap), and reposition our next item
+			if LabelTextSizeWidth > LabelOverallTextWidth then
+				self.Content[v.Category][ k ].Content:SetPos( LabelXPosition, 30 )--(400 / 2) + 3, 25 )
+			else
+				self.Content[v.Category][ k ].Content:SetPos( LabelXPosition, 15 )--(400 / 2) + 3, 25 )
+			end
 			self.Content[v.Category][ k ].Content:SetWide( 400 )
 			self.Content[v.Category][ k ].Content:SetDark( true )
 			self.Content[v.Category][ k ].Content:SetMin( v.min or 1 )
@@ -143,12 +212,21 @@ function PANEL:Init()
 			end
 			self.Content[v.Category][ k ].Content.PerformLayout = function( pnl )
                 -- This will align the slider to the same position of the label, accounting for the added width of the "scratch"
-                pnl:SetPos( LabelXPosition - pnl.Scratch:GetWide(), 15 )
+				if LabelTextSizeWidth > LabelOverallTextWidth then
+					pnl:SetPos( LabelXPosition - pnl.Scratch:GetWide(), 30 )
+				else
+					pnl:SetPos( LabelXPosition - pnl.Scratch:GetWide(), 15 )
+				end
             end
 
 		elseif v.type == "button" then
 			self.Content[v.Category][ k ].Content = self.Content[v.Category][ k ]:Add( "DButton" )
-			self.Content[v.Category][ k ].Content:SetPos( LabelXPosition, 25 )
+				-- If our text is wrapping around (assume its only ONE wrap), and reposition our next item
+			if LabelTextSizeWidth > LabelOverallTextWidth then
+				self.Content[v.Category][ k ].Content:SetPos( LabelXPosition, 40 )
+			else
+				self.Content[v.Category][ k ].Content:SetPos( LabelXPosition, 25 )
+			end
 			self.Content[v.Category][ k ].Content:SetWide( 300 )
 			self.Content[v.Category][ k ].Content:SetTall( 20 )
 			self.Content[v.Category][ k ].Content:SetText( v.Name )
@@ -161,23 +239,6 @@ function PANEL:Init()
 
 		--print(self.CatList:GetChild(0):GetChild(0).Header:GetText())
 	end
-
-	self.configPanelSaveButton = self:Add( "DButton" )
-	self.configPanelSaveButton:Dock( BOTTOM )
-	self.configPanelSaveButton:DockMargin( 0, 15, 0, 2 )
-	self.configPanelSaveButton:SetText( "Save Settings To File")
-	self.configPanelSaveButton.DoClick = function()
-		RunConsoleCommand("props_savesettings")
-	end
-
-	hook.Add("props_UpdateConfig", self, function( pnl, setting, setting_type, newvalue )
-		if not IsValid(pnl) then return end
-
-		local PKConfig = PROPKILL.Config[setting]
-
-		pnl.Content[ PKConfig.Category ][ setting ].Content:SetValue( newvalue )
-	end)
-	--self.CatList:InvalidateLayout( true )
 end
 
 

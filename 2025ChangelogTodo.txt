@@ -1,4 +1,8 @@
 **Changelog
+v1.6.2
+/ Gamemode config menu has been condensed. Two items will be displayed per row.
+- Removed old unused props_battle menu file
+/ New color scheme for the Battle menu
 v1.6.1
 / Fixed the force wheelspeed button when a bot is online.
 / Changed color of Achievements header
@@ -113,8 +117,10 @@ Add config for server owners to let players create their own bot paths
 Showcase a way to the player in achievements menu to differentiate between different difficulty levels.
 Achievements percentage of players completed is still broken?? Or is it because we were testing on bots?
     ^ I think we fixed it
-Add ability to search gamemode configs (keynames/titles/descriptions should all be included in the search)
 Eventually only network TopPropsTotal that has CHANGED from last time instead of sending the whole table
+(?) Add Top Players leaderboard menu. Can show stuff like "Most kills", "Most Battles", "Most Battles Won", "Highest KD",
+    "Most Hours Played", "First to complete all achievements"
+Add color schemes to client config
 
 **Notes
 The gamemode is messy and I'm probably not going to do anything about it..

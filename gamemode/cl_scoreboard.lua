@@ -108,10 +108,10 @@ include( "vgui/scoreboard/props_playerrow_alt.lua" )
 
 AddClientConfigItem( "props_NewScoreboard",
 	{
-	Name = "Show Alternate Scoreboard",
+	Name = "Use Alternate Scoreboard",
 	default = false,
 	type = "boolean",
-	desc = "Show the new, singular scoreboard",
+	desc = "Replace the original scoreboard with a new, singular scoreboard",
 	}
 )
 
