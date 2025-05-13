@@ -47,6 +47,7 @@ function table.FastConcat( str_Separator, ... )
 	return table.concat(Pre, str_Separator)
 end
 
+-- Used by an achievement
 function math.DeltaAngle( current, new )
 	local Delta = (new - current) % 360
 	if Delta > 180 then Delta = Delta - 360 end
@@ -54,6 +55,82 @@ function math.DeltaAngle( current, new )
 
 	return Delta
 end
+
+-- https://github.com/Facepunch/garrysmod/blob/efcd6eb8d534063bdbe24522810669434f1083ce/garrysmod/lua/includes/util.lua#L78
+-- Generic PrintTable except we SEARCH for a key name (case-insensitive)
+-- If the table has subtables, and the table matches the key name, we will return all subtables
+-- If the table has subtables, and the table DOESNT match, but a subtable does, it will return only the original table and its subtables
+-- This is a WIP. It's not complete.
+function SearchPrintTable( t, keysearch, indent, done )
+	local Msg = Msg
+	local string = string
+
+	done = done or {}
+	done2 = done2 or {}
+	indent = indent or 0
+	local keys = table.GetKeys( t )
+
+	table.sort( keys, function( a, b )
+		if ( isnumber( a ) and isnumber( b ) ) then return a < b end
+		return tostring( a ) < tostring( b )
+	end )
+
+	done[ t ] = true
+
+	for i = 1, #keys do
+		local key = keys[ i ]
+		local value = t[ key ]
+
+		if string.find(string.lower(tostring(key)), string.lower(keysearch), nil, true) then
+			key = ( type( key ) == "string" ) and "[\"" .. key .. "\"]" || "[" .. tostring( key ) .. "]"
+			MsgN( key )
+		end
+
+	end
+
+end
+
+-- ChatGPT, can ignore
+function deepSearchKeysPartial(tbl, targetKeyPart, path, results, visited)
+    path = path or {}
+    results = results or {}
+    visited = visited or {}
+
+    if visited[tbl] then return results end
+    visited[tbl] = true
+
+    for key, value in pairs(tbl) do
+        local keyStr = tostring(key)
+        local currentPath = {unpack(path)}
+        table.insert(currentPath, keyStr)
+
+        -- Check if the key contains the target substring
+        if string.lower(keyStr):find(targetKeyPart:lower()) then
+            table.insert(results, table.concat(currentPath, "."))
+        end
+
+        -- Recurse into tables
+        if type(value) == "table" then
+            deepSearchKeysPartial(value, targetKeyPart, currentPath, results, visited)
+        end
+    end
+
+    return results
+end
+
+
+function Print(...)
+    local args = {...}
+    for _, v in ipairs(args) do
+        if istable(v) then
+            PrintTable(v)
+        else
+            print(v)
+        end
+    end
+end
+print2 = Print
+
 
 
 Props_Benchmark = {}

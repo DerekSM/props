@@ -17,7 +17,7 @@ PROPKILL.Colors["Yellow"] = Color( 180,170,60,255 )
 
 GM.Name = "Props"
 GM.Author = "Shinycow"
-GM.Version = "1.6.2"
+GM.Version = "1.6.3"
 -- You (the server owner) should be fine to just remove the variable entirely if you don't want sounds
 GM.KillingSprees =
 {
@@ -120,53 +120,22 @@ else
 	end )
 end
 
-	-- networking prop owner
-	-- copypasted from old gamemode
-if SERVER then
-	timer.Create( "props_ShowPropOwner", 0.4, 0, function()
-		for k,v in next, player.GetHumans() do
-
-			v.SeenProps = v.SeenProps or {}
-
-			local trace = util.TraceLine( util.GetPlayerTrace( v ) )
-			if trace.HitNonWorld then
-				if IsValid(trace.Entity) and not trace.Entity:IsPlayer() and not v.SeenProps[ trace.Entity ] then
-					umsg.Start( "propkill_ShowOwner", v )
-						umsg.Bool( true )
-							umsg.Entity( trace.Entity )
-							umsg.Bool( true )
-					umsg.End()
-
-					v.SeenProps[ trace.Entity ] = true
-					v.SeenProps[ "prop_physics" ] = true
-				end
-			else
-				if v.SeenProps[ "prop_physics" ] then
-					umsg.Start( "propkill_ShowOwner", v )
-						umsg.Bool( false )
-					umsg.End()
-
-					v.SeenProps = {}
-				end
-			end
-
-		end
-	end )
-end
-
+	--
+	-- WHY were we even networking if we already have SetNW2Entity("Owner") ??
+	--
 if CLIENT then
-	LocalPlayer().LookingAtProp = NULL
-	LocalPlayer().noowner = false
-	
-	usermessage.Hook("propkill_ShowOwner", function( um )
-		local looking = um:ReadBool()
-		if looking then
-			LocalPlayer().LookingAtProp = um:ReadEntity()
+	timer.Create( "props_ShowPropOwner", 0.2, 0, function()
+		if not LocalPlayer or not IsValid(LocalPlayer()) then return end
+
+		local trace = util.TraceLine( util.GetPlayerTrace( LocalPlayer() ) )
+		if trace.HitNonWorld then
+			if IsValid(trace.Entity) and not trace.Entity:IsPlayer() then
+				LocalPlayer().LookingAtProp = trace.Entity
+			end
 		else
 			LocalPlayer().LookingAtProp = NULL
 		end
-		LocalPlayer().noowner = um:ReadBool() or false
-	end)
+	end )
 end
 
 

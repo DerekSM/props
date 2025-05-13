@@ -16,7 +16,7 @@ local ReferenceTable =
 {
 ["propspawns"] = "total props have been spawned acrossed restarts",
 ["totalheadsmash"] = "players had their heads smashed",
-["totaljoins"] = "total non-unique players have joined",
+["totaljoins"] = "total returning players have joined",
 ["totaluniquejoins"] = "total unique players have joined.",
 ["totalkills"] = "total kills across restarts",
 ["totalmessages"] = "total messages have been said by players",

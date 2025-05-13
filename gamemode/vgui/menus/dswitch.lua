@@ -102,4 +102,15 @@ function PANEL:PaintOver( w, h )
 	end
 end 
 
+function PANEL:GenerateExample( ClassName, PropertySheet, Width, Height )
+
+	local ctrl = vgui.Create( "DButton" )
+	ctrl:SetText( "Hover me" )
+	ctrl:SetWide( 200 )
+	ctrl:SetTooltip( "This is a tooltip" )
+
+	PropertySheet:AddSheet( ClassName, ctrl, nil, true, true )
+
+end
+
 derma.DefineControl( "DSwitch", "Simple Switch", PANEL, "DButton" )

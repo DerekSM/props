@@ -85,6 +85,7 @@ include( "cl_achievements.lua" )
 include( "cl_hud.lua" )
 include( "vgui/hud/horizontalbar.lua" )
 include( "vgui/skins/props.lua")
+include( "vgui/skins/props_test.lua")
 
 include( "cl_commands.lua" )
 include( "cl_menus.lua" )
@@ -92,5 +93,6 @@ include( "vgui/menus/dswitch.lua" )
 include( "vgui/menus/props_main.lua" )
 include( "vgui/menus/props_battleinvite.lua" )
 include( "vgui/menus/props_battleresults.lua" )
+
 
 LoadModules()

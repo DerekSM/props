@@ -75,7 +75,7 @@ function PANEL:Init()
             self.Content[ k ].Content.OnValueChanged = function( pnl, val )
                 if not v.listening then return end
 
-               ChangeClientConfigValue( k, math.Round( self.Content[ k ].Content:GetValue(), v.decimals or 0 ) )
+                ChangeClientConfigValue( k, math.Round( self.Content[ k ].Content:GetValue(), v.decimals or 0 ) )
             end
             self.Content[ k ].Content.PerformLayout = function( pnl )
                 -- This will align the slider to the same position of the label, accounting for the added width of the "scratch"

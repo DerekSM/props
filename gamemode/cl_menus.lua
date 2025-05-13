@@ -9,6 +9,8 @@
 		clientside menu related things
 ]]--
 
+-- vgui_visualizelayout 1 is GREAT to find panels that constantly InvalidateLayout and refresh themselves
+
 hook.Add( "Move", "props_MenuDetectKeys", function()
 	if IsValid( props_Menu ) then
 		if input.WasKeyPressed( KEY_F2 ) or input.WasKeyPressed( KEY_F4 ) then	

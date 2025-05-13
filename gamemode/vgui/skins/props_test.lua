@@ -1,14 +1,14 @@
 -- Mostly defaults for now
 -- lua_refresh_file gamemodes/props/gamemode/vgui/skins/props.lua (SERVERSIDE)
 
--- Keept his around for gamemode config menu
+-- The goal here is really just to replicate default default.lua default skin but replacing gay GWEN texture with actual editable color schemes.
 
 local surface = surface
 local Color = Color
 
 SKIN = {}
 
-SKIN.PrintName		= "Props Derma Skin"
+SKIN.PrintName		= "Props Test Derma Skin"
 SKIN.Author		= "Shinycow"
 SKIN.DermaVersion	= 1
 SKIN.GwenTexture	= Material( "gwenskin/GModDefault.png" )
@@ -68,7 +68,7 @@ SKIN.colTextEntryTextHighlight	= Color( 20, 200, 250, 255 )
 SKIN.colTextEntryTextCursor		= Color( 0, 0, 100, 255 )
 SKIN.colTextEntryTextPlaceholder= Color( 128, 128, 128, 255 )
 
-SKIN.colNumSliderNotch			= Color( 0, 0, 0, 255 )
+SKIN.colNumSliderNotch			= Color( 0, 0, 0, 100 )
 
 SKIN.colMenuBG					= Color( 255, 255, 255, 200 )
 SKIN.colMenuBorder				= Color( 0, 0, 0, 200 )
@@ -297,7 +297,8 @@ SKIN.Colours.Properties.Label_Disabled		= GWEN.TextureColor( 4 + 8 * 16, 508 )
 
 SKIN.Colours.Category = {}
     -- Text color of the DCollapsibleCategory header when its open
-SKIN.Colours.Category.Header				= Color( 240, 240, 240, 255 ) --GWEN.TextureColor( 4 + 8 * 18, 500 )
+SKIN.Colours.Category.Header				= GWEN.TextureColor( 4 + 8 * 18, 500 )
+    -- Text color of the DCollapsibleCategory header when its closed
 SKIN.Colours.Category.Header_Closed			= GWEN.TextureColor( 4 + 8 * 19, 500 )
 SKIN.Colours.Category.Line = {}
 SKIN.Colours.Category.Line.Text				= GWEN.TextureColor( 4 + 8 * 20, 508 )
@@ -326,7 +327,8 @@ SKIN.Colours.TooltipText = GWEN.TextureColor( 4 + 8 * 26, 500 )
 function SKIN:PaintPanel( panel, w, h )
 
 	if ( !panel.m_bBackground ) then return end
-	self.tex.Panels.Normal( 0, 0, w, h, Color( 180, 180, 180, 255 ) )--panel.m_bgColor )
+        -- Default m_bgColor is "nil" but returns 234,234,234
+	self.tex.Panels.Normal( 0, 0, w, h, panel.m_bgColor )
 
 end
 
@@ -367,6 +369,7 @@ end
 --[[---------------------------------------------------------
 	Button
 -----------------------------------------------------------]]
+    -- Default button skin has two colors. We're replacing that with a solid color
 function SKIN:PaintButton( panel, w, h )
 
 	if ( !panel.m_bBackground ) then return end
@@ -380,10 +383,18 @@ function SKIN:PaintButton( panel, w, h )
 	end
 
 	if ( panel.Hovered ) then
-		return self.tex.Button_Hovered( 0, 0, w, h )
+            -- Default behaviour just keeps the same color but adds an outline (and changes text color but I think thats somewhere else)
+		--return self.tex.Button_Hovered( 0, 0, w, h )
+
+        draw.RoundedBox( 0, 0, 0, w, h, Color(234,234,234,255) )
+        surface.SetDrawColor( 0, 0, 0, 255 )
+        surface.DrawOutlinedRect( 0, 0, w, h, 1 )
+        return
 	end
 
-	self.tex.Button( 0, 0, w, h )
+        -- Default top half of button is 234,234,234. Bottom half is 221,221,221
+	--self.tex.Button( 0, 0, w, h )
+    draw.RoundedBox( 0, 0, 0, w, h, Color(234,234,234,255) )
 
 end
 
@@ -578,7 +589,13 @@ function SKIN:PaintPropertySheet( panel, w, h )
 	local Offset = 0
 	if ( ActiveTab ) then Offset = ActiveTab:GetTall() - 8 end
 
-	self.tex.Tab_Control( 0, Offset, w, h-Offset )
+        -- Default background color of each panel inside PropertySheet tabs
+            -- It's 154,158,162 btw
+        -- Tab_Control is a textured border as well - just a fancy way of saying it has an outline.
+	--self.tex.Tab_Control( 0, Offset, w, h-Offset )
+	draw.RoundedBox( 0, 0, Offset, w, h-Offset, Color(154,158,162,255) )
+    surface.SetDrawColor( 0, 0, 0, 255 )
+    surface.DrawOutlinedRect( 0, Offset, w, h-Offset, 1 )
 
 end
 
@@ -591,14 +608,25 @@ function SKIN:PaintTab( panel, w, h )
 		return self:PaintActiveTab( panel, w, h )
 	end
 
-	self.tex.TabT_Inactive( 0, 0, w, h )
+        -- Default background color of each currently-unopened PropertySheet tabs
+            -- It's 120,122,124 btw
+        -- TabT_Inactive is a textured border as well - just a fancy way of saying it has an outline.
+	--self.tex.TabT_Inactive( 0, 0, w, h )
+    draw.RoundedBox( 0, 0, 0, w, h, Color(120,122,124,255) )
+    surface.SetDrawColor( 0, 0, 0, 255 )
+    surface.DrawOutlinedRect( 0, 0, w, h, 1 )
 
 end
 
 function SKIN:PaintActiveTab( panel, w, h )
 
-	self.tex.TabT_Active( 0, 0, w, h )
-
+          -- Default background color of each currently-opened PropertySheet tab
+            -- It's 157,161,165 btw
+        -- TabT_Active is a textured border as well - just a fancy way of saying it has an outline.
+	--self.tex.TabT_Active( 0, 0, w, h )
+    draw.RoundedBox( 0, 0, 0, w, h, Color(157,161,165,255) )
+    --surface.SetDrawColor( 0, 0, 0, 255 )
+    --surface.DrawOutlinedRect( 0, 0, w, h, 1 )
 end
 
 --[[---------------------------------------------------------
@@ -967,7 +995,7 @@ function SKIN:PaintNumSlider( panel, w, h )
 	-- GetNotchColor() returns SKIN.colNumSliderNotch if custom override is not set
 	local notchColor = panel:GetNotchColor()
 
-	surface.SetDrawColor( 10, 10, 10, 225 )--notchColor.r, notchColor.g, notchColor.b, notchColor.a )
+	surface.SetDrawColor( notchColor.r, notchColor.g, notchColor.b, notchColor.a )
 	surface.DrawRect( 8, h / 2 - 1, w - 15, 1 )
 
 	PaintNotches( 8, h / 2 - 1, w - 16, 1, panel:GetNotches() )
@@ -984,9 +1012,18 @@ end
 function SKIN:PaintCollapsibleCategory( panel, w, h )
 
 	if ( h <= panel:GetHeaderHeight() ) then
-		self.tex.CategoryList.Header( 0, 0, w, h, Color( 112, 128, 144, 255 ) )
+            -- Default background color of header is 124,190,255
+            -- The default texture, even at Color(0,0,0) renders as 124,124,124
+            -- So if we keep the same header texture but want to replicate it's color we actually input Color(0,255,255)
+            -- Therefore, it's really important for us to just say "FUCK THOSE TEXTURES"
+		--self.tex.CategoryList.Header( 0, 0, w, h, Color(0,255,255,255) )
+        draw.RoundedBox( 0, 0, 0, w, h, Color(124,190,255,255) )
 
-            -- Make sure we are accounting for the font size
+        -- Below comment is OG default skin code
+		-- Little hack, draw the ComboBox's dropdown arrow to tell the player the category is collapsed and not empty
+		--if ( !panel:GetExpanded() ) then self.tex.Input.ComboBox.Button.Down( w - 18, h / 2 - 8, 15, 15 ) end
+
+        -- Make sure we are accounting for the font size
 		surface.SetFont( panel.Header:GetFont() )
 		local CategoryHeaderTextSize = surface.GetTextSize( panel.Header:GetText() )
             -- Red down arrow
@@ -994,7 +1031,8 @@ function SKIN:PaintCollapsibleCategory( panel, w, h )
 		return
 	end
 
-	self.tex.CategoryList.InnerH( 0, 0, w, panel:GetHeaderHeight(), Color( 112, 128, 144, 255 ) )
+        -- Some random outline-border texture. We'll keep it.
+	self.tex.CategoryList.InnerH( 0, 0, w, panel:GetHeaderHeight() )
 	self.tex.CategoryList.Inner( 0, panel:GetHeaderHeight(), w, h - panel:GetHeaderHeight() )
 
 end
@@ -1069,4 +1107,4 @@ function SKIN:PaintMenuBar( panel, w, h )
 
 end
 
-derma.DefineSkin( "Props", "Made to look like regular VGUI", SKIN )
+derma.DefineSkin( "PropsTest", "Made to look like regular VGUI", SKIN )

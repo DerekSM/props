@@ -51,6 +51,9 @@ function PANEL:RebuildMenu()
 			if pnl.VBarSize then pnl.VBar:SetSize( pnl.VBarSize ) end
 		end
 	end
+	self.SessionProps.propsession.Header:SetFont( "props_HUDTextSmall" )
+	self.SessionProps.propsession.Header:SetContentAlignment( 1 )
+	self.SessionProps.propsession.Header:SetTextInset( 8, 0 )
 	self.SessionProps.propsession.Header.DoClick = function( pnl )
 		self.SessionProps.propsession:Toggle()
 		
@@ -156,6 +159,9 @@ function PANEL:RebuildMenu()
 			if pnl.VBarSize then pnl.VBar:SetSize( pnl.VBarSize ) end
 		end
 	end
+	self.TotalProps.proptotal.Header:SetFont( "props_HUDTextSmall" )
+	self.TotalProps.proptotal.Header:SetContentAlignment( 1 )
+	self.TotalProps.proptotal.Header:SetTextInset( 8, 0 )
 	self.TotalProps.proptotal.Header.DoClick = function( pnl )
 		self.TotalProps.proptotal:Toggle()
 		

@@ -7,6 +7,7 @@ include( "props_stats.lua" )
 include( "props_topprops_new.lua" )
 include( "props_clientconfig.lua" )
 include( "props_achievements.lua" )
+include( "props_confignocolors.lua" )
 
 -- 1440 x 900
 
@@ -26,6 +27,7 @@ function PANEL:Init()
 	self.btnMinim:Remove()
 	
 	local propSheets = vgui.Create( "DPropertySheet", self )
+	--propSheets:SetSkin("PropsTest")
 	propSheets:SetPos( 8, 28 )
 	propSheets:SetSize( self:GetWide() - 16, self:GetTall() - 31 )
 	
@@ -50,11 +52,17 @@ function PANEL:Init()
 	end
 
 	local configPanel = nil
+	local configPanel2 = nil
 	
 	local canAccessConfig = hook.Call( "PlayerCanChangeSetting", GAMEMODE, LocalPlayer(), nil )
 	if canAccessConfig then
 		configPanel = vgui.Create( "props_ConfigMenu", propSheets )
 	end
+
+	--[[local canAccessConfig2 = hook.Call( "PlayerCanChangeSetting", GAMEMODE, LocalPlayer(), nil )
+	if canAccessConfig2 then
+		configPanel2 = vgui.Create( "props_ConfigMenu2", propSheets )
+	end]]
 
 	local clientConfigPanel = vgui.Create( "props_ClientConfigMenu", propSheets )
 
@@ -71,6 +79,9 @@ function PANEL:Init()
 	if canAccessConfig then
 		local propSheetConfig = propSheets:AddSheet( "Gamemode Config", configPanel, "icon16/cog.png", false, false, "Change gamemode settings" )
 	end
+	--[[if canAccessConfig then
+		local propSheetConfig2 = propSheets:AddSheet( "Gamemode Config 2", configPanel2, "icon16/cog.png", false, false, "Change gamemode settings" )
+	end]]
 
 	local propSheetClientConfig = propSheets:AddSheet( "Client Config", clientConfigPanel, "icon16/vcard_edit.png", false, false, "Change client gamemode-specific settings" )
 	

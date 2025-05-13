@@ -1055,10 +1055,18 @@ CA_RECLUSE:AddListener( "PlayerSay", LISTENER_SERVER, function( achievement, pl 
 end )
     -- AFAIK There's literally no other way to tell if someone's trying to talk or is talking.
     -- Player:IsSpeaking doesn't work serverside
-CA_RECLUSE:AddListener( "PlayerButtonDown", LISTENER_SERVER, function( achievement, pl, button )
+--[[CA_RECLUSE:AddListener( "PlayerButtonDown", LISTENER_SERVER, function( achievement, pl, button )
     if achievement:GetProgression( pl ) then return end
 
     if button == KEY_X then
+        achievement:ResetProgression( pl )
+    end
+end )]]
+    -- Apparently Player:IsSpeaking ~DOES~ work on server after all.
+CA_RECLUSE:AddListener( "PlayerTick", LISTENER_SERVER, function( achievement, pl, mv )
+    if achievement:GetProgression( pl ) then return end
+
+    if pl:IsSpeaking() then
         achievement:ResetProgression( pl )
     end
 end )

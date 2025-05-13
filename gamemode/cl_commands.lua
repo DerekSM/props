@@ -10,7 +10,7 @@ concommand.Add( "props_menu", function()
 	end
 end )
 
-concommand.Add( "props_fightinvite", function()
+concommand.Add( "props_debug_fightinvite", function()
 	LocalPlayer().fightInvites = LocalPlayer().fightInvites or {}
 
 	local invite = vgui.Create( "props_BattleInvitation" )
@@ -25,12 +25,12 @@ concommand.Add( "props_fightinvite", function()
 	invite:SetPos( 3, invite:GetTall() + oldpos_y + 3 )
 end )
 
-concommand.Add("props_showfight", function()
+concommand.Add("props_debug_showfight", function()
 	if PROPKILL.Battling then return end
 
 	props_ShowBattlingHUD()
 end)
-concommand.Add("props_endfight", function()
+concommand.Add("props_debug_endfight", function()
 	PROPKILL.Battling = false
 	PROPKILL.BattlePaused = false
 	PROPKILL.BattleTime = 0
@@ -39,7 +39,7 @@ concommand.Add("props_endfight", function()
 	props_HideBattlingHUD()
 end)
 
-concommand.Add( "props_fightresults", function()
+concommand.Add( "props_debug_fightresults", function()
 	if SHOWRESULTS then
 		SHOWRESULTS:Remove()
 		SHOWRESULTS = nil

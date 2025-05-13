@@ -1,4 +1,11 @@
 **Changelog
+v1.6.3
++ New client config for showing/hiding prop owner HUD
+/ Fixed prop owner hud constantly refreshing
+/ Changed Recluse achievement to properly detect voice chat
+- Removed redundant prop owner networking
+/ Achievements sorting dropdown now intuitively displays the current sort method.
+/ Attempt to fix rare error by achievements menu
 v1.6.2
 / Gamemode config menu has been condensed. Two items will be displayed per row.
 - Removed old unused props_battle menu file
@@ -114,13 +121,12 @@ Add another statistic for total battles fought if it doesn't already exist
 Add config for server owners to let players create their own bot paths
 (?) Add option to scoreboard to view a player's achievements
 (?) Keep tracking player achievement data even after unlocking. Can later review to see total headsmashes etc
-Showcase a way to the player in achievements menu to differentiate between different difficulty levels.
-Achievements percentage of players completed is still broken?? Or is it because we were testing on bots?
-    ^ I think we fixed it
 Eventually only network TopPropsTotal that has CHANGED from last time instead of sending the whole table
 (?) Add Top Players leaderboard menu. Can show stuff like "Most kills", "Most Battles", "Most Battles Won", "Highest KD",
     "Most Hours Played", "First to complete all achievements"
 Add color schemes to client config
+HUD doesn't show for resized scerens? E.g 1920x1200 the HUD isnt showing..
+    > I think this has something to with our new config setting to change HUD positions
 
 **Notes
 The gamemode is messy and I'm probably not going to do anything about it..

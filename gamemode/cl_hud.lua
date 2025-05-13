@@ -122,6 +122,14 @@ AddClientConfigItem( "props_BaseHUDY",
 	listening = true, -- If true, will change while sliding the number bar
 	}
 )
+AddClientConfigItem( "props_HUDShowPropOwnerPopup",
+	{
+	Name = "Main HUD Show Prop Owner",
+	default = true,
+	type = "boolean",
+	desc = "Show the Prop Owner HUD when looking at a prop",
+	}
+)
 
 
 hook.Add( "HUDShouldDraw", "props_OverrideDefaultHUD", function( name )
@@ -179,6 +187,20 @@ local function CreateHUD( b_noMotd )
 	hook.Add("Props_ClientConfigChanged", "ChangeBaseContentPositioning", function( id, value )
 		VGUI_BASECONTENT:SetPos( PROPKILL.ClientConfig["props_BaseHUDX"].currentvalue, PROPKILL.ClientConfig["props_BaseHUDY"].currentvalue )
 	end )
+	--[[hook.Add("OnScreenSizeChanged", "ChangeBaseContentPositioning", function( oldw, oldh, neww,newh )
+		if not PROPKILL.ClientConfig then return end
+
+			-- If we changed resolution then temporarily set our positioning to default.
+			-- Should we make it permanent?
+		if neww < PROPKILL.ClientConfig["props_BaseHUDX"].currentvalue or newh < PROPKILL.ClientConfig["props_BaseHUDY"].currentvalue then
+			print("yes")
+			timer.Simple(0.1,function()
+				VGUI_BASECONTENT:SetPos( PROPKILL.ClientConfig["props_BaseHUDX"].default, PROPKILL.ClientConfig["props_BaseHUDY"].default )
+			end)
+		else
+			print("no")
+		end
+	end )]]
 	--[[VGUI_BASECONTENT.Think = function( pnl )
 		print("Change base content position")
 		pnl:SetPos( PROPKILL.ClientConfig["props_BaseHUDX"].currentvalue, PROPKILL.ClientConfig["props_BaseHUDY"].currentvalue )
@@ -288,6 +310,7 @@ local function CreateHUD( b_noMotd )
 	VGUI_PROPPANEL:SetKeyboardInputEnabled( true )
 	VGUI_PROPPANEL:ParentToHUD()
 	VGUI_PROPPANEL.Paint = function( self, w, h )
+		if not PROPKILL.ClientConfig["props_HUDShowPropOwnerPopup"].currentvalue then return end
 		if not propsPlayer.LookingAtProp or not IsValid( propsPlayer.LookingAtProp ) then
 			return
 		end
@@ -308,8 +331,12 @@ local function CreateHUD( b_noMotd )
 	VGUI_PROPOWNER:SetPos( PropPanelSizeW / 2 - ownersize_w / 2, PropPanelSizeH / 2 - ownersize_h / 2 )
 	VGUI_PROPOWNER:SetSize( ownersize_w, ownersize_h )
 	VGUI_PROPOWNER.Think = function( self )
+		if not PROPKILL.ClientConfig["props_HUDShowPropOwnerPopup"].currentvalue then return end
+			-- We update LookingAtProp with a trace every 0.2 seconds in sh_init.lua
 		if not propsPlayer.LookingAtProp or not IsValid( propsPlayer.LookingAtProp ) then
-			self:SetText( "" )
+			if self:GetText() != "" then
+				self:SetText( "" )
+			end
 			return
 		end
 
@@ -323,11 +350,19 @@ local function CreateHUD( b_noMotd )
 		end
 		
 		local ownersize_w, ownersize_h = surface.GetTextSize( owner_text )
-		
-		self:SetText( owner_text )
-		self:SetPos( PropPanelSizeW / 2 - ownersize_w / 2, PropPanelSizeH / 2 - ownersize_h / 2 )
-		self:SetSize( ownersize_w, ownersize_h )
+
+		if self:GetText() != owner_text then
+			self:SetText( owner_text )
+			self:SetPos( PropPanelSizeW / 2 - ownersize_w / 2, PropPanelSizeH / 2 - ownersize_h / 2 )
+			self:SetSize( ownersize_w, ownersize_h )
+		end
 	end
+	hook.Add("Props_ClientConfigChanged", "ShowOrHidePropOwnerHUD", function( id, value )
+		if id != "props_HUDShowPropOwnerPopup" then return end
+
+		VGUI_PROPPANEL:SetVisible( tobool(value) )
+		VGUI_PROPOWNER:SetVisible( tobool(value) )
+	end )
 
 end
 
