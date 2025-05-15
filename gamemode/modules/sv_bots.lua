@@ -89,6 +89,7 @@ local bottargets = {}
 concommand.Add( "props_record_reset", function( pl, cmd, arg )
 	if not IsValid( pl ) then return end
 	if not pl:IsAdmin() then pl:ChatPrint("admin only") return end
+	if not PROPKILL.Config["bots_legacybots"].default then return end
 	if not arg[1] or not arg[1] == "yes" then
 		pl:ChatPrint( "This will reset ALL bot paths. Use argument 'yes' to continue.")
 		return
@@ -99,6 +100,7 @@ end )
 concommand.Add( "props_record_start", function( pl, cmd, arg )
 	if not IsValid( pl ) then return end
 	if not pl:IsAdmin() then pl:ChatPrint("admin only") return end
+	if not PROPKILL.Config["bots_legacybots"].default then return end
 	if #player.GetBots() > 0 then
 		pl:ChatPrint( "You can't record a path while a bot is online!" )
 		return
@@ -125,6 +127,7 @@ end )
 concommand.Add( "props_record_stop", function( pl )
     if not IsValid( pl ) then return end
     if not pl:IsAdmin() then pl:ChatPrint("admin only") return end
+	if not PROPKILL.Config["bots_legacybots"].default then return end
 	pl.RecordMovement = nil
 	pl:ChatPrint( "stopped" )
 end )
@@ -152,6 +155,7 @@ REPLAYING_POS = 0
 
 hook.Add( "PlayerSpawn", "props_ReplayPlayerMovement", function( pl )
 	--if pl:IsBot() and pl.ReplayMarked then
+	if not PROPKILL.Config["bots_legacybots"].default then return end
 	if pl:IsBot() and PROPKILL.Config[ "bots_enable" ] and PROPKILL.Config[ "bots_enable" ].default then
 
 		local values, key = table.Random( RECORDING )
@@ -172,6 +176,7 @@ hook.Add( "PlayerSpawn", "props_ReplayPlayerMovement", function( pl )
 end )
 
 hook.Add( "DoPlayerDeath", "props_ReplayPlayerMovement", function( pl )
+	if not PROPKILL.Config["bots_legacybots"].default then return end
 	if pl:IsBot() and pl.ReplayMovement then
 		if not RECORDING[ pl.ReplayMovement ] then return end
 
@@ -185,7 +190,7 @@ hook.Add( "PlayerSpawn", "fdsf", function( pl )
 	--[[ent:AddCallback( "PhysicsCollide", function( ent, data )
 		Entity(1):ChatPrint( tostring( data.HitEntity ) )
 	end )]]
-
+	if not PROPKILL.Config["bots_legacybots"].default then return end
 	if not pl.HasCallback and pl:IsBot() then
 		pl:AddCallback( "PhysicsCollide", function( ent, data )
 			--Entity(1):ChatPrint( "testestssss`" )
@@ -218,6 +223,7 @@ hook.Add( "PlayerSpawn", "fdsf", function( pl )
 end )
 
 hook.Add( "PlayerTick", "props_RecordPlayerMovement", function( pl, mv)
+	if not PROPKILL.Config["bots_legacybots"].default then return end
 	if pl.RecordMovement then
 
 		local movement_botplace = pl.RecordMovement
@@ -362,6 +368,7 @@ end
 timer.Create( "props_BOTFINDNEXTTARGET", 1, 0, function()
 	if #player.GetBots() == 0 or #player.GetHumans() == 0 then return end
 	if not PROPKILL.Config[ "bots_kill" ].default then return end
+	if not PROPKILL.Config["bots_legacybots"].default then return end
 
 	--local pl = player.GetBots()[ 1 ]
 

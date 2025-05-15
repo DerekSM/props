@@ -1,4 +1,6 @@
 **Changelog
+v1.7.0
++ New alternate bot propsurfing path module. Includes a menu and a bunch of settings.
 v1.6.3
 + New client config for showing/hiding prop owner HUD
 / Fixed prop owner hud constantly refreshing
@@ -118,7 +120,6 @@ v1.2:
 Change antinoob's spawn protection system to an editable entity. Will allow for instant prop removal and no more looping through a sphere.
 I think prop dormancy voting function was messed up? But I don't remember how
 Add another statistic for total battles fought if it doesn't already exist
-Add config for server owners to let players create their own bot paths
 (?) Add option to scoreboard to view a player's achievements
 (?) Keep tracking player achievement data even after unlocking. Can later review to see total headsmashes etc
 Eventually only network TopPropsTotal that has CHANGED from last time instead of sending the whole table
@@ -127,6 +128,8 @@ Eventually only network TopPropsTotal that has CHANGED from last time instead of
 Add color schemes to client config
 HUD doesn't show for resized scerens? E.g 1920x1200 the HUD isnt showing..
     > I think this has something to with our new config setting to change HUD positions
+Strip the end of the bot pathing if there's no movements/buttons
+HUD Popup timer showing how long the player has left to record. Include client config to disable.
 
 **Notes
 The gamemode is messy and I'm probably not going to do anything about it..

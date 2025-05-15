@@ -46,9 +46,15 @@ function PANEL:Init()
 	local battleNewPanel = vgui.Create( "props_BattleMenuNew", propSheets )
 	
 	--local statsPanel = vgui.Create( "props_StatsMenu", propSheets )
+
 	local achievementsPanel = nil
 	if PROPKILL.Config["achievements_enabled"].default then
 		achievementsPanel = vgui.Create( "props_AchievementsMenu", propSheets )
+	end
+
+	local botsPanel = nil
+	if PROPKILL.Config["bots_enable"].default and not PROPKILL.Config["bots_legacybots"].default then
+		botsPanel = vgui.Create( "props_BotsMenu", propSheets )
 	end
 
 	local configPanel = nil
@@ -74,6 +80,11 @@ function PANEL:Init()
 	if PROPKILL.Config["achievements_enabled"].default then
 		local propSheetAchievements = propSheets:AddSheet( "Achievements", achievementsPanel, "icon16/medal_gold_3.png", false, false, "View personal achievements and serverwide stats" )
 	end
+
+	if PROPKILL.Config["bots_enable"].default and not PROPKILL.Config["bots_legacybots"].default then
+		local propSheetbots = propSheets:AddSheet( "Bot Pathing", botsPanel, "icon16/computer.png", false, false, "AHHHHHHHHHHHHHHHHHHHHHH" )
+	end
+
 	--local propSheetStats = propSheets:AddSheet( "Statistics", statsPanel, "icon16/chart_bar.png", false, false, "View gamemode statistics!" )
 	
 	if canAccessConfig then

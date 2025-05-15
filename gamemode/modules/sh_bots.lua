@@ -1,10 +1,10 @@
 AddConfigItem( "bots_enable",
 	{
-	Name = "Enable bot surfing",
+	Name = "Enable bots",
 	Category = "Bots",
 	default = true,
 	type = "boolean",
-	desc = "Allow bots to surf around the map",
+	desc = "Turn on bot pathing to allow propsurfing around the map",
 	}
 )
 
@@ -38,6 +38,56 @@ AddConfigItem( "bots_killbots",
 	}
 )
 
+-- Version 2 of sv_bots-specific config items
+AddConfigItem( "bots_legacybots",
+	{
+	Name = "Use Legacy Bot Path System",
+	Category = "Bots",
+	default = false,
+	type = "boolean",
+	desc = "Backwards compatibility with old bot paths",
+	}
+)
+
+AddConfigItem( "bots_adminonly",
+	{
+	Name = "Admin-only bot paths",
+	Category = "Bots",
+	default = true,
+	type = "boolean",
+	desc = "Only admins can create and delete bot paths",
+	}
+)
+
+	-- This will take into account the bots_adminonly config
+AddConfigItem( "bots_allowspawning",
+	{
+	Name = "Easy Bot Connections",
+	Category = "Bots",
+	default = true,
+	type = "boolean",
+	desc = "Allow bots to be added with a click of a button",
+	}
+)
+
+AddConfigItem( "bots_maxrecordingtime",
+	{
+	Name = "Max Bot Path Recording Time",
+	Category = "Bots",
+	default = 40,
+	min = 10,
+	max = 600,
+	type = "integer",
+	desc = "Maximum time (in seconds) a player has to record a bot path before it auto-stops (and saves)",
+	}
+)
+
+
+
+
+-- end
+
+
 if SERVER then
 	local _R = debug.getregistry()
 	function _R.Player:BotTalk( msg )
@@ -64,6 +114,42 @@ if SERVER then
 			end
 		end )
 	end )
+elseif CLIENT then
+	BOTPATHS_RECORDINGS = BOTPATHS_RECORDINGS or {}
+	BOTPATHS_ISPLAYERRECORDING = BOTPATHS_ISPLAYERRECORDING or false
+
+	net.Receive( "props_BotPaths_NetworkAllPaths", function()
+			-- Start off with fresh slate
+		BOTPATHS_RECORDINGS = {}
+
+		local LoopCount = net.ReadUInt( 5 )
+		for i=1,LoopCount do
+			local PathID = net.ReadString()
+			local IsActive = net.ReadBool()
+			local CreatorID = net.ReadUInt64()
+			local CreatedTime = net.ReadUInt( 32 )
+
+			BOTPATHS_RECORDINGS[ PathID ] = {ActivePath=IsActive, Creator=CreatorID, CreatorTime=CreatedTime}
+		end
+		hook.Run( "props_BotPaths_PathInfoChanged" )
+	end )
+		-- Specifically this is just for removing a path
+	net.Receive( "props_BotPaths_NetworkPath", function()
+		local PathID = net.ReadString()
+		BOTPATHS_RECORDINGS[ PathID ] = nil
+		hook.Run( "props_BotPaths_PathInfoChanged", PathID )
+	end )
+
+	net.Receive("props_BotPaths_NetworkRecording", function()
+		local PathID = net.ReadString()
+		local IsRecording = net.ReadBool()
+
+			-- For if player reopens menu
+		BOTPATHS_ISPLAYERRECORDING = IsRecording
+
+		hook.Run( "props_BotPaths_NetworkRecording", PathID, IsRecording )
+	end )
+
 end
 
 

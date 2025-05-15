@@ -134,6 +134,7 @@ AddCSLuaFile( "vgui/menus/props_topprops_new.lua" )
 AddCSLuaFile( "vgui/menus/props_clientconfig.lua" )
 AddCSLuaFile( "vgui/menus/props_achievements.lua" )
 AddCSLuaFile( "vgui/menus/props_confignocolors.lua" )
+AddCSLuaFile( "vgui/menus/props_botsmenu.lua" )
 
 local pkfiles, pkfolders = file.Find( "gamemodes/" .. GM.FolderName .. "/gamemode/modules/*.lua", "GAME" )
 --PrintTable( pkfiles )

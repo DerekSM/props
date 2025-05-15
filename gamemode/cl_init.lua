@@ -93,6 +93,7 @@ include( "vgui/menus/dswitch.lua" )
 include( "vgui/menus/props_main.lua" )
 include( "vgui/menus/props_battleinvite.lua" )
 include( "vgui/menus/props_battleresults.lua" )
+include( "vgui/menus/props_botsmenu.lua" )
 
 
 LoadModules()
