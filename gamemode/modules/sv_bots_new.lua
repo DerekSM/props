@@ -50,6 +50,9 @@ BOTPATHS_RECORDINGSINPROGRESS = BOTPATHS_RECORDINGSINPROGRESS or {}
 
 local function BotPaths_PlayerForceStop( pl )
     BOTPATHS_RECORDINGSINPROGRESS[ pl.RecordMovement2 ] = false
+    if BOTPATHS_RECORDINGS[ pl.RecordMovement2 ] then
+        BOTPATHS_RECORDINGS[ pl.RecordMovement2 ].ActivePath = true
+    end
 	pl.RecordMovement2 = nil
 	pl:ChatPrint( "stopped" )
 
@@ -109,6 +112,16 @@ hook.Add("PlayerChangedTeam", "props_InvalidateRecording", function( pl )
 
 	BOTPATHS_RECORDINGS[ pl.RecordMovement2 ] = nil
 	BotPaths_PlayerForceStop( pl )
+end )
+
+    -- Edge case
+hook.Add("props_BattleStarted", "props_InvalidateRecording", function()
+    for k,v in next, player.GetHumans() do
+        if not v.RecordMovement2 or not BOTPATHS_RECORDINGS[ v.RecordMovement2 ] then continue end
+
+        BOTPATHS_RECORDINGS[ v.RecordMovement2 ] = nil
+        BotPaths_PlayerForceStop( v )
+    end
 end )
 
 
@@ -199,7 +212,7 @@ hook.Add("SetupMove", "props_RecordPlayerMovementAndPlayBotMovement", function( 
                     -- Player hasn't DONE anything yet. Don't start recording.
                 return
             else
-                print("Start recording ;)")
+                --print("Start recording ;)")
                 BOTPATHS_RECORDINGS[ pl.RecordMovement2 ][ "startedrecording" ] = true
 
                     -- Start recording on our NEXT frame. (Is this necessary? Idk)
@@ -308,7 +321,7 @@ hook.Add("StartCommand", "props_RecordPlayerMovementAndPlayBotMovement", functio
                 return
             else
 
-                print("Start recording ;)")
+                --print("Start recording ;)")
                 BOTPATHS_RECORDINGS[ pl.RecordMovement2 ][ "startedrecording" ] = true
 
                     -- Start recording on our NEXT frame. (Is this necessary? Idk)
@@ -353,17 +366,12 @@ end)
 
     -- todo: Should we let players/admins overwrite existing pathings?
 concommand.Add( "props_botpaths_startstop", function( pl, cmd, arg )
-	if not IsValid( pl ) then return end
-	if not pl:IsAdmin() and PROPKILL.Config["bots_adminonly"].default then pl:ChatPrint("admin only") return end
-	if not pl:Alive() or pl:Team() == TEAM_SPECTATOR then return end
-        -- https://www.youtube.com/watch?v=coY2IA-oBvw
-	if #player.GetBots() > 0 then
-		pl:ChatPrint( "You can't record a path while a bot is online!" )
-		return
-	end
+    if not IsValid( pl ) then return end
+    if not pl:IsAdmin() and PROPKILL.Config["bots_adminonly"].default then pl:ChatPrint("admin only") return end
+    if not pl:Alive() or pl:Team() == TEAM_SPECTATOR then return end
     if PROPKILL.Config["bots_legacybots"].default then return end
         -- Arbitrary limit. If modified, you must edit the networking as well.
-	if table.Count(BOTPATHS_RECORDINGS) >= 32 then
+    if table.Count(BOTPATHS_RECORDINGS) >= 32 then
         pl:ChatPrint( "Delete some bot paths before making more")
         return
     end
@@ -400,8 +408,7 @@ concommand.Add( "props_botpaths_startstop", function( pl, cmd, arg )
         BOTPATHS_RECORDINGS[ BotPath ][ "movedata" ] = {}
             -- Triggered once they first move
         BOTPATHS_RECORDINGS[ BotPath ][ "startedrecording" ] = false
-            -- Maybe we can default to false so we can finally make paths while bots are on??
-        BOTPATHS_RECORDINGS[ BotPath ][ "ActivePath" ] = true
+        BOTPATHS_RECORDINGS[ BotPath ][ "ActivePath" ] = false
         BOTPATHS_RECORDINGS[ BotPath ][ "Creator" ] = pl:SteamID64()
         BOTPATHS_RECORDINGS[ BotPath ][ "CreatorTime" ] = os.time()
 
@@ -417,6 +424,12 @@ concommand.Add( "props_botpaths_startstop", function( pl, cmd, arg )
         timer.CreatePlayer( pl, "botpaths_startstop", TimeToRecord, 1, function()
             BotPaths_PlayerForceStop( pl )
             BotPaths_NetworkPaths( player.GetAll() )
+
+                -- Tell them they're done recording so their menu can update
+            net.Start("props_BotPaths_NetworkRecording")
+                net.WriteString("")
+                net.WriteBool(false)
+            net.Send( pl )
         end )
 
             -- Tell them they're recording so their menu can update

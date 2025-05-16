@@ -23,6 +23,8 @@ local ReferenceTable =
 "You can reset your stats by typing \"props_resetmystats\" in console. This won't affect achievements.",
 "You can remove all your props at once by typing \"undoall\" or \"gmod_cleanup props\" in console.",
 "Server admins can use the context menu to (un)block props.",
+"Server admins can opt into the new antinoob spawn protection system by using the Protect Spawnpoints tool.",
+"Right clicking the Start/Stop button in the Bot Pathing menu will allow you to set a custom name."
 }
 
 

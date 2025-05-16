@@ -414,3 +414,9 @@ local function props_AnnounceMyAchievements( pl, cmd, args )
 	pl.LastAnnounced = CurTime() + 15
 end
 concommand.Add( "props_achievements", props_AnnounceMyAchievements )
+
+concommand.Add( "props_givetoolgun", function( pl )
+	if not pl:IsSuperAdmin() then return end
+
+	pl:Give("gmod_tool")
+end )

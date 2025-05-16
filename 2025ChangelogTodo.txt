@@ -1,4 +1,12 @@
 **Changelog
+v1.8.0
++ New alternate spawn protection system. Use the Protect Spawnpoints toolgun to opt in.
+/ Players can now create new bot paths while bots are online.
++ New command "props_givetoolgun" gives superadmins the gmod_tool.
+/ Fixed potential bot path recording edge case.
+/ Fixed "Cancel recording" button not becoming disabled when player lets bot recording timer run out.
++ Added HUD countdown timer for bot path recording.
++ Added client config option to disable showing bot path HUD countdown timer.
 v1.7.0
 + New alternate bot propsurfing path module. Includes a menu and a bunch of settings.
 v1.6.3
@@ -117,19 +125,16 @@ v1.2:
 + Added ability to save gamemode config options across restarts
 
 **Todo
-Change antinoob's spawn protection system to an editable entity. Will allow for instant prop removal and no more looping through a sphere.
 I think prop dormancy voting function was messed up? But I don't remember how
-Add another statistic for total battles fought if it doesn't already exist
 (?) Add option to scoreboard to view a player's achievements
 (?) Keep tracking player achievement data even after unlocking. Can later review to see total headsmashes etc
 Eventually only network TopPropsTotal that has CHANGED from last time instead of sending the whole table
 (?) Add Top Players leaderboard menu. Can show stuff like "Most kills", "Most Battles", "Most Battles Won", "Highest KD",
     "Most Hours Played", "First to complete all achievements"
 Add color schemes to client config
-HUD doesn't show for resized scerens? E.g 1920x1200 the HUD isnt showing..
+HUD doesn't show for resized screens? E.g 1920x1200 the HUD isnt showing..
     > I think this has something to with our new config setting to change HUD positions
 Strip the end of the bot pathing if there's no movements/buttons
-HUD Popup timer showing how long the player has left to record. Include client config to disable.
 
 **Notes
 The gamemode is messy and I'm probably not going to do anything about it..

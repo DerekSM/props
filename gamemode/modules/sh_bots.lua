@@ -150,6 +150,41 @@ elseif CLIENT then
 		hook.Run( "props_BotPaths_NetworkRecording", PathID, IsRecording )
 	end )
 
+	hook.Add("props_BotPaths_NetworkRecording", "props_ShowPathCountdownTimer", function( pathid, recording )
+		if recording then
+			LocalPlayer().PathCreationTimer = CurTime() + PROPKILL.Config["bots_maxrecordingtime"].default
+		end
+	end )
+
+	AddClientConfigItem( "props_BotPathHUD",
+		{
+		Name = "Show Bot Path Countdown",
+		default = true,
+		type = "boolean",
+		desc = "Show the Bot Path Countdown timer when recording a path",
+		}
+	)
+		-- Typically we use VGUI elements but this is such a small thing we're just gonna do the old fashioned HUD
+	hook.Add("HUDPaint", "props_ShowPathCountdownTimer", function()
+		if not BOTPATHS_ISPLAYERRECORDING then return end
+		if not PROPKILL.ClientConfig["props_BotPathHUD"].currentvalue then return end
+
+		local BackgroundBoxWidth = 120
+		local BackgroundBoxTall = 30
+		local BackgroundBoxStartX = ScrW() - BackgroundBoxWidth - 5
+		local BackgroundBoxStartY = 5
+		draw.RoundedBox( 0, BackgroundBoxStartX, BackgroundBoxStartY, BackgroundBoxWidth, BackgroundBoxTall, Color( 27, 26, 26, 235 ) )
+
+		local CountdownText = string.FormattedTime(LocalPlayer().PathCreationTimer - CurTime(), "%02i:%02i" )
+		local TextSizeW,TextSizeH = surface.GetTextSize( CountdownText, "props_HUDTextSmall" )
+
+		draw.SimpleText( CountdownText, "props_HUDTextSmall",
+			BackgroundBoxStartX + (BackgroundBoxWidth - TextSizeW) / 2,
+			BackgroundBoxStartY + (BackgroundBoxTall - TextSizeH) / 2,
+			color_white, 0, 0
+		)
+	end )
+
 end
 
 

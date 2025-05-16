@@ -179,6 +179,8 @@ function GM:StartBattle( pl, target, kills, props, funfight, playerdormant, prop
 			end )	
 		end )
 	end )
+
+	hook.Run("props_BattleStarted", pl, target)
 	
 	PROPKILL.Statistics[ "totalfights" ] = ( PROPKILL.Statistics[ "totalfights" ] or 0 ) + 1
 end	

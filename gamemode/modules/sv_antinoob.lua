@@ -30,24 +30,56 @@ hook.Add( "PlayerInitialSpawn", "props_RegisterWhitelist", function( pl )
 end )
 
 
+hook.Add("props_spawntrigger_starttouch", "props_antiNoob", function( trigger, ent )
+	if not PROPKILL.Config[ "spawnprotection" ].default then return end
+	if PROPKILL.Battling then return end
+
+	if ent.beingRemoved or not ent.Owner or not ent.Owner:IsPlayer()
+	or (ent:IsWeapon() and IsValid( ent:GetOwner() )) or ent.Owner.propsWhitelisted then
+		return
+	end
+
+	if ent.GetPhysicsObject and IsValid( ent:GetPhysicsObject() ) then
+		local phys = ent:GetPhysicsObject()
+
+			-- frozen
+		if not phys:IsMotionEnabled() then
+			ent.beingRemoved = true
+			ent.Owner:Notify( NOTIFY_ERROR, 4, "Frozen objects aren't allowed in this area" )
+			ent:Remove()
+		else
+			if not ent.Owner.babyGod then
+				ent.beingRemoved = true
+				ent.Owner:Notify( NOTIFY_ERROR, 4, "Prop was removed for entering spawn" )
+				ent:Remove()
+			else
+				if phys:GetVolume() > 4*10^5 then
+					ent.beingRemoved = true
+					ent.Owner:Notify( NOTIFY_ERROR, 4, "Prop was removed due to being huge" )
+					ent:Remove()
+				end
+			end
+		end
+	end
+end )
+
+
 	-- We can afford to lower the time between checks because we optimized this code.
 timer.Create( "props_antiNoob", 0.41, 0, function()
 	if not PROPKILL.Config[ "spawnprotection" ].default then return end
 	if PROPKILL.Battling then return end
 
-	for i=1,props_playerSpawnsCount do
+		-- An admin created a spawn protection area! Use this code instead!
+	if AntinoobSpawnProtectionAreas and #AntinoobSpawnProtectionAreas > 0 then
 
-			-- https://wiki.facepunch.com/gmod/ents.FindByClass
-			-- ents.FindByClass / ents.Interator may be faster than ents.GetAll. Alternatively use ents.FindInBox
-			-- A lazier way may even be ents.FindInPVS
-			-- Profile this code!!!
-			-- Update: After profiling, out of the three options (.GetAll, Iterator, and FindInPVS), FindInPVS wins.
-			-- In fact, according to my shoddy profiling we are >2x faster now.
-		for k,v in next, ents.FindInPVS(props_playerSpawns[i]) do
-			if v.beingRemoved or not v.Owner or not v.Owner:IsPlayer() or (v:IsWeapon() and IsValid( v:GetOwner() )) or v.Owner.propsWhitelisted then continue end
+		for i=1,#AntinoobSpawnProtectionAreas do
+			local ProtectionAreaValues = AntinoobSpawnProtectionAreas[i]
 
-			local EntDistanceFromSpawn = v:GetPos():DistToSqr( props_playerSpawns[ i ] )
-			if EntDistanceFromSpawn <= props_antinoobdetectionRadius then
+				-- Phased out for new entity Touch system
+			--[[for i2=1,#ents.FindInBox( ProtectionAreaValues.startpos, ProtectionAreaValues.endpos ) do
+				local v = ents.FindInBox( ProtectionAreaValues.startpos, ProtectionAreaValues.endpos )[i2]
+
+				if v.beingRemoved or not v.Owner or not v.Owner:IsPlayer() or (v:IsWeapon() and IsValid( v:GetOwner() )) or v.Owner.propsWhitelisted then continue end
 
 				if v.GetPhysicsObject and IsValid( v:GetPhysicsObject() ) then
 					local phys = v:GetPhysicsObject()
@@ -71,23 +103,110 @@ timer.Create( "props_antiNoob", 0.41, 0, function()
 						end
 					end
 				end
-			end
+			end]]
 
-			if EntDistanceFromSpawn <= ( (props_antinoobdetectionRadius + 1) * 2 ) then
+				-- Extended spawn area. Won't immediately remove but if props linger they will be removed.
+            local Center = (ProtectionAreaValues.startpos + ProtectionAreaValues.endpos) / 2
+            local Newmin = Center + (ProtectionAreaValues.startpos - Center) * 1.3
+            local Newmax = Center + (ProtectionAreaValues.endpos - Center) * 1.3
+			for i2=1,#ents.FindInBox( Newmin, Newmax ) do
+				local v = ents.FindInBox( Newmin, Newmax )[i2]
+
+				if v.beingRemoved or not v.Owner or not v.Owner:IsPlayer()
+				or (v:IsWeapon() and IsValid( v:GetOwner() )) or v.Owner.propsWhitelisted then
+					continue
+				end
+
 				if v.GetPhysicsObject and IsValid( v:GetPhysicsObject() ) then
 					v.RemovalCount = (v.RemovalCount or 0) + 1
 
-					if v.RemovalCount >= 3*props_playerSpawnsCount then
+					if v.RemovalCount >= 7 then
 						v.beingRemoved = true
 						v.Owner:Notify( NOTIFY_ERROR, 4, "Props are not allowed to stay in the spawn area" )
 						v:Remove()
 					end
 				end
 			end
+		end
 
+		-- NO Admin-created spawn protection areas. Use defaults!
+	else
+
+
+		for i=1,props_playerSpawnsCount do
+
+				-- https://wiki.facepunch.com/gmod/ents.FindByClass
+				-- ents.FindByClass / ents.Interator may be faster than ents.GetAll. Alternatively use ents.FindInBox
+				-- A lazier way may even be ents.FindInPVS
+				-- Profile this code!!!
+				-- Update: After profiling, out of the three options (.GetAll, Iterator, and FindInPVS), FindInPVS wins.
+				-- In fact, according to my shoddy profiling we are >2x faster now.
+			for k,v in next, ents.FindInPVS(props_playerSpawns[i]) do
+				if v.beingRemoved or not v.Owner or not v.Owner:IsPlayer() or (v:IsWeapon() and IsValid( v:GetOwner() )) or v.Owner.propsWhitelisted then continue end
+
+				local EntDistanceFromSpawn = v:GetPos():DistToSqr( props_playerSpawns[ i ] )
+				if EntDistanceFromSpawn <= props_antinoobdetectionRadius then
+
+					if v.GetPhysicsObject and IsValid( v:GetPhysicsObject() ) then
+						local phys = v:GetPhysicsObject()
+
+							-- frozen
+						if not phys:IsMotionEnabled() then
+							v.beingRemoved = true
+							v.Owner:Notify( NOTIFY_ERROR, 4, "Frozen objects aren't allowed in this area" )
+							v:Remove()
+						else
+							if not v.Owner.babyGod then
+								v.beingRemoved = true
+								v.Owner:Notify( NOTIFY_ERROR, 4, "Prop was removed for entering spawn" )
+								v:Remove()
+							else
+								if phys:GetVolume() > 4*10^5 then
+									v.beingRemoved = true
+									v.Owner:Notify( NOTIFY_ERROR, 4, "Prop was removed due to being huge" )
+									v:Remove()
+								end
+							end
+						end
+					end
+				end
+
+				if EntDistanceFromSpawn <= ( (props_antinoobdetectionRadius + 1) * 2 ) then
+					if v.GetPhysicsObject and IsValid( v:GetPhysicsObject() ) then
+						v.RemovalCount = (v.RemovalCount or 0) + 1
+
+						if v.RemovalCount >= 3*props_playerSpawnsCount then
+							v.beingRemoved = true
+							v.Owner:Notify( NOTIFY_ERROR, 4, "Props are not allowed to stay in the spawn area" )
+							v:Remove()
+						end
+					end
+				end
+
+			end
 		end
 	end
 end )
+
+	-- Phased out for entity Touch logic
+--[[hook.Add("PlayerSpawnProp", "props_PreventSpawnSpawning", function( pl, mdl )
+	if not PROPKILL.Config[ "spawnprotection" ].default then return end
+	if PROPKILL.Battling then return end
+		-- An admin created a spawn protection area! Use this code instead!
+	if AntinoobSpawnProtectionAreas and #AntinoobSpawnProtectionAreas > 0 then
+
+		for i=1,#AntinoobSpawnProtectionAreas do
+			local ProtectionAreaValues = AntinoobSpawnProtectionAreas[i]
+
+			if pl:GetEyeTrace().HitPos:WithinAABox( ProtectionAreaValues.startpos, ProtectionAreaValues.endpos ) then
+				if not pl.babyGod then
+					pl:Notify( NOTIFY_ERROR, 4, "Prop was removed for entering spawn" )
+					return false
+				end
+			end
+		end
+	end
+end )]]
 
 hook.Add( "PlayerTick", "props_babyGod", function( pl, mv )
 	if not pl:Alive() then return end
@@ -95,7 +214,7 @@ hook.Add( "PlayerTick", "props_babyGod", function( pl, mv )
 	if not pl.leftSpawn then
 		if not pl.spawnPos then return end
 
-		if pl.spawnPos:Distance( pl:GetPos() ) >= 275 then
+		if pl.spawnPos:Distance( pl:GetPos() ) >= 145 then
 
 			pl.leftSpawn = true
 			if PROPKILL.Config[ "babygod_time" ].default < 1 then

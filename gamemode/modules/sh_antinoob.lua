@@ -64,6 +64,7 @@ AddConfigItem( "spawnprotection",
 )
 
 	-- How many units from spawn to check for
+	-- This only applies to legacy system. New spawnpoints created with toolgun don't use this.
 props_antinoobdetectionRadius = 305^2
 
 	-- whitelist
