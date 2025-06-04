@@ -43,7 +43,10 @@ function PANEL:Init()
 	battlePanel:EnableVerticalScrollbar( true )]]
 	--local battlePanel = vgui.Create( "props_BattleMenu", propSheets )
 	
-	local battleNewPanel = vgui.Create( "props_BattleMenuNew", propSheets )
+	local battleNewPanel = nil
+	if PROPKILL.Config[ "battle_allowbattling" ].default then
+		battleNewPanel = vgui.Create( "props_BattleMenuNew", propSheets )
+	end
 	
 	--local statsPanel = vgui.Create( "props_StatsMenu", propSheets )
 
@@ -76,7 +79,9 @@ function PANEL:Init()
 		-- https://wiki.facepunch.com/gmod/Silkicons
 	local propSheetTeams = propSheets:AddSheet( "Team Selection", teamsPanel, "icon16/sport_football.png", false, false, "Join a team" )
 	local propSheetPropsNew = propSheets:AddSheet( "Top Props", propsnPanel, "icon16/car.png", false, false, "View list of top props" )
-	local propSheetFight2 = propSheets:AddSheet( "Battle", battleNewPanel, "icon16/bomb.png", false, false, "Fight a player 1-on-1" )
+	if PROPKILL.Config[ "battle_allowbattling" ].default then
+		local propSheetFight2 = propSheets:AddSheet( "Battle", battleNewPanel, "icon16/bomb.png", false, false, "Fight a player 1-on-1" )
+	end
 	if PROPKILL.Config["achievements_enabled"].default then
 		local propSheetAchievements = propSheets:AddSheet( "Achievements", achievementsPanel, "icon16/medal_gold_3.png", false, false, "View personal achievements and serverwide stats" )
 	end

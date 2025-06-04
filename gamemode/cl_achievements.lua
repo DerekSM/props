@@ -46,6 +46,26 @@ net.Receive( "props_NetworkPlayerAchievementPercentages", function( len)
     hook.Run( "props_NetworkPlayerAchievementsCompleted" )
 end )
 
+net.Receive( "props_UpdatePlayerAchievementProgress", function()
+    local AchievementID = net.ReadString()
+    local AchievementProgress = net.ReadUInt( 5 )
+
+    PROPKILL.CombatAchievements[AchievementID] = PROPKILL.CombatAchievements[AchievementID] or {}
+    PROPKILL.CombatAchievements[AchievementID].localplayerProgress = AchievementProgress
+end )
+
+net.Receive( "props_SendPlayerAllPlayerAchievementsProgress", function()
+    local AchievementCount = net.ReadUInt( 6 )
+
+    for i=1,AchievementCount do
+        local AchievementID = net.ReadString()
+        local AchievementProgress = net.ReadUInt( 5 )
+
+        PROPKILL.CombatAchievements[AchievementID] = PROPKILL.CombatAchievements[AchievementID] or {}
+        PROPKILL.CombatAchievements[AchievementID].localplayerProgress = AchievementProgress
+    end
+end )
+
 AddClientConfigItem( "props_DefaultAchievementSorting",
 	{
 	Name = "Default Achievement Sorting",

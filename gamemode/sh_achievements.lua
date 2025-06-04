@@ -38,7 +38,7 @@
         - "Domination" - Kill the same player five times without them killing you
         -D "First Blood" - Be the first to kill a player for the current server's session
         - "Baby(god) Killer" - Kill a player while your babygod is still active
-        - "See you tomorrow" - Join the server two days in a row
+        -D "See you tomorrow" - Join the server two days in a row
         -D "The Completionist" - Unlock every achievement (that were made at the time of unlocking)
         -D "I know I can fly" - Stay actively moving and airborne for 60 seconds
         -D "Stomped" - Jump onto a player's head from at least a 2 story height
@@ -49,13 +49,14 @@
         - "Quit hitting yourself" - "Kill a player with their own prop"
         -D "I Love Longshots" - "Perform 20 longshots (not required to be in one session)"
         -D "720 noscope" - Kill a player after turning 720+ degrees after releasing a prop
-        - "Go clip yourself" - "Push yourself through a wall"
+        -D "Go clip yourself" - "Push yourself through a wall"
         - "15 in 15" - "Perform 15 flybys in 15 minutes"
         - "Random" - "Complete a random number of combined achievements during a single session."
             - E.g "14 kills and all of them have to be crouching flybys" or "7 kills they all have to qualify for 'Toy Maker'"
             - Or "Kill 5 players without dying and while looking away from them"
             - This random achievement would be ranked 5/5 because the only way to find out is by bruteforce or pure luck.
             - Players can already unlock the other achievements. This is an entirely different achievement.
+        -D "The Regular" - "Join the server five times"
 ]]
 PROPKILL.CombatAchievements = PROPKILL.CombatAchievements or {}
 PROPKILL.CombatAchievementsCount = 0
@@ -77,6 +78,9 @@ function PROPKILL.RegisterCombatAchievement( tblAchievements, ... )
         -- If autorefresh, make sure we reset our values that shouldn't change
     if PROPKILL.CombatAchievements[ tblAchievements.id ] then
         tblAchievements:SetCompletionRate( PROPKILL.CombatAchievements[tblAchievements.id]:GetCompletionRate() )
+        if CLIENT and PROPKILL.CombatAchievements[ tblAchievements.id ].localplayerProgress then
+            tblAchievements.localplayerProgress = PROPKILL.CombatAchievements[ tblAchievements.id ].localplayerProgress
+        end
     end
 
         -- Be able to reference our new tables
@@ -235,6 +239,10 @@ function AchievementMeta:LockAchievement( pl )
     pl:SaveCombatAchievements()
     props_SaveCombatAchievements()
 
+    if self.type == "Counter" then
+        Props_UpdatePlayerAchievementProgress( pl, self:GetUniqueID(), 0 )
+    end
+
         -- Still announce it, but only to the player.
     pl:ChatPrint("You've re-locked achievement " .. self:GetFancyTitle())
 end
@@ -265,11 +273,17 @@ function AchievementMeta:AddProgression( pl )
 
     local NewProgress = pl.AchievementData[ self:GetUniqueID() ].Progress + 1
     pl.AchievementData[ self:GetUniqueID() ].Progress = NewProgress
-
+    pl.AchievementData[ self:GetUniqueID() ].LastProgressed = os.time()
 
     if NewProgress >= self:GetGoal() then
         self:UnlockAchievement( pl )
+    else
+        if self.type == "Counter" then
+            Props_UpdatePlayerAchievementProgress( pl, self:GetUniqueID(), NewProgress )
+        end
     end
+
+    hook.Run("OnAchievementProgressed", pl, self:GetUniqueID(), self:GetFancyTitle(), NewProgress)
 end
 
 function AchievementMeta:ResetProgression( pl )
@@ -280,11 +294,28 @@ function AchievementMeta:ResetProgression( pl )
     end
 
     pl.AchievementData[ self:GetUniqueID() ].Progress = 0
+    pl.AchievementData[ self:GetUniqueID() ].LastProgressed = nil
     pl.AchievementData[ self:GetUniqueID() ].datatable = {}
+
+    if self.type == "Counter" then
+        Props_UpdatePlayerAchievementProgress( pl, self:GetUniqueID(), 0 )
+    end
+
+    hook.Run("OnAchievementProgressReset", pl, self:GetUniqueID(), self:GetFancyTitle())
 end
 
+function AchievementMeta:GetPlayerLastProgression( pl )
+    local HasUnlocked, Progress = self:GetProgression( pl )
+    if HasUnlocked then
+        --pl:ChatPrint("Can't reset, already unlocked " .. self:GetFancyTitle())
+        return nil
+    end
 
+    if self.type != "Counter" then return nil end
+    if not pl.AchievementData or not pl.AchievementData[ self:GetUniqueID() ] then return nil end
 
+    return pl.AchievementData[ self:GetUniqueID() ].LastProgressed
+end
 
 
 
@@ -306,7 +337,7 @@ local CA_SWATTER = PROPKILL.RegisterCombatAchievement(
         title = "Fly Swatter",
         description = "Headsmash 5 players in one session.",
         type = "Counter",
-        save_progression = false,   -- Should we save their progress over restarts?
+        save_progression = false,   -- Should we save their progress over restarts? Defaults to not saving.
         difficulty = 2,  -- Still working out if I want to even include a difficulty paramater. 1 thru 5?
     }
 )
@@ -1053,15 +1084,6 @@ CA_RECLUSE:AddListener( "PlayerSay", LISTENER_SERVER, function( achievement, pl 
 
     achievement:ResetProgression( pl )
 end )
-    -- AFAIK There's literally no other way to tell if someone's trying to talk or is talking.
-    -- Player:IsSpeaking doesn't work serverside
---[[CA_RECLUSE:AddListener( "PlayerButtonDown", LISTENER_SERVER, function( achievement, pl, button )
-    if achievement:GetProgression( pl ) then return end
-
-    if button == KEY_X then
-        achievement:ResetProgression( pl )
-    end
-end )]]
     -- Apparently Player:IsSpeaking ~DOES~ work on server after all.
 CA_RECLUSE:AddListener( "PlayerTick", LISTENER_SERVER, function( achievement, pl, mv )
     if achievement:GetProgression( pl ) then return end
@@ -1073,5 +1095,111 @@ end )
 CA_RECLUSE:AddListener( "OnAchievementUnlocked", LISTENER_SERVER, function( achievement, pl, uniqueid, fancytitle )
     if achievement:GetUniqueID() == uniqueid then
         timer.DestroyPlayer( pl, "props_CombatAchievementRecluse" )
+    end
+end )
+
+    -- Clipping confirmed to work for <=32 units in width. Unsure about anything more.
+    -- does the prop ever follow through props/walls? Or do we always travel alone?
+local CA_WALLCLIP = PROPKILL.RegisterCombatAchievement(
+    {
+        id = "clipyourself",
+        title = "Go clip yourself",
+        description = "Push yourself through a wall",
+        type = "Trigger",
+        difficulty = 4
+    }
+)
+CA_WALLCLIP:AddListener( "PhysgunPickup", LISTENER_SERVER, function( achievement, pl, mv )
+    if achievement:GetProgression( pl ) then return end
+
+    achievement:SetPlayerData( pl, "HoldingProp", true )
+end )
+CA_WALLCLIP:AddListener( "PhysgunDrop", LISTENER_SERVER, function( achievement, pl, mv )
+    if achievement:GetProgression( pl ) then return end
+
+    achievement:SetPlayerData( pl, "HoldingProp", false )
+end )
+CA_WALLCLIP:AddListener( "PlayerTick", LISTENER_SERVER, function( achievement, pl )
+    if achievement:GetProgression( pl ) then return end
+    if not pl:Alive() or pl:Team() == TEAM_SPECTATOR then return end
+    if not achievement:GetPlayerData( pl, "HoldingProp", false ) then return end
+
+        -- Still looking for alternative methods btw. If anyone has any ideas...
+    local contents = util.PointContents(pl:GetPos())
+    if contents != 256 and contents != 0 then
+        if bit.band(contents, CONTENTS_SOLID) then
+            achievement:UnlockAchievement( pl )
+        end
+    end
+
+
+        -- chatgpt. not a fan of running traces every tick that a player is holding a prop.
+    --[[ local curPos = pl:GetPos()
+    local lastPos = pl.LastSafePos or curPos
+
+    local trace = util.TraceLine({
+        start = lastPos,
+        endpos = curPos,
+        filter = pl,
+        mask = MASK_SOLID_BRUSHONLY -- Only checks the world geometry
+    })
+
+    if trace.Hit and trace.HitWorld then
+       achievement:UnlockAchievement( pl )
+    end
+
+    pl.LastSafePos = curPos]]
+end )
+
+local CA_RECURRINGPLAYER = PROPKILL.RegisterCombatAchievement(
+    {
+        id = "theregular",
+        title = "The Regular",
+        description = "Join the server five times",
+        type = "Counter",
+        save_progression = true,
+        difficulty = 2
+    }
+)
+CA_RECURRINGPLAYER:SetGoal( 5 )
+CA_RECURRINGPLAYER:AddListener( "props_PlayerDataLoaded", LISTENER_SERVER, function( achievement, pl )
+    if achievement:GetProgression( pl ) then return end
+
+    achievement:AddProgression( pl )
+end )
+
+local CA_TOMORROW = PROPKILL.RegisterCombatAchievement(
+    {
+        id = "seeyoutomorrow",
+        title = "See You Tomorrow",
+        description = "Join the server two days in a row",
+        type = "Counter",
+        save_progression = true,
+        difficulty = 2
+    }
+)
+CA_TOMORROW:SetGoal( 2 )
+CA_TOMORROW:AddListener( "props_PlayerDataLoaded", LISTENER_SERVER, function( achievement, pl )
+    if achievement:GetProgression( pl ) then return end
+
+    local LastProgressed = achievement:GetPlayerLastProgression( pl )
+    if not LastProgressed then
+        achievement:AddProgression( pl )
+        return
+    end
+
+    local CurrentTime = os.time()
+
+    if (CurrentTime - LastProgressed) > 24*60*60 then
+            -- If it's been longer than 1 day, reset
+        if (CurrentTime - LastProgressed) >= 48*60*60 then
+                -- First reset, then add so players don't have to rejoin to get their new initial first day data
+            achievement:ResetProgression( pl )
+            achievement:AddProgression( pl )
+        else
+            achievement:AddProgression( pl )
+        end
+    else
+        --print( CurrentTime - LastProgressed )
     end
 end )

@@ -16,7 +16,7 @@
 
 * Configurables. These can all be modified in-game.
 
-* Don't change unless you want to break something.
+* Don't change here unless you want to break something.
 
 *
 
@@ -29,6 +29,7 @@ AddConfigItem( "dead_spawnprops",
 	default = false,
 	type = "boolean",
 	desc = "Toggle dead players spawning props.",
+	tags = {"toggle"}
 	}
 )
 
@@ -39,6 +40,7 @@ AddConfigItem( "dead_removeprops",
 	default = true,
 	type = "boolean",
 	desc = "Toggle removing dead player's props.",
+	tags = {"toggle"}
 	}
 )
 
@@ -120,6 +122,18 @@ AddConfigItem( "blockedmodels",
 	default = true,
 	type = "boolean",
 	desc = "Toggle spawning blocked models.",
+	tags = {"toggle"}
+	}
+)
+
+AddConfigItem( "battle_allowbattling",
+	{
+	Name = "Allow Player Battling",
+	Category = "Battling",
+	default = true,
+	type = "boolean",
+	desc = "Toggle allowing players to request battles",
+	tags = {"fight"}
 	}
 )
 
@@ -258,6 +272,7 @@ AddConfigItem("player_canspawnragdolls",
 	default = false,
 	type = "boolean",
 	desc = "Allow all players to spawn ragdolls",
+	tags = {"toggle"}
 	}
 )
 
@@ -273,7 +288,7 @@ AddConfigItem("player_chatdelay",
 	max = 60,
 	type = "integer",
 	desc = "How long before a player can send another message",
-	tags = {"chat"}
+	tags = {"msg"}
 	}
 )
 
@@ -284,7 +299,7 @@ AddConfigItem("player_chatratelimit",
 	default = true,
 	type = "boolean",
 	desc = "Turn on rate limiting for players that spam the chat",
-	tags = {"mute"}
+	tags = {"mute", "toggle"}
 	}
 )
 
@@ -308,6 +323,7 @@ AddConfigItem("sounds_playkillingsprees",
 	default = true,
 	type = "boolean",
 	desc = "Play killing spree sounds found in sh_init",
+	tags = {"toggle"}
 	}
 )
 
@@ -341,7 +357,7 @@ AddConfigItem( "battle_cooldown",
 	min = 10,
 	max = 15 * 60,
 	type = "integer",
-	desc = "How long after a battle until a player can start a new one",
+	desc = "How long after a battle until a player can start a new one (in seconds)",
 	tags = {"fight"}
 	}
 )
@@ -354,7 +370,7 @@ AddConfigItem( "battle_invitecooldown",
 	min = 5,
 	max = 5 * 60,
 	type = "integer",
-	desc = "How long after a player sent a battle request can he send another",
+	desc = "How long after a player sent a battle request can he send another (in seconds)",
 	tags = {"fight"}
 	}
 )
@@ -366,6 +382,7 @@ AddConfigItem( "achievements_enabled",
 	default = true,
 	type = "boolean",
 	desc = "Player achievements will be enabled. A map change may be required.",
+	tags = {"toggle"}
 	}
 )
 
@@ -377,6 +394,7 @@ AddConfigItem( "achievements_save",
 	default = true,
 	type = "boolean",
 	desc = "Player achievements will persist across server restarts",
+	tags = {"toggle"}
 	}
 )
 
@@ -387,6 +405,7 @@ AddConfigItem( "achievements_announce",
 	default = true,
 	type = "boolean",
 	desc = "Player achievements will be announced in the chatbox upon completion",
+	tags = {"toggle"}
 	}
 )
 
@@ -397,6 +416,7 @@ AddConfigItem( "achievements_playsound",
 	default = true,
 	type = "boolean",
 	desc = "Players will emit a sound from themselves whenever they complete an achievement",
+	tags = {"toggle"}
 	}
 )
 
@@ -410,6 +430,8 @@ AddConfigItem( "removedoors",
 	desc = "Removes all doors on the map.",
 	func = function( pl )
 		if not SERVER then return end
+			-- Because of the way we save and load doors, trying to do it again *does* appear to work but throws out a shit load of errors
+		if REMOVEDDOORSALREADY then pl:Notify( NOTIFY_ERROR, 4, "Doors can only be removed once per map" ) return end
 		
 		for k,v in pairs( ents.GetAll() ) do
 		
@@ -424,6 +446,8 @@ AddConfigItem( "removedoors",
 			end
 			
 		end
+
+		REMOVEDDOORSALREADY = true
 	end,
 	tags = {"button"}
 	}
@@ -438,20 +462,17 @@ AddConfigItem( "respawndoors",
 	desc = "Respawns all doors on the map.",
 	func = function( pl )
 		if not SERVER then return end
-		
-		for k,v in pairs( PROPKILL.StoredEntities or {} ) do
-			--print( k )
-			if v.Class == "func_door" or v.Class == "prop_door_rotating" 
-			or v.Class == "func_door_rotating" and util.IsValidModel( v.Model ) then
-				local ent = ents.Create( v.Class )
-				ent:SetModel( v.Model )
-				ent:SetPos( v.Pos )
-				ent:SetAngles( v.Angles )
-				ent:Spawn()
-				ent:Activate()
+
+		for k,v in next, PROPKILL.StoredDoorEntities or {} do
+			local ent = ents.Create( v.Class )
+			for key,value in next, v.KeyValues do
+				ent:SetKeyValue( key, value )
 			end
+			ent:Spawn()
+			ent:Activate()
+			ent:Fire("unlock", "", 0)
 		end
-		
+
 		PROPKILL.StoredEntities = {}
 	end,
 	tags = {"button"}

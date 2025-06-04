@@ -2,7 +2,7 @@
 {
 	"base"		"sandbox"
 	"title"		"Props"
-	"version"	"1.8.0"
+	"version"	"1.9.0"
 	"menusystem" "1"
 
 	"author_name"	"Shinycow"

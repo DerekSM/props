@@ -147,6 +147,8 @@ hook.Add("PlayerSpawn", "props_ReplayPlayerMovement", function( pl )
 		if not pl.ReplayTable2[ "startpos" ] then return end
 		pl:SetPos( pl.ReplayTable2[ "startpos" ] )
 		pl:SetEyeAngles( pl.ReplayTable2[ "starteyes" ] )
+        pl.ReplayTrigger2 = false
+        pl.ReplayTable2[ "replayingpos" ] = 1
 		timer.Create( "props_ReplayPlayerMovement", 0.1, 1, function()
 			if not IsValid( pl ) then return end
 
@@ -220,7 +222,8 @@ hook.Add("SetupMove", "props_RecordPlayerMovementAndPlayBotMovement", function( 
             end
         end
 
-        BOTPATHS_RECORDINGS[ pl.RecordMovement2 ][ "movedata" ][ #BOTPATHS_RECORDINGS[ pl.RecordMovement2 ][ "movedata" ] + 1 ] =
+        local RecordingFrame = #BOTPATHS_RECORDINGS[ pl.RecordMovement2 ][ "movedata" ]
+        BOTPATHS_RECORDINGS[ pl.RecordMovement2 ][ "movedata" ][ RecordingFrame + 1 ] =
         {
             origin = mv:GetOrigin(),
             eyes = mv:GetAngles(),
@@ -234,29 +237,39 @@ hook.Add("SetupMove", "props_RecordPlayerMovementAndPlayBotMovement", function( 
 
             -- Setting the movetype to none fixes any kind of straggling walking animation artifacts
         pl:SetMoveType( MOVETYPE_NONE )
- 		local replaying_pos = pl.ReplayTable2[ "replayingpos" ]
+
+        local replaying_pos = pl.ReplayTable2[ "replayingpos" ]
 
 		if not (pl.ReplayTable2[ "movedata" ][ replaying_pos + 1 ]) then
 			--pl:ChatPrint( "finished" )
 			pl:Spawn()
-			pl.ReplayTrigger2 = false
-			pl.ReplayTable2[ "replayingpos" ] = 0
 		end
 
-		pl.ReplayTable2[ "replayingpos" ] = pl.ReplayTable2[ "replayingpos" ]  + 1
+            -- Since I guess the way we either record and/or playback is FUCKED and bots replay at ~2x the speed,
+            -- we'll just duplicate the entries each frame to slow them down
+            -- And we can't change the way we store data to maintain backwards compatibility
+		if pl.ReplayedTheReplay and pl.ReplayTable2[ "replayingpos" ] != 0 then
+            pl.ReplayTable2[ "replayingpos" ] = pl.ReplayTable2[ "replayingpos" ] + 1
+            pl.ReplayedTheReplay = false
+        else
+            pl.ReplayedTheReplay = true
+        end
 		local replaymovement = pl.ReplayTable2
 
-		local ReplayData = replaymovement[ "movedata" ][ replaymovement[ "replayingpos" ] ]
-        mv:SetOrigin( replaymovement[ "movedata" ][ replaymovement[ "replayingpos" ] ].origin )
+		--Print(replaymovement)
+
+		local ReplayPosition = replaymovement[ "replayingpos" ]
+        mv:SetOrigin( replaymovement[ "movedata" ][ ReplayPosition ].origin )
 			-- neccesary for when the bot FLINGS PROPS AT YOU SON
-		mv:SetMoveAngles( replaymovement[ "movedata" ][ replaymovement[ "replayingpos" ] ].eyes )
+		mv:SetMoveAngles( replaymovement[ "movedata" ][ ReplayPosition ].eyes )
 		if not pl.LookingAtPlayer2 then
-			pl:SetEyeAngles( replaymovement[ "movedata" ][ replaymovement[ "replayingpos" ] ].eyes )
+			pl:SetEyeAngles( replaymovement[ "movedata" ][ ReplayPosition ].eyes )
 		end
+
 
         if AdditionalPhysicsCollideCheck > 0 then
                 -- As long as there's a next entry
-            if pl.ReplayTable2[ "movedata"][ pl.ReplayTable2[ "replayingpos" ] + 1 ] then
+            if pl.ReplayTable2[ "movedata"][ ReplayPosition + 1 ] then
 
 
                 local Entities = nil
@@ -267,14 +280,14 @@ hook.Add("SetupMove", "props_RecordPlayerMovementAndPlayBotMovement", function( 
                         -- It's still not perfect but it will help to make the bots more realistic
                     Entities = ents.FindAlongRay(
                         mv:GetOrigin(),
-                        pl.ReplayTable2[ "movedata"][ pl.ReplayTable2[ "replayingpos" ] + 1 ].origin
+                        pl.ReplayTable2[ "movedata"][ ReplayPosition + 1 ].origin
                     )
 
                 elseif AdditionalPhysicsCollideCheck == 2 then
                         -- Test method 2
                     Entities = ents.FindInBox(
-                        pl.ReplayTable2[ "movedata"][ pl.ReplayTable2[ "replayingpos" ] + 1 ].origin,
-                        pl.ReplayTable2[ "movedata"][ pl.ReplayTable2[ "replayingpos" ] + 1 ].origin + select(2, pl:GetCollisionBounds())
+                        pl.ReplayTable2[ "movedata"][ ReplayPosition + 1 ].origin,
+                        pl.ReplayTable2[ "movedata"][ ReplayPosition + 1 ].origin + select(2, pl:GetCollisionBounds())
                     )
                     -- local hitPos, hitNormal, frac = util.IntersectRayWithOBB( ply:GetShootPos(), ply:GetAimVector() * 500, ent:GetPos() + ent:OBBCenter(), ent:GetAngles(), ent:OBBMins(), ent:OBBMaxs() )
                 end

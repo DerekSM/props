@@ -17,7 +17,7 @@ PROPKILL.Colors["Yellow"] = Color( 180,170,60,255 )
 
 GM.Name = "Props"
 GM.Author = "Shinycow"
-GM.Version = "1.8.0"
+GM.Version = "1.9.0"
 -- You (the server owner) should be fine to just remove the variable entirely if you don't want sounds
 GM.KillingSprees =
 {
@@ -209,13 +209,13 @@ if SERVER then
 			-- If not, don't worry about it.
 		for k,v in next, TotalCopy do
 			if SessionCopy[ k ] != nil then
-					-- old way
-				-- 1000 + 30 = 1030 total props (new sesssion prop)
-				-- 1030 + 40 = 1070 total props (same session, 10 more props)
-					-- new way as of 1.6.0
-				-- 1000 + 30-0 = 1030 total props (new session prop)
-				-- 1030 + 40-30 = 1040 total props (same session, 10 more props)
 				v.Count = v.Count + (SessionCopy[k] - v.LastSessionCount)
+			end
+		end
+
+		for k,v in next, SessionCopy do
+			if TotalCopy[ k ] == nil then
+				TotalCopy[ k ] = {Count=v, LastSessionCount=0}
 			end
 		end
 
@@ -240,11 +240,14 @@ if SERVER then
 			-- One final loop to clear our LastCount before saving the data.
 			-- This ~should~ prevent new game sessions from making errors.
 			-- Alternatively we could just ignore the .LastCount when loading from file
-		for i=1,#Output do
-			local v = Output[ i ]
+			-- 1.9.0: Commented out because we were using v.LastCount (doesn't exist) instead of v.LastSessionCount, and nothing appears broken
+		--for i=1,#Output do
+			--local v = Output[ i ]
 
-			v.LastCount = nil
-		end
+				-- todo (1.9.0): This doesn't even do anything. The variable is named LastSessionCount.
+				-- Need to check if new game sessions create errors now....
+			--v.LastCount = nil
+		--end
 		file.Write( "props/topprops.txt", pon.encode( Output ) )
 		
 		net.Start( "props_UpdateTopPropsTotal" )

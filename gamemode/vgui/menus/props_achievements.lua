@@ -78,11 +78,11 @@ function PANEL:Init()
 	self.TitlePanel.TextName.DoRightClick = function( pnl ) TitlePanelClickSort( pnl ) end
 
     self.TitlePanel.TextPercentage = self.TitlePanel:Add( "DLabel" )
-	self.TitlePanel.TextPercentage:SetText( "Percentage of Players Completed" )
+	self.TitlePanel.TextPercentage:SetText( "Players Completed (%)" )
 	self.TitlePanel.TextPercentage:SetFont( "props_HUDTextSmall" )
 	self.TitlePanel.TextPercentage:SetTextColor( Color(230,230,230,255) ) --Color( 90, 90, 90, 255 ) )
 	surface.SetFont( "props_HUDTextSmall" )
-	local headertextsize_w, headertextsize_h = surface.GetTextSize( "Percentage of Players Completed" )
+	local headertextsize_w, headertextsize_h = surface.GetTextSize( "Players Completed (%)" )
 	self.TitlePanel.TextPercentage:SetSize( headertextsize_w, headertextsize_h )
 	self.TitlePanel.TextPercentage:SetPos( self.TitlePanel:GetWide() + 5 - headertextsize_w, self.TitlePanel:GetTall() / 2 - headertextsize_h / 2 )
 
@@ -223,7 +223,22 @@ function PANEL:CallUpdate()
 					end
 
 					self.Content[ k ].ButtonForDropdown.ContentInfo.DescriptionThings = self.Content[ k ].ButtonForDropdown.ContentInfo:Add( "DLabel" )
-					self.Content[ k ].ButtonForDropdown.ContentInfo.DescriptionThings:SetText( v:GetDescription() .. "\nDifficulty: " .. v.difficulty )
+
+					if self.Content[ k ].LocalPlayerAccomplished or v.type != "Counter" then
+						self.Content[ k ].ButtonForDropdown.ContentInfo.DescriptionThings:SetText(
+							v:GetDescription() .. "\nDifficulty: " .. v.difficulty
+						)
+					else
+						local ProgressReport
+						if v.localplayerProgress and v.goal then
+							ProgressReport = (v.localplayerProgress .. "/" .. v.goal)
+						else
+							ProgressReport = "UNKNOWN"
+						end
+						self.Content[ k ].ButtonForDropdown.ContentInfo.DescriptionThings:SetText(
+							v:GetDescription() .. "\nDifficulty: " .. v.difficulty .. "\nProgress: " .. ProgressReport
+						)
+					end
 					self.Content[ k ].ButtonForDropdown.ContentInfo.DescriptionThings:SetTextColor( Color( 240, 240, 240, 255 ) )
 					self.Content[ k ].ButtonForDropdown.ContentInfo.DescriptionThings:SetFont( "props_HUDTextSmall" )
 					self.Content[ k ].ButtonForDropdown.ContentInfo.DescriptionThings:SetPos( 10, 2 )

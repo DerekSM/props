@@ -26,6 +26,19 @@ hook.Add("OnAchievementUnlocked", "props_NetworkPlayerAchievement", function( pl
     end
 end )
 
+hook.Add("OnAchievementProgressed", "props_SavePlayerAchievementProgression", function( pl, id, fancytitle, newprogression )
+    if PROPKILL.GetCombatAchievementByUniqueID( id ).save_progression then
+
+        pl:SaveCombatAchievements()
+    end
+end )
+
+hook.Add("OnAchievementProgressReset", "props_SavePlayerAchievementProgression", function( pl, id, fancytitle )
+    if PROPKILL.GetCombatAchievementByUniqueID( id ).save_progression then
+        pl:SaveCombatAchievements()
+    end
+end )
+
     -- When should we call this?
 --[[function Props_SendPlayerAllAchievementPercentages( tblPlayers )
     local GetCombatAchievements = PROPKILL.GetCombatAchievements()
@@ -65,6 +78,42 @@ function Props_SendPlayerAllAchievementsCompleted( pl )
         end
     net.Send( pl )
 end
+
+function Props_UpdatePlayerAchievementProgress( pl, achievement, i_progress )
+    net.Start( "props_UpdatePlayerAchievementProgress" )
+        net.WriteString( achievement )
+        net.WriteUInt( i_progress, 5 )
+    net.Send( pl )
+end
+
+    -- Not a fan of the duplication of effort but it is what it is... maybe
+function Props_SendPlayerAllPlayerAchievementsProgress( pl )
+    local Counter = 0
+    for k,v in next, PROPKILL.GetCombatAchievements() do
+        if v.type != "Counter" then continue end
+        if not v.save_progression then continue end
+
+        local Unlocked, Progression = v:GetProgression( pl )
+        if Unlocked then continue end
+
+        Counter = Counter + 1
+    end
+
+    net.Start( "props_SendPlayerAllPlayerAchievementsProgress" )
+        net.WriteUInt( Counter, 6 )
+        for k,v in next, PROPKILL.GetCombatAchievements() do
+            if v.type != "Counter" then continue end
+            if not v.save_progression then continue end
+
+            local Unlocked, Progression = v:GetProgression( pl )
+            if Unlocked then continue end
+
+            net.WriteString( v:GetUniqueID() )
+            net.WriteUInt( Progression, 5 )
+        end
+    net.Send( pl )
+end
+
 
 hook.Add("OnSettingChanged", "DontPotentiallyCorruptPlayerAchievements", function( pl, setting, beforeChange, change )
     if setting == "achievements_enabled" and change == "true" then

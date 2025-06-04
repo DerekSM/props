@@ -56,8 +56,12 @@ function PANEL:Init()
 	self.ContentGap.Paint = function() end
 	
 	self.ContentGap.ArrowLeft = self.ContentGap:Add( "DImageButton" )
-	self.ContentGap.ArrowLeft:SetImage( "icon16/arrow_left.png" )
-	--self.ContentGap.ArrowLeft:SetWide( 24 )
+		-- Start replacement of :SetImage so we can set "smooth parameter"
+	self.ContentGap.ArrowLeft.m_Image.ImageName = "icon16/arrow_left.png"
+	local Mat = Material( self.ContentGap.ArrowLeft.m_Image.ImageName, "smooth" )
+	self.ContentGap.ArrowLeft.m_Image:SetMaterial( Mat )
+	self.ContentGap.ArrowLeft.m_Image:FixVertexLitMaterial()
+		-- End replacement of :SetImage
 	self.ContentGap.ArrowLeft:SetWide( math.ceil( ScrW() * 0.0166 ) )
 	self.ContentGap.ArrowLeft:SetToolTip( "Select previous group of teams" )
 	self.ContentGap.ArrowLeft:Dock( LEFT )
@@ -72,8 +76,12 @@ function PANEL:Init()
 	end
 	
 	self.ContentGap.ArrowRight = self.ContentGap:Add( "DImageButton" )
-	self.ContentGap.ArrowRight:SetImage( "icon16/arrow_right.png" )
-	--self.ContentGap.ArrowRight:SetWide( 24 )
+		-- Start replacement of :SetImage so we can set "smooth parameter"
+	self.ContentGap.ArrowRight.m_Image.ImageName = "icon16/arrow_right.png"
+	local Mat = Material( self.ContentGap.ArrowRight.m_Image.ImageName, "smooth" )
+	self.ContentGap.ArrowRight.m_Image:SetMaterial( Mat )
+	self.ContentGap.ArrowRight.m_Image:FixVertexLitMaterial()
+		-- End replacement of :SetImage
 	self.ContentGap.ArrowRight:SetWide( math.ceil( ScrW() * 0.0166 ) )
 	self.ContentGap.ArrowRight:SetToolTip( "Select next group of teams" )
 	self.ContentGap.ArrowRight:Dock( RIGHT )

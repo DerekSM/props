@@ -64,6 +64,8 @@ util.AddNetworkString( "props_NetworkPlayerAchievement" )
 util.AddNetworkString( "props_NetworkPlayerAllAchievementPercentages" )
 util.AddNetworkString( "props_NetworkPlayerAchievementPercentages" )
 util.AddNetworkString( "props_NetworkPlayerAchievementsCompleted" )
+util.AddNetworkString( "props_UpdatePlayerAchievementProgress" )
+util.AddNetworkString( "props_SendPlayerAllPlayerAchievementsProgress" )
 
 
 AddCSLuaFile( "sh_init.lua" )

@@ -130,6 +130,14 @@ AddClientConfigItem( "props_HUDShowPropOwnerPopup",
 	desc = "Show the Prop Owner HUD when looking at a prop",
 	}
 )
+AddClientConfigItem( "props_BattleHUDCondensed",
+	{
+	Name = "Condense Battle HUD",
+	default = false,
+	type = "boolean",
+	desc = "Make the battle HUD smaller (takes effect next fight)",
+	}
+)
 
 
 hook.Add( "HUDShouldDraw", "props_OverrideDefaultHUD", function( name )
@@ -436,117 +444,190 @@ local function CreateIntroHUD()
 end
 
 function props_ShowBattlingHUD()
+	local CondensedBattleHUD = PROPKILL.ClientConfig["props_BattleHUDCondensed"].currentvalue
 
+	local BattleBackgroundWide = math.ceil( ScrW() * GetUniversalSize( 680, 1440 ) )
 	VGUI_BattleBack = vgui.Create( "DPanel" )
-	--VGUI_BattleBack:SetSize( 680, 90 )
-	VGUI_BattleBack:SetSize( math.ceil( ScrW() * GetUniversalSize( 680, 1440 ) ), 60 )
+	if not CondensedBattleHUD then
+		VGUI_BattleBack:SetSize( BattleBackgroundWide, 60 )
+	else
+		VGUI_BattleBack:SetSize( BattleBackgroundWide, 34 )
+	end
 	VGUI_BattleBack:SetPos( ScrW() / 2 - VGUI_BattleBack:GetWide() / 2, 0 )
 	VGUI_BattleBack:SetKeyboardInputEnabled( true )
 	VGUI_BattleBack:ParentToHUD()
 	VGUI_BattleBack.Paint = function( self, w, h )
 		draw.RoundedBox( 0, 0, 0, w, h, Color( 27, 26, 26, 235 ) )
-		self:DrawBackgroundBlur( 4 )
 	end
-	
-	local function createNameLabels( type )
+
+	local BattleVGUI = {}
+
+		--
+		-- Initialize the 3 subpanels we need
+		--
+	BattleVGUI["VGUI_InviterPanel"] = vgui.Create( "DPanel" )
+	BattleVGUI["VGUI_InviterPanel"]:SetParent( VGUI_BattleBack )
+	BattleVGUI["VGUI_InviterPanel"]:SetSize( (VGUI_BattleBack:GetWide() / 3) - 15, VGUI_BattleBack:GetTall() )
+	BattleVGUI["VGUI_InviterPanel"]:Dock( LEFT )
+	BattleVGUI["VGUI_InviterPanel"].Paint = function() end
+
+	BattleVGUI["VGUI_InviteePanel"] = vgui.Create( "DPanel" )
+	BattleVGUI["VGUI_InviteePanel"]:SetParent( VGUI_BattleBack )
+	BattleVGUI["VGUI_InviteePanel"]:SetSize( (VGUI_BattleBack:GetWide() / 3) - 15, VGUI_BattleBack:GetTall() )
+	BattleVGUI["VGUI_InviteePanel"]:Dock( RIGHT )
+	BattleVGUI["VGUI_InviteePanel"].Paint = function() end
+
+	BattleVGUI["VGUI_CountdownPanel"] = vgui.Create( "DPanel" )
+	BattleVGUI["VGUI_CountdownPanel"]:SetParent( VGUI_BattleBack )
+	BattleVGUI["VGUI_CountdownPanel"]:Dock( FILL )
+
+		--
+		-- Helper function to populate fighter information
+		--
+	local function createBattleLabels( battler_type )
+			-- Reference information for later
+		local MaxNameLength = 22
+		local CondensedScoreOffset = 60
+		local BattlePlayerName = PROPKILL.Battlers[ string.lower( battler_type ) ] and PROPKILL.Battlers[ string.lower( battler_type ) ]:Nick() or "N/A"
+		BattlePlayerName = FixLongName( BattlePlayerName, MaxNameLength )
+		local PreZero = "00"
+		if PROPKILL.Battlers[ string.lower( battler_type ) ] then
+			PreZero = PROPKILL.Battlers[ string.lower( battler_type ) ]:GetKillstreak() < 10
+				and "0" .. PROPKILL.Battlers[ string.lower( battler_type ) ]:GetKillstreak()
+				or PROPKILL.Battlers[ string.lower( battler_type ) ]:GetKillstreak()
+		end
+		local ScoreSizew, ScoreSizeh = surface.GetTextSize( PreZero )
+
+			-- Battler Name information
+		local VGUINameElement = BattleVGUI[ "VGUI_" .. battler_type .. "Name" ]
+
 		surface.SetFont( "props_HUDTextSmall" )
-		_G[ "VGUI_" .. type .. "Name" ] = vgui.Create( "DLabel" )
-		_G[ "VGUI_" .. type .. "Name" ].Sizew, _G[ "VGUI_" .. type .. "Name" ].Sizeh = surface.GetTextSize( PROPKILL.Battlers[ string.lower( type ) ] and PROPKILL.Battlers[ string.lower( type ) ]:Nick() or "N/A" )
-		_G[ "VGUI_" .. type .. "Name" ]:SetFont( "props_HUDTextSmall" )
-		if _G[ "VGUI_" .. type .. "Name" ].Sizew >= 240 then
-			surface.SetFont( "props_HUDTextTiny" )
-			_G[ "VGUI_" .. type .. "Name" ].Sizew, _G[ "VGUI_" .. type .. "Name" ].Sizeh = surface.GetTextSize( PROPKILL.Battlers[ string.lower( type ) ] and PROPKILL.Battlers[ string.lower( type ) ]:Nick() or "N/A" )
-			_G[ "VGUI_" .. type .. "Name" ]:SetFont( "props_HUDTextTiny" )
-		end
-		_G[ "VGUI_" .. type .. "Name" ]:SetParent( _G[ "VGUI_" .. type .. "Panel" ] )
-		_G[ "VGUI_" .. type .. "Name" ]:SetTextColor( color_white )
-		_G[ "VGUI_" .. type .. "Name" ]:SetText( PROPKILL.Battlers[ string.lower( type ) ] and PROPKILL.Battlers[ string.lower( type ) ]:Nick() or "N/A" )
-		_G[ "VGUI_" .. type .. "Name" ]:SetSize( _G[ "VGUI_" .. type .. "Name" ].Sizew, _G[ "VGUI_" .. type .. "Name" ].Sizeh )
-		_G[ "VGUI_" .. type .. "Name" ]:SetPos( _G[ "VGUI_" .. type .. "Panel" ]:GetWide() / 2 - _G[ "VGUI_" .. type .. "Name" ].Sizew / 2, 5 )
-	end
-	
-		-- todo: merge into one function
-	local function createScoreLabels( type )
-		surface.SetFont( "props_HUDTextHuge" )
-		_G[ "VGUI_" .. type .. "Score" ] = vgui.Create( "DLabel" )
-		local zeroks = "00" 
-		if PROPKILL.Battlers[ string.lower( type ) ] then
-			zeroks = PROPKILL.Battlers[ string.lower( type ) ]:GetKillstreak() < 10 and "0" .. PROPKILL.Battlers[ string.lower( type ) ]:GetKillstreak() or PROPKILL.Battlers[ string.lower( type ) ]:GetKillstreak()
-		end
-		_G[ "VGUI_" .. type .. "Score" ].Sizew, _G[ "VGUI_" .. type .. "Score" ].Sizeh = surface.GetTextSize( zeroks )
-		_G[ "VGUI_" .. type .. "Score" ]:SetParent( _G[ "VGUI_" .. type .. "Panel" ] )
-		_G[ "VGUI_" .. type .. "Score" ]:SetTextColor( color_white )
-		_G[ "VGUI_" .. type .. "Score" ]:SetFont( "props_HUDTextHuge" )
-		_G[ "VGUI_" .. type .. "Score" ]:SetSize( _G[ "VGUI_" .. type .. "Score" ].Sizew, _G[ "VGUI_" .. type .. "Score" ].Sizeh )
-		_G[ "VGUI_" .. type .. "Score" ]:SetPos( _G[ "VGUI_" .. type .. "Panel" ]:GetWide() / 2 - _G[ "VGUI_" .. type .. "Score" ].Sizew / 2, _G[ "VGUI_" .. type .. "Panel" ]:GetTall() - (_G[ "VGUI_" .. type .. "Score" ].Sizeh + 1) + 3 )
-		_G[ "VGUI_" .. type .. "Score" ].Think = function()
-			if not zeroks then return end
-			
-			if PROPKILL.Battlers[ string.lower( type ) ] then
-				zeroks = PROPKILL.Battlers[ string.lower( type ) ]:GetKillstreak() < 10 and "0" .. PROPKILL.Battlers[ string.lower( type ) ]:GetKillstreak() or PROPKILL.Battlers[ string.lower( type ) ]:GetKillstreak()
+		local ElementSizew, ElementSizeh = surface.GetTextSize( BattlePlayerName )
+		VGUINameElement = vgui.Create( "DLabel" )
+		VGUINameElement:SetFont( "props_HUDTextSmall" )
+		VGUINameElement:SetParent( BattleVGUI[ "VGUI_" .. battler_type .. "Panel" ] )
+		VGUINameElement:SetTextColor( color_white )
+		VGUINameElement:SetText( BattlePlayerName )
+		VGUINameElement:SetSize( ElementSizew, ElementSizeh  )
+		VGUINameElement:SetPos( BattleVGUI[ "VGUI_" .. battler_type .. "Panel" ]:GetWide() / 2 - ElementSizew / 2, 5 )
+		VGUINameElement.Think = function( pnl )
+			if not CondensedBattleHUD then
+				pnl:SetPos( BattleVGUI[ "VGUI_" .. battler_type .. "Panel" ]:GetWide() / 2 - ElementSizew / 2, 5 )
+			else
+				if PROPKILL.Battlers[ string.lower( battler_type ) ] then
+					PreZero = PROPKILL.Battlers[ string.lower( battler_type ) ]:GetKillstreak() < 10
+						and "0" .. PROPKILL.Battlers[ string.lower( battler_type ) ]:GetKillstreak()
+						or PROPKILL.Battlers[ string.lower( battler_type ) ]:GetKillstreak()
+				end
+				surface.SetFont( "props_HUDTextSmall" )
+				ScoreSizew, Scorewsizeh = surface.GetTextSize( PreZero )
+
+				pnl:SetPos( BattleVGUI[ "VGUI_" .. battler_type .. "Panel" ]:GetWide() / 2 - (ElementSizew / 2 + (ScoreSizew + CondensedScoreOffset) / 2 ) , 5 )
 			end
-			surface.SetFont( "props_HUDTextHuge" )
-			_G[ "VGUI_" .. type .. "Score" ].Sizew, _G[ "VGUI_" .. type .. "Score" ].Sizeh = surface.GetTextSize( zeroks )
-			_G[ "VGUI_" .. type .. "Score" ]:SetText( zeroks )
-			_G[ "VGUI_" .. type .. "Score" ]:SetSize( _G[ "VGUI_" .. type .. "Score" ].Sizew, _G[ "VGUI_" .. type .. "Score" ].Sizeh )
-			_G[ "VGUI_" .. type .. "Score" ]:SetPos( _G[ "VGUI_" .. type .. "Panel" ]:GetWide() / 2 - _G[ "VGUI_" .. type .. "Score" ].Sizew / 2, _G[ "VGUI_" .. type .. "Panel" ]:GetTall() - (_G[ "VGUI_" .. type .. "Score" ].Sizeh + 1) + 3 )
+		end
+
+			-- Score information
+		local VGUIScoreElement = BattleVGUI[ "VGUI_" .. battler_type .. "Score" ]
+
+		surface.SetFont( "props_HUDTextHuge" )
+		ScoreSizew, Scorewsizeh = surface.GetTextSize( PreZero )
+		VGUIScoreElement = vgui.Create( "DLabel" )
+		VGUIScoreElement:SetParent( BattleVGUI[ "VGUI_" .. battler_type .. "Panel" ] )
+		VGUIScoreElement:SetTextColor( color_white )
+		VGUIScoreElement:SetFont( "props_HUDTextHuge" )
+		VGUIScoreElement:SetSize( ScoreSizew, Scorewsizeh )
+		if not CondensedBattleHUD then
+			VGUIScoreElement:SetPos(
+				BattleVGUI[ "VGUI_" .. battler_type .. "Panel" ]:GetWide() / 2 - ScoreSizew / 2,
+				BattleVGUI[ "VGUI_" .. battler_type .. "Panel" ]:GetTall() - (Scorewsizeh + 1) + 3
+			)
+		else
+			local NameElementX, NameElementY = VGUINameElement:GetPos()
+			VGUIScoreElement:SetPos(
+				NameElementX,
+				NameElementY
+			)
+		end
+		VGUIScoreElement.Think = function( pnl )
+			if not PreZero then return end
+
+			if PROPKILL.Battlers[ string.lower( battler_type ) ] then
+				PreZero = PROPKILL.Battlers[ string.lower( battler_type ) ]:GetKillstreak() < 10
+					and "0" .. PROPKILL.Battlers[ string.lower( battler_type ) ]:GetKillstreak()
+					or PROPKILL.Battlers[ string.lower( battler_type ) ]:GetKillstreak()
+			end
+			pnl:SetText( PreZero )
+			if not CondensedBattleHUD then
+				surface.SetFont( "props_HUDTextHuge" )
+				ScoreSizew, Scorewsizeh = surface.GetTextSize( PreZero )
+				pnl:SetSize( ScoreSizew, Scorewsizeh )
+				pnl:SetPos(
+					BattleVGUI[ "VGUI_" .. battler_type .. "Panel" ]:GetWide() / 2 - ScoreSizew / 2,
+					BattleVGUI[ "VGUI_" .. battler_type .. "Panel" ]:GetTall() - (Scorewsizeh + 1) + 3
+				)
+			else
+				surface.SetFont( "props_HUDTextSmall" )
+				ScoreSizew, Scorewsizeh = surface.GetTextSize( PreZero )
+				pnl:SetSize( ScoreSizew, Scorewsizeh )
+				pnl:SetFont("props_HUDTextSmall")
+				local NameElementX, NameElementY = VGUINameElement:GetPos()
+
+				pnl:SetPos(
+					NameElementX + VGUINameElement:GetWide() + CondensedScoreOffset,
+					NameElementY
+				)
+			end
 		end
 	end
-	
-	
-	VGUI_InviterPanel = vgui.Create( "DPanel" )
-	VGUI_InviterPanel:SetParent( VGUI_BattleBack )
-	VGUI_InviterPanel:SetSize( (VGUI_BattleBack:GetWide() / 3) - 15, VGUI_BattleBack:GetTall() )
-	--VGUI_InviterPanel:SetPos( 0, 0 )
-	VGUI_InviterPanel:Dock( LEFT )
-	VGUI_InviterPanel.Paint = function() end
 
-	createNameLabels( "Inviter" )
-	createScoreLabels( "Inviter" )
-	
-	VGUI_InviteePanel = vgui.Create( "DPanel" )
-	VGUI_InviteePanel:SetParent( VGUI_BattleBack )
-	VGUI_InviteePanel:SetSize( (VGUI_BattleBack:GetWide() / 3) - 15, VGUI_BattleBack:GetTall() )
-	--VGUI_InviteePanel:SetPos( VGUI_BattleBack:GetWide() - VGUI_InviteePanel:GetWide(), 0 )
-	VGUI_InviteePanel:Dock( RIGHT )
-	VGUI_InviteePanel.Paint = function() end
+	createBattleLabels( "Inviter" )
+	createBattleLabels( "Invitee" )
 
-	createNameLabels( "Invitee" )
-	createScoreLabels( "Invitee" )
-	
-	
-	VGUI_CountdownPanel = vgui.Create( "DPanel" )
-	VGUI_CountdownPanel:SetParent( VGUI_BattleBack )
-	VGUI_CountdownPanel:SetSize( (VGUI_BattleBack:GetWide() / 3) + 15, VGUI_BattleBack:GetTall() )
-	VGUI_CountdownPanel:Dock( FILL )
-	
+
 	surface.SetFont( "props_HUDTextLarge" )
-	VGUI_CountdownText = vgui.Create( "DLabel" )
-	VGUI_CountdownText.Sizew, VGUI_CountdownText.Sizeh = surface.GetTextSize( "Time Remaining" )
-	VGUI_CountdownText:SetFont( "props_HUDTextLarge" )
-	VGUI_CountdownText:SetParent( VGUI_CountdownPanel )
-	VGUI_CountdownText:SetTextColor( Color( 90, 90, 90, 255 ) )
-	VGUI_CountdownText:SetText( "Time Remaining" )
-	VGUI_CountdownText:SetSize( VGUI_CountdownText.Sizew, VGUI_CountdownText.Sizeh )
-	VGUI_CountdownText:SetPos( VGUI_CountdownPanel:GetWide() / 2 - VGUI_CountdownText.Sizew / 2 + 5, -2 )
-			
-	
+	if not CondensedBattleHUD then
+		VGUI_CountdownText = vgui.Create( "DLabel" )
+		VGUI_CountdownText.Sizew, VGUI_CountdownText.Sizeh = surface.GetTextSize( "Time Remaining" )
+		VGUI_CountdownText:SetFont( "props_HUDTextLarge" )
+		VGUI_CountdownText:SetParent( BattleVGUI["VGUI_CountdownPanel"] )
+		VGUI_CountdownText:SetTextColor( Color( 90, 90, 90, 255 ) )
+		VGUI_CountdownText:SetText( "Time Remaining" )
+		VGUI_CountdownText:SetSize( VGUI_CountdownText.Sizew, VGUI_CountdownText.Sizeh )
+		VGUI_CountdownText:SetPos( BattleVGUI["VGUI_CountdownPanel"]:GetWide() / 2 - VGUI_CountdownText.Sizew / 2 + 5, -2 )
+		VGUI_CountdownText.PerformLayout = function( pnl )
+			VGUI_CountdownText:SetPos( BattleVGUI["VGUI_CountdownPanel"]:GetWide() / 2 - VGUI_CountdownText.Sizew / 2 + 5, -2 )
+		end
+	end
+
+
 	VGUI_CountdownTimer = vgui.Create( "DLabel" )
 	VGUI_CountdownTimer.Sizew, VGUI_CountdownTimer.Sizeh = surface.GetTextSize( string.ToMinutesSeconds( PROPKILL.BattleTime ) )
 	VGUI_CountdownTimer:SetFont( "props_HUDTextLarge" )
-	VGUI_CountdownTimer:SetParent( VGUI_CountdownPanel )
+	VGUI_CountdownTimer:SetParent( BattleVGUI["VGUI_CountdownPanel"] )
 	VGUI_CountdownTimer:SetTextColor( Color( 90, 90, 90, 255 ) )
 	VGUI_CountdownTimer:SetText( string.ToMinutesSeconds( PROPKILL.Config[ "battle_time" ].default * 60 ) )
 	VGUI_CountdownTimer:SetSize( VGUI_CountdownTimer.Sizew, VGUI_CountdownTimer.Sizeh )
-	VGUI_CountdownTimer:SetPos( VGUI_CountdownPanel:GetWide() / 2- VGUI_CountdownTimer.Sizew / 2 + 5, VGUI_CountdownPanel:GetTall() - VGUI_CountdownTimer.Sizeh )
-	VGUI_CountdownTimer.Think = function()
+	VGUI_CountdownTimer:SetPos( BattleVGUI["VGUI_CountdownPanel"]:GetWide() / 2- VGUI_CountdownTimer.Sizew / 2 + 5, BattleVGUI["VGUI_CountdownPanel"]:GetTall() - VGUI_CountdownTimer.Sizeh )
+	VGUI_CountdownTimer.Think = function( pnl )
 		surface.SetFont( "props_HUDTextLarge" )
-		VGUI_CountdownTimer.Sizew, VGUI_CountdownTimer.Sizeh = surface.GetTextSize( string.ToMinutesSeconds( PROPKILL.BattleTime ) )
-		VGUI_CountdownTimer:SetText( string.ToMinutesSeconds( PROPKILL.BattleTime ) )
-		VGUI_CountdownTimer:SetSize( VGUI_CountdownTimer.Sizew, VGUI_CountdownTimer.Sizeh )
-		VGUI_CountdownTimer:SetPos( VGUI_CountdownPanel:GetWide() / 2 - VGUI_CountdownTimer.Sizew / 2 + 5, VGUI_CountdownPanel:GetTall() - VGUI_CountdownTimer.Sizeh)
+		pnl.Sizew, pnl.Sizeh = surface.GetTextSize( string.ToMinutesSeconds( PROPKILL.BattleTime ) )
+		pnl:SetText( string.ToMinutesSeconds( PROPKILL.BattleTime ) )
+			-- Add random 4 pixel gibberish to help prevent text being cut off
+		pnl:SetSize( pnl.Sizew + 4, pnl.Sizeh )
+		if not CondensedBattleHUD then
+			local CountdownTextPosX, CountdownTextPosY = VGUI_CountdownText:GetPos()
+			pnl:SetPos(
+				BattleVGUI["VGUI_CountdownPanel"]:GetWide() / 2 - (pnl.Sizew-4) / 2 + 5,
+				BattleVGUI["VGUI_CountdownPanel"]:GetTall() - VGUI_CountdownTimer.Sizeh
+			)
+		else
+			pnl:SetPos(
+				BattleVGUI["VGUI_CountdownPanel"]:GetWide() / 2 - (pnl.Sizew-4) / 2 + 5,
+				BattleVGUI["VGUI_CountdownPanel"]:GetTall() / 2 - pnl.Sizeh / 2
+			)
+		end
 	end
-	
+
 end
 
 function props_HideBattlingHUD()

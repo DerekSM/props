@@ -43,6 +43,13 @@ function GM:InitPostEntity()
 		
 		-- Removes entities not wanted in a propkilling environment.
 	util.CleanUpMap( true )
+
+		-- Unlocks all doors on the map. We don't default to removing doors; we leave that up to admins in config menu.
+	for k,v in next, ents.GetAll() do
+		if v:GetClass() == "prop_door_rotating" or v:GetClass() == "func_door_rotating" then
+			v:Fire("unlock", "", 0)
+		end
+	end
 	
 		-- ulx player pickup
 	hook.Remove( "PhysgunPickup", "ulxPlayerPickup" )
@@ -588,16 +595,40 @@ function GM:PlayerSpawnEffect( pl )
 	return false
 end
 
-PROPKILL.StoredEntities = PROPKILL.StoredEntities or {}
+PROPKILL.MapDoorEntities = PROPKILL.MapDoorEntities or {}
+	-- This function is important because it grabs ALL* key values set on the entity that :GetKeyValues doesn't necessarily grab.
+	-- For doors this is only called on initial map load?
+function GM:EntityKeyValue( ent, key, value )
+		-- if door then store model, pos, angle
+		-- for able to respawn at a later time.
+	if ent:GetClass() == "func_door"
+	or ent:GetClass() == "prop_door_rotating"
+	or ent:GetClass() == "func_door_rotating" then
+
+		PROPKILL.MapDoorEntities[ ent ] = PROPKILL.MapDoorEntities[ ent ] or {}
+		PROPKILL.MapDoorEntities[ ent ][ key ] = value
+
+	end
+end
+
+PROPKILL.StoredDoorEntities = PROPKILL.StoredDoorEntities or {}
 function GM:EntityRemoved( ent )
 		-- if door then store model, pos, angle
 		-- for able to respawn at a later time.
 	if ent:GetClass() == "func_door"
-	or ent:GetClass() == "prop_door_rotating" then
+	or ent:GetClass() == "prop_door_rotating"
+	or ent:GetClass() == "func_door_rotating" then
 	
 		print( "gm:entityremoved: doors" )
 	
-		PROPKILL.StoredEntities[ #PROPKILL.StoredEntities + 1 ] = { Class = ent:GetClass(), Model = ent:GetModel(), Pos = ent:GetPos(), Angles = ent:GetAngles(), }
+		PROPKILL.StoredDoorEntities[ #PROPKILL.StoredDoorEntities + 1 ] = { Class = ent:GetClass(), KeyValues = {} }
+		if PROPKILL.MapDoorEntities[ ent ] then
+			for k,v in next, PROPKILL.MapDoorEntities[ ent ] do
+				PROPKILL.StoredDoorEntities[ #PROPKILL.StoredDoorEntities ]["KeyValues"][ k ] = v
+			end
+		end
+
+		PROPKILL.MapDoorEntities[ ent ] = nil
 		
 	end
 	

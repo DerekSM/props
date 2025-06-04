@@ -80,12 +80,15 @@ function _R.Player:LoadPropkillData()
 
 	end
 
+		-- Is this the right place to put it?
+	Props_SendPlayerAllPlayerAchievementsProgress( self )
+
 	hook.Run("props_PlayerDataLoaded", self)
 end
 
 
 	-- todo: allow saving progress if the achievement allows for it
-	-- Should we also save the datatable?
+	-- Should we also save the datatable? No.
 function _R.Player:SaveCombatAchievements()
 	if not PROPKILL.Config["achievements_save"].default then return end
 		-- Always load their combat achievements but saving depends on enabled or not.
@@ -105,6 +108,8 @@ function _R.Player:SaveCombatAchievements()
 	for k,v in next, self.AchievementData do
 		if v.Unlocked then
 			data[k] = {Unlocked=true,UnlockedTime=v.UnlockedTime}
+		elseif v.Progress and PROPKILL.GetCombatAchievementByUniqueID( k ).save_progression then
+			data[k] = {Unlocked=false,Progress = v.Progress, LastProgressed=v.LastProgressed}
 		end
 	end
 

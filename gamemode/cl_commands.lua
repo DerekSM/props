@@ -28,6 +28,7 @@ end )
 concommand.Add("props_debug_showfight", function()
 	if PROPKILL.Battling then return end
 
+	props_HideBattlingHUD()
 	props_ShowBattlingHUD()
 end)
 concommand.Add("props_debug_endfight", function()

@@ -208,6 +208,10 @@ concommand.Add( "props_changeteam", props_JoinTeam )
 --]]
 local function props_SendFightInvite( pl, cmd, args )
 	if not IsValid( pl ) or not args[ 1 ] or not FindPlayer( args[ 1 ] ) then return end
+	if not PROPKILL.Config[ "battle_allowbattling" ].default then
+		pl:Notify( NOTIFY_ERROR, 4, "Battling has been disabled!")
+		return
+	end
 	
 	if PROPKILL.Battling then
 		pl:Notify( NOTIFY_ERROR, 4, "Someone is already battling!" )
@@ -266,6 +270,11 @@ function props_AcceptBattle( pl, cmd, args )
 	if not IsValid( pl ) or not args[ 1 ] or not tonumber( args[ 1 ] )
 	or not IsValid( Player( args[ 1 ] ) ) or not pl.BattleInvites
 	or not pl.BattleInvites[ Player( args[ 1 ] ) ] then return end
+
+	if not PROPKILL.Config[ "battle_allowbattling" ].default then
+		pl:Notify( NOTIFY_ERROR, 4, "Battling has been disabled!")
+		return
+	end
 	
 	if PROPKILL.Battling then 
 		pl:Notify( 1, 4, "There is already a battle in progress!" )
@@ -314,6 +323,25 @@ local function props_PauseBattle( pl, cmd, args )
 	GAMEMODE:PauseBattle( pl )
 end
 concommand.Add( "props_pausebattle", props_PauseBattle )
+
+local function props_ForfeitBattle( pl )
+	if not PROPKILL.Battling then return end
+	if PROPKILL.Battlers[ "inviter" ] != pl and PROPKILL.Battlers[ "invitee" ] != pl then return end
+
+	if pl == PROPKILL.Battlers[ "inviter" ] then
+		GAMEMODE:EndBattle( PROPKILL.Battlers[ "inviter" ], PROPKILL.Battlers[ "invitee" ], pl:Nick(), false, PROPKILL.Battlers[ "invitee" ]:Nick() )
+	else
+		GAMEMODE:EndBattle( PROPKILL.Battlers[ "inviter" ], PROPKILL.Battlers[ "invitee" ], PROPKILL.Battlers[ "invitee" ]:Nick(), false, PROPKILL.Battlers[ "inviter" ]:Nick() )
+	end
+
+	for k,v in next, player.GetHumans() do
+		PROPKILL.ChatText( v, PROPKILL.Colors.Blue,
+			"Props: ", team.GetColor(pl:Team()), pl:Nick(), color_white, " has forfeited the fight!"
+		)
+	end
+end
+concommand.Add( "props_forfeitbattle", props_ForfeitBattle )
+concommand.Add( "props_forfeitfight", props_ForfeitBattle )
 
 --[[
 

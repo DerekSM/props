@@ -92,11 +92,14 @@ function TOOL:RightClick(trace)
     if CLIENT then return true end
 
     local pl = self:GetOwner()
+
+        -- Only allow one to be removed at a time
     for i=1,#AntinoobSpawnProtectionAreas do
         local v = AntinoobSpawnProtectionAreas[i]
 
         if pl:GetEyeTrace().HitPos:WithinAABox( v.startpos, v.endpos ) then
             props_RemoveAntinoobSpawnProtectionEntry( i, pl )
+            break
         end
     end
 
@@ -244,6 +247,7 @@ elseif SERVER then
             net.Start("props_NetworkAntinoobProtectionAreas")
                     -- max of 8 spawn protection areas
                 net.WriteUInt(#AntinoobSpawnProtectionAreas, 3)
+
                 for i=1,#AntinoobSpawnProtectionAreas do
                     local v = AntinoobSpawnProtectionAreas[i]
 
@@ -261,7 +265,7 @@ elseif SERVER then
                 v:Remove()
             end
         else
-            AntinoobSpawnProtectionAreas[ i ] = nil
+            table.remove(AntinoobSpawnProtectionAreas, i)
             for k,v in next, ents.FindByClass("props_spawntrigger") do
                 if v.SpawnProtectionAreaLinked and v.SpawnProtectionAreaLinked == i then
                     v:Remove()

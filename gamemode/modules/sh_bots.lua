@@ -5,9 +5,11 @@ AddConfigItem( "bots_enable",
 	default = true,
 	type = "boolean",
 	desc = "Turn on bot pathing to allow propsurfing around the map",
+	tags = {"toggle"}
 	}
 )
 
+	-- doesn't do anything.
 AddConfigItem( "bots_kill",
 	{
 	Name = "Enable bot killing",
@@ -15,6 +17,7 @@ AddConfigItem( "bots_kill",
 	default = true,
 	type = "boolean",
 	desc = "Allow bots to kill other players",
+	tags = {"toggle"}
 	}
 )
 
@@ -46,6 +49,7 @@ AddConfigItem( "bots_legacybots",
 	default = false,
 	type = "boolean",
 	desc = "Backwards compatibility with old bot paths",
+	tags = {"toggle"}
 	}
 )
 
@@ -56,6 +60,7 @@ AddConfigItem( "bots_adminonly",
 	default = true,
 	type = "boolean",
 	desc = "Only admins can create and delete bot paths",
+	tags = {"toggle"}
 	}
 )
 
@@ -67,6 +72,7 @@ AddConfigItem( "bots_allowspawning",
 	default = true,
 	type = "boolean",
 	desc = "Allow bots to be added with a click of a button",
+	tags = {"toggle"}
 	}
 )
 

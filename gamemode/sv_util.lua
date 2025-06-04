@@ -34,7 +34,7 @@ function util.CleanUpMap( b_Props )
 		end
 		
 			-- props created by map
-		if v:GetClass() == "prop_static" then
+		if v:GetClass() == "prop_static" or v:GetClass() == "prop_physics_multiplayer" then
 			v:Remove()
 		end
 		

@@ -50,208 +50,236 @@ function PANEL:Init()
 	self.LeftPanel.Paint = function( pnl, w, h )
 		draw.RoundedBox( 0, 0, 0, w, h, Color( 34, 40, 49, 255 ) )
 	end
-	
-	self.LeftPanel.AvatarPanel = self.LeftPanel:Add( "DPanel" )
-	self.LeftPanel.AvatarPanel:SetPos( 15, 4 )
-	self.LeftPanel.AvatarPanel:SetWide( 88 )
-	self.LeftPanel.AvatarPanel:SetTall( 88 )
-	self.LeftPanel.AvatarPanel.Paint = function( self, w, h )
-		draw.RoundedBox( 0, 0, 0, w, h, Color( 148, 137, 121, 255 ) )
-	end
-	
-	self.LeftPanel.AvatarPanel.Image = self.LeftPanel.AvatarPanel:Add( "AvatarImage" )
-	self.LeftPanel.AvatarPanel.Image:SetSize( 84, 84 )
-	self.LeftPanel.AvatarPanel.Image:SetPos( 2, 2 )
-	self.LeftPanel.AvatarPanel.Image:SetPlayer( LocalPlayer(), 84 )
-	
-	local avatarpanelpos_x, avatarpanelpos_y = self.LeftPanel.AvatarPanel:GetPos()
-	
-	self.LeftPanel.ListView = self.LeftPanel:Add( "DListView" )
-	self.LeftPanel.ListView:SetPos( 15, avatarpanelpos_y + self.LeftPanel.AvatarPanel:GetTall() + 5 )
-	self.LeftPanel.ListView:SetWide( self.LeftPanel:GetWide() - 30 )
-		-- self.LeftPanel.ListView:SetTall( self.LeftPanel:GetTall() - (self.LeftPanel.AvatarPanel:GetTall() + avatarpanelpos_y) - 60 )
-		-- before "fun fight" checkbox
-	self.LeftPanel.ListView:SetTall( self.LeftPanel:GetTall() - (self.LeftPanel.AvatarPanel:GetTall() + avatarpanelpos_y) - 80 )
-	self.LeftPanel.ListView:SetMultiSelect( false )
-	self.LeftPanel.ListView:AddColumn( "Player List" )
-	self.LeftPanel.ListView:AddColumn( "SteamID" )
-	self.LeftPanel.ListView.Columns[ 2 ]:SetFixedWidth( 0 )
-	for k,v in pairs( player.GetAll() ) do
-		if v == LocalPlayer() then continue end
-	
-		self.LeftPanel.ListView:AddLine( v:Nick(), v:SteamID(), v:UserID() )
-	end
-	self.LeftPanel.ListView.OnClickLine = function( pnl, line, selected )
-		self.LeftPanel.ListView:ClearSelection()
-		line:SetSelected( true )
-		line.m_fClickTime = SysTime()
-		self.LeftPanel.ListView:OnRowSelected( line:GetID(), line )
 
-		self.LeftPanel.AvatarPanel.Image:SetSteamID( util.SteamIDTo64( line:GetValue( 2 ) ), 84 )
-	end
-
-
-	
-	local listviewpos_x, listviewpos_y = self.LeftPanel.ListView:GetPos()
-	
-	-- for start battle button, Button:SetDisabled( true ) if no player is selected.
-	
-	self.LeftPanel.FragLimitPanel = self.LeftPanel:Add( "DPanel" )
-	self.LeftPanel.FragLimitPanel:SetPos( 15, listviewpos_y + self.LeftPanel.ListView:GetTall() + 5 )
-	self.LeftPanel.FragLimitPanel:SetWide( self.LeftPanel:GetWide() - 30 )
-	self.LeftPanel.FragLimitPanel:SetTall( 20 )
-	self.LeftPanel.FragLimitPanel.Paint = function( self, w, h )
-		--draw.RoundedBox( 0, 0, 0, w, h, Color( 90, 90, 90, 255 ) )
-	end
-	
-	local fraglimitpos_x, fraglimitpos_y = self.LeftPanel.FragLimitPanel:GetPos()
-	
-	self.LeftPanel.FragLimitPanel.Text = self.LeftPanel.FragLimitPanel:Add( "DLabel" )
-	self.LeftPanel.FragLimitPanel.Text:SetPos( 0, 1 )
-	self.LeftPanel.FragLimitPanel.Text:SetText( "Kill Limit" )
-	self.LeftPanel.FragLimitPanel.Text:SetFont( "props_HUDTextTiny" )
-	self.LeftPanel.FragLimitPanel.Text:SetTextColor( Color(223,208,184,255) ) --color_white )
-	self.LeftPanel.FragLimitPanel.Text:SizeToContents()
-	
-	surface.SetFont( "props_HUDTextTiny" )
-	local fraglimittextsize_w, fraglimittextsize_h = surface.GetTextSize( "Battle Amount" )
-	
-	self.LeftPanel.FragLimitPanel.Wang = self.LeftPanel.FragLimitPanel:Add( "DNumberWang" )
-	self.LeftPanel.FragLimitPanel.Wang:SetWide( 70 )
-	self.LeftPanel.FragLimitPanel.Wang:SetTall( 18 )
-	self.LeftPanel.FragLimitPanel.Wang:SetPos( self.LeftPanel.FragLimitPanel:GetWide() - self.LeftPanel.FragLimitPanel.Wang:GetWide(), 0 )
-	self.LeftPanel.FragLimitPanel.Wang:SetValue( PROPKILL.Config[ "battle_defaultkills" ].default )
-	self.LeftPanel.FragLimitPanel.Wang:SetMin( PROPKILL.Config[ "battle_minkills" ].default )
-	self.LeftPanel.FragLimitPanel.Wang:SetMax( PROPKILL.Config[ "battle_maxkills" ].default )
-	self.LeftPanel.FragLimitPanel.Wang:SetDecimals( 0 )
-	
-	self.LeftPanel.TimePanel = self.LeftPanel:Add( "DPanel" )
-	self.LeftPanel.TimePanel:SetPos( 15, fraglimitpos_y + self.LeftPanel.FragLimitPanel:GetTall() + 5 )
-	self.LeftPanel.TimePanel:SetWide( self.LeftPanel:GetWide() - 30 )
-	self.LeftPanel.TimePanel:SetTall( 20 )
-	self.LeftPanel.TimePanel.Paint = function( self, w, h )
-		--draw.RoundedBox( 0, 0, 0, w, h, Color( 90, 90, 90, 255 ) )
-	end
-	
-	local timepanelpos_x, timepanelpos_y = self.LeftPanel.TimePanel:GetPos()
-	
-	self.LeftPanel.TimePanel.Text = self.LeftPanel.TimePanel:Add( "DLabel" )
-	self.LeftPanel.TimePanel.Text:SetPos( 0, 1 )
-	self.LeftPanel.TimePanel.Text:SetText( "Prop Limit" )
-	self.LeftPanel.TimePanel.Text:SetFont( "props_HUDTextTiny" )
-	self.LeftPanel.TimePanel.Text:SetTextColor( Color(223,208,184,255) ) --color_white )
-	self.LeftPanel.TimePanel.Text:SizeToContents()
-	
-	surface.SetFont( "props_HUDTextTiny" )
-	local timelimittextsize_w, timelimittextsize_h = surface.GetTextSize( "Time Limit" )
-
-	self.LeftPanel.TimePanel.Wang = self.LeftPanel.TimePanel:Add( "DNumberWang" )
-	self.LeftPanel.TimePanel.Wang:SetWide( 70 )
-	self.LeftPanel.TimePanel.Wang:SetTall( 18 )
-	self.LeftPanel.TimePanel.Wang:SetPos( self.LeftPanel.TimePanel:GetWide() - self.LeftPanel.TimePanel.Wang:GetWide(), 0 )
-	self.LeftPanel.TimePanel.Wang:SetValue( PROPKILL.Config[ "battle_defaultprops" ].default )
-	self.LeftPanel.TimePanel.Wang:SetMin( PROPKILL.Config[ "battle_minprops" ].default )
-	self.LeftPanel.TimePanel.Wang:SetMax( PROPKILL.Config[ "battle_maxprops" ].default )
-	--self.LeftPanel.TimePanel.Wang:SetDisabled( true )
-	
-	
-	--[[self.LeftPanel.FunFightPanel = self.LeftPanel:Add( "DPanel" )
-	self.LeftPanel.FunFightPanel:SetPos( 15, timepanelpos_y + self.LeftPanel.TimePanel:GetTall() + 5 )
-	self.LeftPanel.FunFightPanel:SetWide( self.LeftPanel:GetWide() - 30 )
-	self.LeftPanel.FunFightPanel:SetTall( 20 )
-	self.LeftPanel.FunFightPanel.Paint = function( self, w, h )
-	end
-	
-		
-	surface.SetFont( "props_HUDTextTiny" )
-	local funfighttextsize_w, funfighttextsize_h = surface.GetTextSize( "Casual Fight" )
-	
-	self.LeftPanel.FunFightPanel.Text = self.LeftPanel.FunFightPanel:Add( "DLabel" )
-	self.LeftPanel.FunFightPanel.Text:SetPos( 0, 0 )
-	self.LeftPanel.FunFightPanel.Text:SetText( "Casual Fight" )
-	self.LeftPanel.FunFightPanel.Text:SetFont( "props_HUDTextTiny" )
-	self.LeftPanel.FunFightPanel.Text:SetTextColor( Color( 90, 90, 90, 255 ) )
-	self.LeftPanel.FunFightPanel.Text:SizeToContents()
-	
-	self.LeftPanel.FunFightPanel.Checkbox = self.LeftPanel.FunFightPanel:Add( "DCheckBox" )
-	self.LeftPanel.FunFightPanel.Checkbox:SetWide( 15 )
-	self.LeftPanel.FunFightPanel.Checkbox:SetTall( 15 )
-	self.LeftPanel.FunFightPanel.Checkbox:SetPos( self.LeftPanel.FunFightPanel:GetWide() - self.LeftPanel.FunFightPanel.Checkbox:GetWide(), 0 )
-	self.LeftPanel.FunFightPanel.Checkbox:SetChecked( false )]]
-	
-	self.LeftPanel.AdvOptions = self.LeftPanel:Add( "DPanel" )
-	self.LeftPanel.AdvOptions:SetPos( 15, timepanelpos_y + self.LeftPanel.TimePanel:GetTall() + 3 )
-	self.LeftPanel.AdvOptions:SetWide( self.LeftPanel:GetWide() - 30 )
-	self.LeftPanel.AdvOptions:SetTall( 20 )
-	self.LeftPanel.AdvOptions.Paint = function( self, w, h )
-	end
-	
-	surface.SetFont( "props_HUDTextTiny" )
-	local advoptextsize_w, advoptextsize_h = surface.GetTextSize( "Advanced Options" )
-	
-	self.LeftPanel.AdvOptions.Text = self.LeftPanel.AdvOptions:Add( "DLabel" )
-	self.LeftPanel.AdvOptions.Text:SetPos( 0, 0 )
-	self.LeftPanel.AdvOptions.Text:SetText( "Advanced Options")
-	self.LeftPanel.AdvOptions.Text:SetFont( "props_HUDTextTiny" )
-	self.LeftPanel.AdvOptions.Text:SetTextColor( Color(223,208,184,255) )
-	self.LeftPanel.AdvOptions.Text:SizeToContents()
-	
-	self.LeftPanel.AdvOptions.pButton = self.LeftPanel.AdvOptions:Add( "DButton" )
-	self.LeftPanel.AdvOptions.pButton:SetWide( 70 )
-	self.LeftPanel.AdvOptions.pButton:SetTall( 17 )
-	self.LeftPanel.AdvOptions.pButton:SetTextColor( Color( 223, 208, 184, 255 ) )
-	self.LeftPanel.AdvOptions.pButton:SetText( "" )
-	self.LeftPanel.AdvOptions.pButton:SetPos( self.LeftPanel.AdvOptions:GetWide() - self.LeftPanel.AdvOptions.pButton:GetWide(), 0 )
 	local advoptions =
 	{
 		["funfight"] = {"Casual Fight", false},
 		["playerdormant"] = {"Player Dormancy", false},
 		["propdormant"] = {"Prop Dormancy", true},
 	}
-	self.LeftPanel.AdvOptions.pButton.DoClick = function( pnl )
-		local menu = DermaMenu( pnl )
-		
-		local function createNewIcons()
-			for k,v in pairs( advoptions ) do
-				local g = menu:AddOption( v[ 1 ] )
-				g:SetIcon( v[ 2 ] and "icon16/accept.png" or "icon16/cross.png" )
-				g.OnMouseReleased = function( pnl2, mousecode )
-					DButton.OnMouseReleased( pnl2, mousecode )
 
-					if ( pnl2.m_MenuClicking && mousecode == MOUSE_LEFT ) then
-				
-						pnl2.m_MenuClicking = false
-						advoptions[ k ][ 2 ] = not advoptions[ k ][ 2 ]
-						g:SetIcon( advoptions[ k ][ 2 ] and "icon16/accept.png" or "icon16/cross.png" )
-						--CloseDermaMenus()
-				
+	local OverrideLeftPanel = false
+	if PROPKILL.Battling and PROPKILL.Battlers then
+		if PROPKILL.Battlers["inviter"] == LocalPlayer() or PROPKILL.Battlers["invitee"] == LocalPlayer() then
+			OverrideLeftPanel = true
+		end
+	end
+	
+	if OverrideLeftPanel then
+		local ForfeitButtonWide,ForfeitButtonTall = self.LeftPanel:GetWide() - 10 ,60
+
+		self.LeftPanel.ForfeitButton = self.LeftPanel:Add( "DButton" )
+		self.LeftPanel.ForfeitButton:SetText( "FORFEIT BATTLE" )
+		self.LeftPanel.ForfeitButton:SetTextColor( Color( 223, 208, 184, 255 ) )
+		self.LeftPanel.ForfeitButton:SetFont( "props_HUDTextSmall" )
+		self.LeftPanel.ForfeitButton:SetWide( ForfeitButtonWide )
+		self.LeftPanel.ForfeitButton:SetTall( ForfeitButtonTall )
+		self.LeftPanel.ForfeitButton:SetPos( 5, self.LeftPanel:GetTall() / 2 - ForfeitButtonTall / 2 )
+		self.LeftPanel.ForfeitButton.DoClick = function( pnl )
+			RunConsoleCommand("props_forfeitbattle")
+		end
+		self.LeftPanel.ForfeitButton.Paint = function( pnl, w, h )
+			draw.RoundedBox( 0, 0, 0, w, h, Color( 57, 62, 70, 255 ) )
+		end
+
+	else
+
+		self.LeftPanel.AvatarPanel = self.LeftPanel:Add( "DPanel" )
+		self.LeftPanel.AvatarPanel:SetPos( 15, 4 )
+		self.LeftPanel.AvatarPanel:SetWide( 88 )
+		self.LeftPanel.AvatarPanel:SetTall( 88 )
+		self.LeftPanel.AvatarPanel.Paint = function( self, w, h )
+			draw.RoundedBox( 0, 0, 0, w, h, Color( 148, 137, 121, 255 ) )
+		end
+
+		self.LeftPanel.AvatarPanel.Image = self.LeftPanel.AvatarPanel:Add( "AvatarImage" )
+		self.LeftPanel.AvatarPanel.Image:SetSize( 84, 84 )
+		self.LeftPanel.AvatarPanel.Image:SetPos( 2, 2 )
+		self.LeftPanel.AvatarPanel.Image:SetPlayer( LocalPlayer(), 84 )
+
+		local avatarpanelpos_x, avatarpanelpos_y = self.LeftPanel.AvatarPanel:GetPos()
+
+		self.LeftPanel.ListView = self.LeftPanel:Add( "DListView" )
+		self.LeftPanel.ListView:SetPos( 15, avatarpanelpos_y + self.LeftPanel.AvatarPanel:GetTall() + 5 )
+		self.LeftPanel.ListView:SetWide( self.LeftPanel:GetWide() - 30 )
+			-- self.LeftPanel.ListView:SetTall( self.LeftPanel:GetTall() - (self.LeftPanel.AvatarPanel:GetTall() + avatarpanelpos_y) - 60 )
+			-- before "fun fight" checkbox
+		self.LeftPanel.ListView:SetTall( self.LeftPanel:GetTall() - (self.LeftPanel.AvatarPanel:GetTall() + avatarpanelpos_y) - 80 )
+		self.LeftPanel.ListView:SetMultiSelect( false )
+		self.LeftPanel.ListView:AddColumn( "Player List" )
+		self.LeftPanel.ListView:AddColumn( "SteamID" )
+		self.LeftPanel.ListView.Columns[ 2 ]:SetFixedWidth( 0 )
+		for k,v in pairs( player.GetAll() ) do
+			if v == LocalPlayer() then continue end
+
+			self.LeftPanel.ListView:AddLine( v:Nick(), v:SteamID(), v:UserID() )
+		end
+		self.LeftPanel.ListView.OnClickLine = function( pnl, line, selected )
+			self.LeftPanel.ListView:ClearSelection()
+			line:SetSelected( true )
+			line.m_fClickTime = SysTime()
+			self.LeftPanel.ListView:OnRowSelected( line:GetID(), line )
+
+			self.LeftPanel.AvatarPanel.Image:SetSteamID( util.SteamIDTo64( line:GetValue( 2 ) ), 84 )
+		end
+
+
+
+		local listviewpos_x, listviewpos_y = self.LeftPanel.ListView:GetPos()
+
+		-- for start battle button, Button:SetDisabled( true ) if no player is selected.
+
+		self.LeftPanel.FragLimitPanel = self.LeftPanel:Add( "DPanel" )
+		self.LeftPanel.FragLimitPanel:SetPos( 15, listviewpos_y + self.LeftPanel.ListView:GetTall() + 5 )
+		self.LeftPanel.FragLimitPanel:SetWide( self.LeftPanel:GetWide() - 30 )
+		self.LeftPanel.FragLimitPanel:SetTall( 20 )
+		self.LeftPanel.FragLimitPanel.Paint = function( self, w, h )
+			--draw.RoundedBox( 0, 0, 0, w, h, Color( 90, 90, 90, 255 ) )
+		end
+
+		local fraglimitpos_x, fraglimitpos_y = self.LeftPanel.FragLimitPanel:GetPos()
+
+		self.LeftPanel.FragLimitPanel.Text = self.LeftPanel.FragLimitPanel:Add( "DLabel" )
+		self.LeftPanel.FragLimitPanel.Text:SetPos( 0, 1 )
+		self.LeftPanel.FragLimitPanel.Text:SetText( "Kill Limit" )
+		self.LeftPanel.FragLimitPanel.Text:SetFont( "props_HUDTextTiny" )
+		self.LeftPanel.FragLimitPanel.Text:SetTextColor( Color(223,208,184,255) ) --color_white )
+		self.LeftPanel.FragLimitPanel.Text:SizeToContents()
+
+		surface.SetFont( "props_HUDTextTiny" )
+		local fraglimittextsize_w, fraglimittextsize_h = surface.GetTextSize( "Battle Amount" )
+
+		self.LeftPanel.FragLimitPanel.Wang = self.LeftPanel.FragLimitPanel:Add( "DNumberWang" )
+		self.LeftPanel.FragLimitPanel.Wang:SetWide( 70 )
+		self.LeftPanel.FragLimitPanel.Wang:SetTall( 18 )
+		self.LeftPanel.FragLimitPanel.Wang:SetPos( self.LeftPanel.FragLimitPanel:GetWide() - self.LeftPanel.FragLimitPanel.Wang:GetWide(), 0 )
+		self.LeftPanel.FragLimitPanel.Wang:SetValue( PROPKILL.Config[ "battle_defaultkills" ].default )
+		self.LeftPanel.FragLimitPanel.Wang:SetMin( PROPKILL.Config[ "battle_minkills" ].default )
+		self.LeftPanel.FragLimitPanel.Wang:SetMax( PROPKILL.Config[ "battle_maxkills" ].default )
+		self.LeftPanel.FragLimitPanel.Wang:SetDecimals( 0 )
+
+		self.LeftPanel.TimePanel = self.LeftPanel:Add( "DPanel" )
+		self.LeftPanel.TimePanel:SetPos( 15, fraglimitpos_y + self.LeftPanel.FragLimitPanel:GetTall() + 5 )
+		self.LeftPanel.TimePanel:SetWide( self.LeftPanel:GetWide() - 30 )
+		self.LeftPanel.TimePanel:SetTall( 20 )
+		self.LeftPanel.TimePanel.Paint = function( self, w, h )
+			--draw.RoundedBox( 0, 0, 0, w, h, Color( 90, 90, 90, 255 ) )
+		end
+
+		local timepanelpos_x, timepanelpos_y = self.LeftPanel.TimePanel:GetPos()
+
+		self.LeftPanel.TimePanel.Text = self.LeftPanel.TimePanel:Add( "DLabel" )
+		self.LeftPanel.TimePanel.Text:SetPos( 0, 1 )
+		self.LeftPanel.TimePanel.Text:SetText( "Prop Limit" )
+		self.LeftPanel.TimePanel.Text:SetFont( "props_HUDTextTiny" )
+		self.LeftPanel.TimePanel.Text:SetTextColor( Color(223,208,184,255) ) --color_white )
+		self.LeftPanel.TimePanel.Text:SizeToContents()
+
+		surface.SetFont( "props_HUDTextTiny" )
+		local timelimittextsize_w, timelimittextsize_h = surface.GetTextSize( "Time Limit" )
+
+		self.LeftPanel.TimePanel.Wang = self.LeftPanel.TimePanel:Add( "DNumberWang" )
+		self.LeftPanel.TimePanel.Wang:SetWide( 70 )
+		self.LeftPanel.TimePanel.Wang:SetTall( 18 )
+		self.LeftPanel.TimePanel.Wang:SetPos( self.LeftPanel.TimePanel:GetWide() - self.LeftPanel.TimePanel.Wang:GetWide(), 0 )
+		self.LeftPanel.TimePanel.Wang:SetValue( PROPKILL.Config[ "battle_defaultprops" ].default )
+		self.LeftPanel.TimePanel.Wang:SetMin( PROPKILL.Config[ "battle_minprops" ].default )
+		self.LeftPanel.TimePanel.Wang:SetMax( PROPKILL.Config[ "battle_maxprops" ].default )
+		--self.LeftPanel.TimePanel.Wang:SetDisabled( true )
+
+
+		--[[self.LeftPanel.FunFightPanel = self.LeftPanel:Add( "DPanel" )
+		self.LeftPanel.FunFightPanel:SetPos( 15, timepanelpos_y + self.LeftPanel.TimePanel:GetTall() + 5 )
+		self.LeftPanel.FunFightPanel:SetWide( self.LeftPanel:GetWide() - 30 )
+		self.LeftPanel.FunFightPanel:SetTall( 20 )
+		self.LeftPanel.FunFightPanel.Paint = function( self, w, h )
+		end
+
+
+		surface.SetFont( "props_HUDTextTiny" )
+		local funfighttextsize_w, funfighttextsize_h = surface.GetTextSize( "Casual Fight" )
+
+		self.LeftPanel.FunFightPanel.Text = self.LeftPanel.FunFightPanel:Add( "DLabel" )
+		self.LeftPanel.FunFightPanel.Text:SetPos( 0, 0 )
+		self.LeftPanel.FunFightPanel.Text:SetText( "Casual Fight" )
+		self.LeftPanel.FunFightPanel.Text:SetFont( "props_HUDTextTiny" )
+		self.LeftPanel.FunFightPanel.Text:SetTextColor( Color( 90, 90, 90, 255 ) )
+		self.LeftPanel.FunFightPanel.Text:SizeToContents()
+
+		self.LeftPanel.FunFightPanel.Checkbox = self.LeftPanel.FunFightPanel:Add( "DCheckBox" )
+		self.LeftPanel.FunFightPanel.Checkbox:SetWide( 15 )
+		self.LeftPanel.FunFightPanel.Checkbox:SetTall( 15 )
+		self.LeftPanel.FunFightPanel.Checkbox:SetPos( self.LeftPanel.FunFightPanel:GetWide() - self.LeftPanel.FunFightPanel.Checkbox:GetWide(), 0 )
+		self.LeftPanel.FunFightPanel.Checkbox:SetChecked( false )]]
+
+		self.LeftPanel.AdvOptions = self.LeftPanel:Add( "DPanel" )
+		self.LeftPanel.AdvOptions:SetPos( 15, timepanelpos_y + self.LeftPanel.TimePanel:GetTall() + 3 )
+		self.LeftPanel.AdvOptions:SetWide( self.LeftPanel:GetWide() - 30 )
+		self.LeftPanel.AdvOptions:SetTall( 20 )
+		self.LeftPanel.AdvOptions.Paint = function( self, w, h )
+		end
+
+		surface.SetFont( "props_HUDTextTiny" )
+		local advoptextsize_w, advoptextsize_h = surface.GetTextSize( "Advanced Options" )
+
+		self.LeftPanel.AdvOptions.Text = self.LeftPanel.AdvOptions:Add( "DLabel" )
+		self.LeftPanel.AdvOptions.Text:SetPos( 0, 0 )
+		self.LeftPanel.AdvOptions.Text:SetText( "Advanced Options")
+		self.LeftPanel.AdvOptions.Text:SetFont( "props_HUDTextTiny" )
+		self.LeftPanel.AdvOptions.Text:SetTextColor( Color(223,208,184,255) )
+		self.LeftPanel.AdvOptions.Text:SizeToContents()
+
+		self.LeftPanel.AdvOptions.pButton = self.LeftPanel.AdvOptions:Add( "DButton" )
+		self.LeftPanel.AdvOptions.pButton:SetWide( 70 )
+		self.LeftPanel.AdvOptions.pButton:SetTall( 17 )
+		self.LeftPanel.AdvOptions.pButton:SetTextColor( Color( 223, 208, 184, 255 ) )
+		self.LeftPanel.AdvOptions.pButton:SetText( "" )
+		self.LeftPanel.AdvOptions.pButton:SetPos( self.LeftPanel.AdvOptions:GetWide() - self.LeftPanel.AdvOptions.pButton:GetWide(), 0 )
+		self.LeftPanel.AdvOptions.pButton.DoClick = function( pnl )
+			local menu = DermaMenu( pnl )
+
+			local function createNewIcons()
+				for k,v in pairs( advoptions ) do
+					local g = menu:AddOption( v[ 1 ] )
+					g:SetIcon( v[ 2 ] and "icon16/accept.png" or "icon16/cross.png" )
+					g.OnMouseReleased = function( pnl2, mousecode )
+						DButton.OnMouseReleased( pnl2, mousecode )
+
+						if ( pnl2.m_MenuClicking && mousecode == MOUSE_LEFT ) then
+
+							pnl2.m_MenuClicking = false
+							advoptions[ k ][ 2 ] = not advoptions[ k ][ 2 ]
+							g:SetIcon( advoptions[ k ][ 2 ] and "icon16/accept.png" or "icon16/cross.png" )
+							--CloseDermaMenus()
+
+						end
+					end
+				end
+			end
+
+			createNewIcons()
+
+			menu:AddSpacer()
+			menu:AddOption( "Close" )
+
+			menu:Open()
+
+			menu.Think = function()
+				if not IsValid( pnl ) then
+					menu:Hide()
+					if IsValid( menu ) then
+						menu:Remove()
 					end
 				end
 			end
 		end
-		
-		createNewIcons()
-
-		menu:AddSpacer()
-		menu:AddOption( "Close" )
-		
-		menu:Open()
-		
-		menu.Think = function()
-			if not IsValid( pnl ) then
-				menu:Hide()
-				if IsValid( menu ) then
-					menu:Remove()
-				end
-			end
+		local CategoryDownArrow = GWEN.CreateTextureNormal( 496, 272+32, 15, 15 )
+		self.LeftPanel.AdvOptions.pButton.Paint = function( pnl, w, h )
+			draw.RoundedBox( 0, 0, 0, w, h, Color( 57, 62, 70, 255 ) )
+			CategoryDownArrow( w - 15, h / 2 - 8, 15, 15, Color( 223, 208, 184, 255 )  )
 		end
-	end
-	local CategoryDownArrow = GWEN.CreateTextureNormal( 496, 272+32, 15, 15 )
-	self.LeftPanel.AdvOptions.pButton.Paint = function( pnl, w, h )
-		draw.RoundedBox( 0, 0, 0, w, h, Color( 57, 62, 70, 255 ) )
-		CategoryDownArrow( w - 15, h / 2 - 8, 15, 15, Color( 223, 208, 184, 255 )  )
-	end
 		
+	end
 	
 	
 	
@@ -514,27 +542,6 @@ function PANEL:Init()
 			self.RightPanel.RecentContentPanel[ "recent" .. k ]:GetWide() - (contentscoresize_w - 2),
 			self.RightPanel.RecentContentPanel[ "recent" .. k ]:GetTall() / 2 - contentscoresize_h / 2
 		)
-
-		--[[self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentScore.Think = function( pnl )
-			-- No need to constantly set position.
-			if not self.RightPanel.RecentContentPanel.ScrollbarChanged then return end
-
-			local VerticalScrollbar = self.RightPanel.RecentContentPanel.VBar
-			if VerticalScrollbar:IsVisible() then
-				--print("Scrollbar active. Changing position.")
-				local ScrollbarWidth  = VerticalScrollbar:GetSize()
-				pnl.OldPanelPosX,pnl.OldPanelPosY = pnl:GetPos()
-				pnl:SetPos(
-					pnl.OldPanelPosX - ScrollbarWidth,
-					pnl.OldPanelPosY
-				)
-			else
-				--print("Scrollbar inactive. Resetting position.")
-				pnl:SetPos( pnl.OldPanelPosX, pnl.OldPanelPosY )
-			end
-
-			self.RightPanel.RecentContentPanel.ScrollbarChanged = false
-		end]]
 		-- Added to a table to be called to reposition when scrollbar appears/disappears
 		self.RightPanel.RecentContentPanel.ScorePanels[#self.RightPanel.RecentContentPanel.ScorePanels + 1] = self.RightPanel.RecentContentPanel[ "recent" .. k ].ContentScore
 
@@ -543,28 +550,34 @@ function PANEL:Init()
 	
 	end
 	
-	self.RightPanel.StartButton = self.RightPanel:Add( "DButton" )
-	self.RightPanel.StartButton:SetText( "START BATTLE" )
-	self.RightPanel.StartButton:SetTextColor( Color( 223, 208, 184, 255 ) )
-	self.RightPanel.StartButton:SetFont( "props_HUDTextSmall" )
-	self.RightPanel.StartButton:SetWide( self.RightPanel.RecentContentPanel:GetWide() - 40 )
-	--self.RightPanel:GetTall() - ( headerpos_y + self.RightPanel.RecentHeaderPanel:GetTall() + self.RightPanel.RecentLabelPanel:GetTall() ) - (5 + 55) )
-	self.RightPanel.StartButton:SetTall( self.RightPanel:GetTall() - ( headerpos_y + self.RightPanel.RecentHeaderPanel:GetTall() + self.RightPanel.RecentLabelPanel:GetTall() + self.RightPanel.RecentContentPanel:GetTall() ) - 10 )
-	self.RightPanel.StartButton:SetPos( headerpos_x + 20, contentpanelpos_y + self.RightPanel.RecentContentPanel:GetTall() + 5 )
-	self.RightPanel.StartButton.DoClick = function( pnl )
-		--PrintTable( advoptions )
-		local selected = self.LeftPanel.ListView:GetSelected()
-		if #selected == 0 then
-			LocalPlayer():Notify( 0, 4, "You have to select a player first!" ) 
-			return
-		end
+	if not OverrideLeftPanel then
+		self.RightPanel.StartButton = self.RightPanel:Add( "DButton" )
+		self.RightPanel.StartButton:SetText( "START BATTLE" )
+		self.RightPanel.StartButton:SetTextColor( Color( 223, 208, 184, 255 ) )
+		self.RightPanel.StartButton:SetFont( "props_HUDTextSmall" )
+		self.RightPanel.StartButton:SetWide( self.RightPanel.RecentContentPanel:GetWide() - 40 )
+		--self.RightPanel:GetTall() - ( headerpos_y + self.RightPanel.RecentHeaderPanel:GetTall() + self.RightPanel.RecentLabelPanel:GetTall() ) - (5 + 55) )
+		self.RightPanel.StartButton:SetTall( self.RightPanel:GetTall() - ( headerpos_y + self.RightPanel.RecentHeaderPanel:GetTall() + self.RightPanel.RecentLabelPanel:GetTall() + self.RightPanel.RecentContentPanel:GetTall() ) - 10 )
+		self.RightPanel.StartButton:SetPos( headerpos_x + 20, contentpanelpos_y + self.RightPanel.RecentContentPanel:GetTall() + 5 )
+		self.RightPanel.StartButton.DoClick = function( pnl )
+			--PrintTable( advoptions )
+			local selected = self.LeftPanel.ListView:GetSelected()
+			if #selected == 0 then
+				LocalPlayer():Notify( 0, 4, "You have to select a player first!" )
+				return
+			end
 
-		local pl = self.LeftPanel.ListView:GetLine( self.LeftPanel.ListView:GetSelectedLine() ):GetValue( 3 )
-		RunConsoleCommand( "props_requestbattle", pl, self.LeftPanel.FragLimitPanel.Wang:GetValue(), self.LeftPanel.TimePanel.Wang:GetValue(), tostring( advoptions[ "funfight" ][ 2 ] ), tostring( advoptions[ "playerdormant" ][ 2 ] ), tostring( advoptions[ "propdormant" ][ 2 ] ) )--tostring( self.LeftPanel.FunFightPanel.Checkbox:GetChecked() ) )
-	end
-	self.RightPanel.StartButton.Paint = function( pnl, w, h )
-		-- "START" button background color
-		draw.RoundedBox( 0, 0, 0, w, h, Color( 57, 62, 70, 255 ) )
+			local pl = self.LeftPanel.ListView:GetLine( self.LeftPanel.ListView:GetSelectedLine() ):GetValue( 3 )
+			RunConsoleCommand( "props_requestbattle", pl,
+				self.LeftPanel.FragLimitPanel.Wang:GetValue(),
+				self.LeftPanel.TimePanel.Wang:GetValue(),
+				tostring( advoptions[ "funfight" ][ 2 ] ), tostring( advoptions[ "playerdormant" ][ 2 ] ), tostring( advoptions[ "propdormant" ][ 2 ] )
+			)
+		end
+		self.RightPanel.StartButton.Paint = function( pnl, w, h )
+			-- "START" button background color
+			draw.RoundedBox( 0, 0, 0, w, h, Color( 57, 62, 70, 255 ) )
+		end
 	end
 
 	

@@ -1,4 +1,24 @@
 **Changelog
+v1.9.0
++ Added ability to forfeit battle without needing an admin mod to add the command.
+/ Modified battle menu to easily allow fighters to forfeit their battle.
+/ Condensed achievement menu's completion rate title
+/ More gamemode config tags
+/ Potentially fixed battle time remaining sometimes cutting off text
++ Added ability to condense the battling HUD
++ Added gamemode config option to enable/disable player battles
+/ Smoothed out the arrow icons on original scoreboard
+/ Fixed spawn protect tool right click error when spawnpoints are created in each other
++ Added ability to view achievement progression
++ Added ability to save achievement progression across sessions
++ Added new achievement "Go clip yourself"
++ Added new achievement "The Regular"
++ Added new achievement "See You Tomorrow"
+/ All doors will be forced unlocked on map load.
+/ Fixed respawning of doors on maps like rp_downtown_v2
+/ Fixed top props total not creating new top props
+/ Remove additional prop type prop_physics_multiplayer on map load
+/ Attempted to slow down bot replay speed
 v1.8.0
 + New alternate spawn protection system. Use the Protect Spawnpoints toolgun to opt in.
 / Players can now create new bot paths while bots are online.
@@ -135,6 +155,12 @@ Add color schemes to client config
 HUD doesn't show for resized screens? E.g 1920x1200 the HUD isnt showing..
     > I think this has something to with our new config setting to change HUD positions
 Strip the end of the bot pathing if there's no movements/buttons
+Add thin grey bar under each achievement with .... green? filled in it for progression.
+    Alternative move it to when player clicks on achievement
+    Alternatively make the bar vertical
+    Alternatively just make it a counter like 1/5 "progression"
+Bots appear to be played back at 2x the rate of normal players making them appear like sonic
+    Temporary fix is in place until version 2.0 of gamemode where we should just redesign the bot recording/playback system
 
 **Notes
 The gamemode is messy and I'm probably not going to do anything about it..

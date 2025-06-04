@@ -3,6 +3,14 @@
 
 -- Keept his around for gamemode config menu
 
+--[[
+Color scheme ideas
+
+https://coolors.co/e2d4b7-9c9583-a1a499-b0bbbf-cadbc8
+https://coolors.co/397367-63ccca-5da399-42858c-35393c
+https://coolors.co/cee5f2-accbe1-7c98b3-637081-536b78
+]]
+
 local surface = surface
 local Color = Color
 
