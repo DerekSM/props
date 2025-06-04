@@ -1,4 +1,6 @@
 **Changelog
+v1.9.1
+/ Bots will no longer collide with each other.
 v1.9.0
 + Added ability to forfeit battle without needing an admin mod to add the command.
 / Modified battle menu to easily allow fighters to forfeit their battle.

@@ -124,6 +124,13 @@ hook.Add("props_BattleStarted", "props_InvalidateRecording", function()
     end
 end )
 
+hook.Add( "ShouldCollide", "props_StopBotsFreezingInEachOther", function( pl1, pl2 )
+    if pl1:IsPlayer() and pl2:IsPlayer() then
+        if pl1:IsBot() and pl2:IsBot() then
+            return false
+        end
+    end
+end )
 
     -- Hook mostly copy pasted from old sv_bots.lua - MAY need to redo
 hook.Add("PlayerSpawn", "props_ReplayPlayerMovement", function( pl )
@@ -154,6 +161,7 @@ hook.Add("PlayerSpawn", "props_ReplayPlayerMovement", function( pl )
 
 			pl.ReplayTrigger2 = true
 		end )
+		pl:SetCustomCollisionCheck( true )
 
             -- The callback stuff can be changed later on. For now, its debugging.
         if pl.HasCallback2 then
