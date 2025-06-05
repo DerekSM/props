@@ -475,14 +475,23 @@ function PANEL:Init()
 				end
 				
 				self.RightPanel.RecentContentPanel[ "recent" .. k .. "button" ].ContentInfo.DescriptionThings = self.RightPanel.RecentContentPanel[ "recent" .. k .. "button" ].ContentInfo:Add( "DLabel" )
-				self.RightPanel.RecentContentPanel[ "recent" .. k .. "button" ].ContentInfo.DescriptionThings:SetText( [[Fight Date: ]] .. os.date( "%m/%d/%Y", v.time ) .. [[
 
-				Duration: ]] .. (v.timetook and string.ToMinutesSeconds( v.timetook ) or "") .. [[ minutes
-				Prop Limit: ]] .. (v.proplimit or "") .. [[
+				local FightDescription = [[Fight Date: %s
+				Duration: %s
+				Prop Limit: %s
+				Battler 1 Total Props: %s
+				Battler 2 Total Props: %s]]
+					-- Strip out tab characters to prevent graphics artifacts
+				FightDescription = string.gsub( FightDescription, "\t", "" )
 
-				Battler 1 Total Props: ]] .. (v.battleroneprops or "") .. [[
-
-				Battler 2 Total Props: ]] .. (v.battlertwoprops or "")
+				self.RightPanel.RecentContentPanel[ "recent" .. k .. "button" ].ContentInfo.DescriptionThings:SetText(
+					string.format(FightDescription,
+						os.date( "%d/%b/%Y", v.time ),
+						(v.timetook and string.ToMinutesSeconds( v.timetook ) or ""),
+						(v.proplimit or ""),
+						(v.battleroneprops or ""),
+						(v.battlertwoprops or "")
+					)
 				)
 				self.RightPanel.RecentContentPanel[ "recent" .. k .. "button" ].ContentInfo.DescriptionThings:SetTextColor( Color( 240, 240, 240, 255 ) )
 				self.RightPanel.RecentContentPanel[ "recent" .. k .. "button" ].ContentInfo.DescriptionThings:SetFont( "props_HUDTextSmall" )

@@ -10,7 +10,7 @@
 ]]--
 
 if CLIENT then
-	
+
 	--CreateClientConVar( "props_PlayChatSounds", "1", true, true )
 	--local chatsounds = GetConVar( "props_PlayChatSounds" )
 	AddClientConfigItem( "props_PlayChatSounds",
@@ -55,7 +55,7 @@ if CLIENT then
 
 	local BaseSoundDelay = 2.4 -- At least 2.4 seconds need to pass before we'll play another sound
 	local sound_delay = CurTime()
-	
+
 	hook.Add( "OnPlayerChat", "fdsf", function( pl, txt, team )
 		if not PROPKILL.ClientConfig["props_PlayChatSounds"].currentvalue then return end
 		if sound_delay > CurTime() then return end
@@ -73,26 +73,26 @@ if CLIENT then
 
 		sound_delay = CurTime() + BaseSoundDelay + ChatSoundsList[txt:lower()]["delay"]
 	end )
-	
+
 elseif SERVER then
-	
+
 	local function notifyChatSounds( pl )
 		--pl:ChatPrint( "Turn off chatsounds by typing props_PlayChatSounds 0 in console" )
 		pl:ChatPrint( "Turn off chatsounds by using the Client Config in the F4 menu" )
 	end
-	
+
 	timer.Create( "props_AnnounceChatSoundToggle", 280, 0, function()
 		for k,v in next, player.GetHumans() do
 			notifyChatSounds( v )
 		end
 	end )
-	
+
 	hook.Add( "PlayerInitialSpawn", "props_NotifyChatSounds", function( pl )
 		timer.CreatePlayer( pl, "props_chatsounds", 3, 1, function()
 			if not IsValid( pl ) then return end
-			
+
 			notifyChatSounds( pl )
 		end )
 	end )
-	
+
 end

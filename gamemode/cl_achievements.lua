@@ -67,13 +67,13 @@ net.Receive( "props_SendPlayerAllPlayerAchievementsProgress", function()
 end )
 
 AddClientConfigItem( "props_DefaultAchievementSorting",
-	{
-	Name = "Default Achievement Sorting",
-	default = 1,
+    {
+    Name = "Default Achievement Sorting",
+    default = 1,
     min = 1,
-	max = 3,
-	type = "integer",
-	decimals = 0,
-	desc = "Default method of sorting achievements menu. 1=Title;2=Difficulty;3=Percentage Completed",
-	}
+    max = 3,
+    type = "integer",
+    decimals = 0,
+    desc = "Default method of sorting achievements menu. 1=Title;2=Difficulty;3=Percentage Completed",
+    }
 )

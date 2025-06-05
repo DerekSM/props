@@ -57,25 +57,28 @@ surface.CreateFont( "props_HUDTextVeryTiny",
 	}
 )	
 surface.CreateFont("props_HUDTextTiny",
-				{
-				font = "TargetID",
-				size = 16,--ScreenScale( 7.1 ), --16,
-				weight = 600,
-				})
+	{
+	font = "TargetID",
+	size = 16,--ScreenScale( 7.1 ), --16,
+	weight = 600,
+	}
+)
 surface.CreateFont("props_HUDTextSmall",
-				{
-				font = "TargetID",
-				size = 20, --ScreenScale( 8.9 ), --20,
-				--size = 20,
-				weight = 600,
-				})
+	{
+	font = "TargetID",
+	size = 20, --ScreenScale( 8.9 ), --20,
+	--size = 20,
+	weight = 600,
+	}
+)
 surface.CreateFont("props_HUDTextMedium",
-				{
-				font = "TargetID",
-				--size = 30,
-				size = 30,--ScreenScale( 13.3 ),
-				weight = 700,
-				})
+	{
+	font = "TargetID",
+	--size = 30,
+	size = 30,--ScreenScale( 13.3 ),
+	weight = 700,
+	}
+)
 surface.CreateFont( "props_HUDTextLarge",
 	{
 	font = "TargetID",
@@ -84,18 +87,19 @@ surface.CreateFont( "props_HUDTextLarge",
 	}
 )
 surface.CreateFont("props_HUDTextHuge",
-				{
-				font = "TargetID",
-				size = 46,--ScreenScale( 20.45 ), --46,
-				weight = 700,
-				})
+	{
+	font = "TargetID",
+	size = 46,--ScreenScale( 20.45 ), --46,
+	weight = 700,
+	}
+)
 surface.CreateFont( "props_HUDTextMASSIVE",
-				{
-				font = "TargetID",
-				size = 128,
-				weight = 900,
-				}
-				)
+	{
+	font = "TargetID",
+	size = 128,
+	weight = 900,
+	}
+)
 AddClientConfigItem( "props_BaseHUDX",
 	{
 	Name = "Main HUD X Positioning",

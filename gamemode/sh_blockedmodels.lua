@@ -25,14 +25,14 @@ PROPKILL.BlockedModels =
 if SERVER then
 	util.AddNetworkString( "props_UpdateBlockedModels" )
 	util.AddNetworkString( "props_SendBlockedModelsList" )
-	
+
 	hook.Add( "Initialize", "props_LoadBlockedModels", function( )
 		if not file.Exists( "props/blockedmodels.txt", "DATA" ) then
 			return
 		end
-		
+
 		local data = pon.decode( file.Read( "props/blockedmodels.txt", "DATA" ) )
-		
+
 		for k,v in next, data do
 			if not PROPKILL.BlockedModels[ k ] then
 				PROPKILL.BlockedModels[ k ] = true
@@ -48,36 +48,36 @@ if SERVER then
 			end
 		net.Send( pl )
 	end )
-	
+
 	function PROPKILL.AddBlockedModel( mdl, b_shouldSave )
 		if not PROPKILL.BlockedModels[ string.lower( mdl ) ] then
 			PROPKILL.BlockedModels[ string.lower( mdl ) ] = true
-			
+
 			net.Start( "props_UpdateBlockedModels" )
 				net.WriteString( "add" )
 				net.WriteString( string.lower( mdl ) )
-			net.Broadcast() 
+			net.Broadcast()
 		end
-		
+
 		if b_shouldSave then
 			print( "Saving blocked model: " .. mdl )
-			
+
 			file.Write( "props/blockedmodels.txt", pon.encode( PROPKILL.BlockedModels ) )
 		end
 	end
-	
+
 	function PROPKILL.RemoveBlockedModel( mdl )
 		if not PROPKILL.BlockedModels[ string.lower( mdl ) ] then
 			return
 		end
-		
+
 		PROPKILL.BlockedModels[ string.lower( mdl ) ] = nil
-		
+
 		net.Start( "props_UpdateBlockedModels" )
 			net.WriteString( "remove" )
 			net.WriteString( string.lower( mdl ) )
 		net.Broadcast()
-		
+
 		file.Write( "props/blockedmodels.txt", pon.encode( PROPKILL.BlockedModels ) )
 	end
 	
@@ -86,65 +86,63 @@ else
 	net.Receive( "props_UpdateBlockedModels", function()
 		local type = net.ReadString()
 		local mdl = net.ReadString()
-		
+
 		if type == "add" then
 			PROPKILL.BlockedModels[ mdl ] = true
 		else
 			PROPKILL.BlockedModels[ mdl ] = nil
 		end
 	end )
-	
+
 	net.Receive( "props_SendBlockedModelsList", function()
 		local count = net.ReadUInt( 8 )
 		for i=1,count do
 			PROPKILL.BlockedModels[ net.ReadString() ] = true
 		end
 	end )
-	
+
 	properties.Add( "propsBlockModel",
 	{
 	MenuLabel = "Block model from spawning.",
 	Order = 2003,
 	MenuIcon = "icon16/cross.png",
-	
+
 	Filter = function( self, ent, pl )
 		if not IsValid( ent ) or ent:IsPlayer() or PROPKILL.BlockedModels[ ent:GetModel() ] then
 			return false
 		end
-		
+
 		return pl:IsSuperAdmin()
 	end,
-	
+
 	Action = function( self, ent )
 		if not IsValid( ent ) then return end
-		
+
 		RunConsoleCommand( "props_blockmodel", ent:GetModel(), "true" )
 	end
 	}
 	)
-	
+
 	properties.Add( "propsUnblockModel",
 	{
 	MenuLabel = "Unblock model from spawning.",
 	Order = 2004,
 	MenuIcon = "icon16/tick.png",
-	
+
 	Filter = function( self, ent, pl )
 		if not IsValid( ent ) or ent:IsPlayer() or not PROPKILL.BlockedModels[ ent:GetModel() ] then
 			return false
 		end
-		
+
 		return pl:IsSuperAdmin()
 	end,
-	
+
 	Action = function( self, ent )
 		if not IsValid( ent ) then return end
-		
+
 		RunConsoleCommand( "props_unblockmodel", ent:GetModel() )
 	end
 	}
 	)
 
 end
-	
-	

@@ -267,28 +267,6 @@ function PANEL:CallUpdate()
 					self.Content[ k ].ButtonForDropdown.ContentInfo:MoveToAfter( self.Content[ k ] )
 				end
 			end
-				-- Opted instead for a button in the dropdown panel
-			--[[self.Content[ k ].ButtonForDropdown.DoRightClick = function( pnl )
-				if not self.Content[ k ].LocalPlayerAccomplished then return end
-
-				local menu = DermaMenu( pnl )
-
-				local AnnounceCompletion = menu:AddOption( "Announce completion", function() RunConsoleCommand("props_achievements", self.Content[ k ].ContentTitle:GetText()) end )
-
-				menu:AddSpacer()
-				menu:AddOption( "Close" )
-
-				menu:Open()
-
-				menu.Think = function()
-					if not IsValid( pnl ) then
-						menu:Hide()
-						if IsValid( menu ) then
-							menu:Remove()
-						end
-					end
-				end
-			end]]
 
 		end
 	end

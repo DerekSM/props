@@ -19,23 +19,23 @@ function _R.Player:SavePropkillData()
 			Couldn't load data. Now quitting to prevent accidental overwrite.]] )
 		return
 	end
-	
-	local data = 
+
+	local data =
 	{
 	self:GetTotalFrags(),
 	self:GetTotalDeaths(),
-	
+
 	self:GetFlybys(),
 	self:GetLongshots(),
 	self:GetHeadsmash(),
-	
+
 	self:GetBestKillstreak(),
 	self:GetBestDeathstreak(),
-	
+
 	self:GetFightsWon(),
 	self:GetFightsLost()
 	}
-	
+
 	file.Write( "props/" .. steamid .. ".txt", pon.encode( data ) )
 end
 
@@ -58,19 +58,19 @@ _R.Player.SetFightsLost,
 
 function _R.Player:LoadPropkillData()
 	local steamid = string.gsub( self:SteamID(), ":", "_" )
-	
+
 	if file.Exists( "props/" .. steamid .. ".txt", "DATA" ) then
-		
+
 		local data = pon.decode( file.Read( "props/" .. steamid .. ".txt", "DATA" ) )
 
 		for i=1,#dataset do
 			if not data[ i ] then
 				print( [[ERROR LOADING PLAYER DATA: ]] .. self:Nick() .. [[ (]] .. self:SteamID() .. [[ )
-				            Couldn't load number ]] .. i )
+							Couldn't load number ]] .. i )
 				self.PropkillDataError = true
 				return
 			end
-			
+
 			dataset[ i ]( self, data[ i ] )
 		end
 
@@ -98,10 +98,10 @@ function _R.Player:SaveCombatAchievements()
 
 		--[[
 		["standyourground"]:
-                ["Progress"]    =       0
-                ["Unlocked"]    =       true
-                ["UnlockedTime"]        =       1745851560
-                ["datatable"]:
+				["Progress"]    =       0
+				["Unlocked"]    =       true
+				["UnlockedTime"]        =       1745851560
+				["datatable"]:
 
 		]]
 	local data = {}

@@ -12,7 +12,7 @@ local function AddPlayerSpawn()
 		props_playerSpawns[ #props_playerSpawns + 1 ] = v:GetPos()
 		props_playerSpawnsCount = props_playerSpawnsCount + 1
 	end
-	
+
 	if game.GetMap() == "gm_construct" then props_antinoobdetectionRadius = 238^2 end
 		-- alternatively, add another player spawn point with LUA .. near the exit ?
 	if game.GetMap() == "rp_downtown_v2_propkill_v1b" then props_antinoobdetectionRadius = 359^2 end
@@ -23,9 +23,9 @@ hook.Add( "OnReloaded", "props_AddSpawns", AddPlayerSpawn )
 hook.Add( "PlayerInitialSpawn", "props_RegisterWhitelist", function( pl )
 		-- found in sh_antinoob.lua
 	if table.HasValue( props_antinoobwhitelist, pl:SteamID() ) then
-			
+
 		pl.propsWhitelisted = true
-	
+
 	end
 end )
 
@@ -75,40 +75,10 @@ timer.Create( "props_antiNoob", 0.41, 0, function()
 		for i=1,#AntinoobSpawnProtectionAreas do
 			local ProtectionAreaValues = AntinoobSpawnProtectionAreas[i]
 
-				-- Phased out for new entity Touch system
-			--[[for i2=1,#ents.FindInBox( ProtectionAreaValues.startpos, ProtectionAreaValues.endpos ) do
-				local v = ents.FindInBox( ProtectionAreaValues.startpos, ProtectionAreaValues.endpos )[i2]
-
-				if v.beingRemoved or not v.Owner or not v.Owner:IsPlayer() or (v:IsWeapon() and IsValid( v:GetOwner() )) or v.Owner.propsWhitelisted then continue end
-
-				if v.GetPhysicsObject and IsValid( v:GetPhysicsObject() ) then
-					local phys = v:GetPhysicsObject()
-
-						-- frozen
-					if not phys:IsMotionEnabled() then
-						v.beingRemoved = true
-						v.Owner:Notify( NOTIFY_ERROR, 4, "Frozen objects aren't allowed in this area" )
-						v:Remove()
-					else
-						if not v.Owner.babyGod then
-							v.beingRemoved = true
-							v.Owner:Notify( NOTIFY_ERROR, 4, "Prop was removed for entering spawn" )
-							v:Remove()
-						else
-							if phys:GetVolume() > 4*10^5 then
-								v.beingRemoved = true
-								v.Owner:Notify( NOTIFY_ERROR, 4, "Prop was removed due to being huge" )
-								v:Remove()
-							end
-						end
-					end
-				end
-			end]]
-
 				-- Extended spawn area. Won't immediately remove but if props linger they will be removed.
-            local Center = (ProtectionAreaValues.startpos + ProtectionAreaValues.endpos) / 2
-            local Newmin = Center + (ProtectionAreaValues.startpos - Center) * 1.3
-            local Newmax = Center + (ProtectionAreaValues.endpos - Center) * 1.3
+			local Center = (ProtectionAreaValues.startpos + ProtectionAreaValues.endpos) / 2
+			local Newmin = Center + (ProtectionAreaValues.startpos - Center) * 1.3
+			local Newmax = Center + (ProtectionAreaValues.endpos - Center) * 1.3
 			for i2=1,#ents.FindInBox( Newmin, Newmax ) do
 				local v = ents.FindInBox( Newmin, Newmax )[i2]
 
@@ -188,26 +158,6 @@ timer.Create( "props_antiNoob", 0.41, 0, function()
 	end
 end )
 
-	-- Phased out for entity Touch logic
---[[hook.Add("PlayerSpawnProp", "props_PreventSpawnSpawning", function( pl, mdl )
-	if not PROPKILL.Config[ "spawnprotection" ].default then return end
-	if PROPKILL.Battling then return end
-		-- An admin created a spawn protection area! Use this code instead!
-	if AntinoobSpawnProtectionAreas and #AntinoobSpawnProtectionAreas > 0 then
-
-		for i=1,#AntinoobSpawnProtectionAreas do
-			local ProtectionAreaValues = AntinoobSpawnProtectionAreas[i]
-
-			if pl:GetEyeTrace().HitPos:WithinAABox( ProtectionAreaValues.startpos, ProtectionAreaValues.endpos ) then
-				if not pl.babyGod then
-					pl:Notify( NOTIFY_ERROR, 4, "Prop was removed for entering spawn" )
-					return false
-				end
-			end
-		end
-	end
-end )]]
-
 hook.Add( "PlayerTick", "props_babyGod", function( pl, mv )
 	if not pl:Alive() then return end
 
@@ -234,7 +184,7 @@ hook.Add( "PlayerSpawn", "props_babyGod", function( pl )
 		pl.babyGod = false
 		return
 	end
-	
+
 	pl.babyGod = true
 	pl.leftSpawn = false
 	pl.spawnPos = pl:GetPos()
@@ -245,61 +195,61 @@ hook.Add( "PlayerShouldTakeDamage", "props_babyGod", function( pl, attacker, inf
 		print( "sh_antinoob.lua" )
 		return false
 	end
-	
+
 	if PROPKILL.Battling then return end
-	
+
 	if not PROPKILL.Config[ "babygod" ].default then
 		return true
 	end
-	
+
 	if attacker.Owner and attacker.Owner:IsPlayer() then
-		
+
 		if attacker.Owner.propsWhitelisted then
 			return true
 		end
-		
+
 		if pl:Team() == attacker.Owner:Team() and pl:Team() != TEAM_DEATHMATCH and pl != attacker.Owner then
 			return GetConVarNumber( "mp_friendlyfire" ) > 0
 		end
-		
+
 		if pl.babyGod then
 			return false
 		end
 		if attacker.Owner.babyGod then
 			return false
 		end
-		
+
 	elseif attacker == Entity(0) then
 
 		--return not pl.babyGod
 		local prop_owner = pl:GetNearestProp()
 		if IsValid( prop_owner ) and prop_owner.Owner and prop_owner.Owner:IsPlayer() then
-			
+
 			prop_owner = prop_owner.Owner
-			
+
 			if prop_owner.propsWhitelisted then
 				return true
 			end
-			
+
 			if prop_owner:Team() == pl:Team() and pl:Team() != TEAM_DEATHMATCH then
 				return GetConVarNumber( "mp_friendlyfire" ) > 0
 			end
-			
+
 			if pl.babyGod then
 				return false
 			end
-			
+
 			if prop_owner.babyGod then
 				return false
 			end
-		
+
 		else
-		
+
 			return not pl.babyGod
-		
+
 		end
-	
+
 	end
-	
+
 	return true
 end )

@@ -21,7 +21,7 @@ function FindPlayer( info )
 			return v
 		end
 	end
-	
+
 	return nil
 end
 
@@ -90,44 +90,16 @@ function SearchPrintTable( t, keysearch, indent, done )
 
 end
 
--- ChatGPT, can ignore
-function deepSearchKeysPartial(tbl, targetKeyPart, path, results, visited)
-    path = path or {}
-    results = results or {}
-    visited = visited or {}
-
-    if visited[tbl] then return results end
-    visited[tbl] = true
-
-    for key, value in pairs(tbl) do
-        local keyStr = tostring(key)
-        local currentPath = {unpack(path)}
-        table.insert(currentPath, keyStr)
-
-        -- Check if the key contains the target substring
-        if string.lower(keyStr):find(targetKeyPart:lower()) then
-            table.insert(results, table.concat(currentPath, "."))
-        end
-
-        -- Recurse into tables
-        if type(value) == "table" then
-            deepSearchKeysPartial(value, targetKeyPart, currentPath, results, visited)
-        end
-    end
-
-    return results
-end
-
 
 function Print(...)
-    local args = {...}
-    for _, v in ipairs(args) do
-        if istable(v) then
-            PrintTable(v)
-        else
-            print(v)
-        end
-    end
+	local args = {...}
+	for _, v in ipairs(args) do
+		if istable(v) then
+			PrintTable(v)
+		else
+			print(v)
+		end
+	end
 end
 print2 = Print
 

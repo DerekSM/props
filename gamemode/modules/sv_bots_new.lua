@@ -143,25 +143,25 @@ hook.Add("PlayerSpawn", "props_ReplayPlayerMovement", function( pl )
                 UsableRecordings[ k ] = v
             end
         end
-		--local values, key = table.Random( BOTPATHS_RECORDINGS )
-		local values, key = table.Random( UsableRecordings )
-		if not key then return end
-		pl.ReplayMovement2 = key
-		--pl.ReplayTable2 = table.Copy( BOTPATHS_RECORDINGS[ pl.ReplayMovement2 ] )
-		pl.ReplayTable2 = table.Copy( UsableRecordings[ pl.ReplayMovement2 ] )
+        --local values, key = table.Random( BOTPATHS_RECORDINGS )
+        local values, key = table.Random( UsableRecordings )
+        if not key then return end
+        pl.ReplayMovement2 = key
+        --pl.ReplayTable2 = table.Copy( BOTPATHS_RECORDINGS[ pl.ReplayMovement2 ] )
+        pl.ReplayTable2 = table.Copy( UsableRecordings[ pl.ReplayMovement2 ] )
 
-		--print( pl.ReplayMovement2, pl:Nick() )
-		if not pl.ReplayTable2[ "startpos" ] then return end
+        --print( pl.ReplayMovement2, pl:Nick() )
+        if not pl.ReplayTable2[ "startpos" ] then return end
         pl:SetCustomCollisionCheck( true )
-		pl:SetPos( pl.ReplayTable2[ "startpos" ] )
-		pl:SetEyeAngles( pl.ReplayTable2[ "starteyes" ] )
+        pl:SetPos( pl.ReplayTable2[ "startpos" ] )
+        pl:SetEyeAngles( pl.ReplayTable2[ "starteyes" ] )
         pl.ReplayTrigger2 = false
         pl.ReplayTable2[ "replayingpos" ] = 1
-		timer.CreatePlayer( pl, "props_ReplayPlayerMovement", 0.1, 1, function()
-			if not IsValid( pl ) then return end
+        timer.CreatePlayer( pl, "props_ReplayPlayerMovement", 0.1, 1, function()
+            if not IsValid( pl ) then return end
 
-			pl.ReplayTrigger2 = true
-		end )
+            pl.ReplayTrigger2 = true
+        end )
 
             -- The callback stuff can be changed later on. For now, its debugging.
         if pl.HasCallback2 then
@@ -202,10 +202,10 @@ hook.Add("DoPlayerDeath", "props_ReplayPlayerMovementOrStopRecording", function(
     elseif pl:IsBot() and pl.ReplayMovement2 then
         if not BOTPATHS_RECORDINGS[ pl.ReplayMovement2 ] then return end
 
-		pl.ReplayTable2[ "replayingpos" ] = 0
-		pl.ReplayMovement2 = nil
-		pl.ReplayTable2 = {}
-		timer.DestroyPlayer( pl, "props_ReplayPlayerMovement" )
+        pl.ReplayTable2[ "replayingpos" ] = 0
+        pl.ReplayMovement2 = nil
+        pl.ReplayTable2 = {}
+        timer.DestroyPlayer( pl, "props_ReplayPlayerMovement" )
     end
 end )
 
@@ -242,38 +242,38 @@ hook.Add("SetupMove", "props_RecordPlayerMovementAndPlayBotMovement", function( 
     elseif pl:IsBot() and pl.ReplayMovement2 then
         if not BOTPATHS_RECORDINGS[ pl.ReplayMovement2 ] then return end
         if not pl:Alive() then pl:Spawn() end
-		if not pl.ReplayTrigger2 then return end
+        if not pl.ReplayTrigger2 then return end
 
             -- Setting the movetype to none fixes any kind of straggling walking animation artifacts
         pl:SetMoveType( MOVETYPE_NONE )
 
         local replaying_pos = pl.ReplayTable2[ "replayingpos" ]
 
-		if not (pl.ReplayTable2[ "movedata" ][ replaying_pos + 1 ]) then
-			--pl:ChatPrint( "finished" )
-			pl:Spawn()
-		end
+        if not (pl.ReplayTable2[ "movedata" ][ replaying_pos + 1 ]) then
+            --pl:ChatPrint( "finished" )
+            pl:Spawn()
+        end
 
             -- Since I guess the way we either record and/or playback is FUCKED and bots replay at ~2x the speed,
             -- we'll just duplicate the entries each frame to slow them down
             -- And we can't change the way we store data to maintain backwards compatibility
-		if pl.ReplayedTheReplay and pl.ReplayTable2[ "replayingpos" ] != 0 then
+        if pl.ReplayedTheReplay and pl.ReplayTable2[ "replayingpos" ] != 0 then
             pl.ReplayTable2[ "replayingpos" ] = pl.ReplayTable2[ "replayingpos" ] + 1
             pl.ReplayedTheReplay = false
         else
             pl.ReplayedTheReplay = true
         end
-		local replaymovement = pl.ReplayTable2
+        local replaymovement = pl.ReplayTable2
 
-		--Print(replaymovement)
+        --Print(replaymovement)
 
-		local ReplayPosition = replaymovement[ "replayingpos" ]
+        local ReplayPosition = replaymovement[ "replayingpos" ]
         mv:SetOrigin( replaymovement[ "movedata" ][ ReplayPosition ].origin )
-			-- neccesary for when the bot FLINGS PROPS AT YOU SON
-		mv:SetMoveAngles( replaymovement[ "movedata" ][ ReplayPosition ].eyes )
-		if not pl.LookingAtPlayer2 then
-			pl:SetEyeAngles( replaymovement[ "movedata" ][ ReplayPosition ].eyes )
-		end
+            -- neccesary for when the bot FLINGS PROPS AT YOU SON
+        mv:SetMoveAngles( replaymovement[ "movedata" ][ ReplayPosition ].eyes )
+        if not pl.LookingAtPlayer2 then
+            pl:SetEyeAngles( replaymovement[ "movedata" ][ ReplayPosition ].eyes )
+        end
 
 
         if AdditionalPhysicsCollideCheck > 0 then
@@ -365,7 +365,7 @@ hook.Add("StartCommand", "props_RecordPlayerMovementAndPlayBotMovement", functio
     elseif pl:IsBot() and pl.ReplayMovement2 then
         if not BOTPATHS_RECORDINGS[ pl.ReplayMovement2 ] then return end
         if not pl:Alive() then pl:Spawn() end
-		if not pl.ReplayTrigger2 then return end
+        if not pl.ReplayTrigger2 then return end
 
             -- in theory? this should be better maybe but it breaks animations
         --cmd:ClearButtons()
@@ -375,14 +375,14 @@ hook.Add("StartCommand", "props_RecordPlayerMovementAndPlayBotMovement", functio
             -- SetupMove will handle resetting
         if not (pl.ReplayTable2[ "buttons" ][ replaying_pos + 1 ]) then return end
 
-		pl.ReplayTable2[ "replayingpos" ] = pl.ReplayTable2[ "replayingpos" ]  + 1
-		local replaymovement = pl.ReplayTable2
+        pl.ReplayTable2[ "replayingpos" ] = pl.ReplayTable2[ "replayingpos" ]  + 1
+        local replaymovement = pl.ReplayTable2
 
-		local ReplayButtons = replaymovement[ "buttons" ][ replaymovement[ "replayingpos" ] ]
-		cmd:SetButtons( ReplayButtons.buttons )
-		cmd:SetForwardMove( ReplayButtons.forwardmove )
-		cmd:SetSideMove( ReplayButtons.sidemove )
-		--cmd:SetUpMove( ReplayButtons.upmove )
+        local ReplayButtons = replaymovement[ "buttons" ][ replaymovement[ "replayingpos" ] ]
+        cmd:SetButtons( ReplayButtons.buttons )
+        cmd:SetForwardMove( ReplayButtons.forwardmove )
+        cmd:SetSideMove( ReplayButtons.sidemove )
+        --cmd:SetUpMove( ReplayButtons.upmove )
     end
 end)
 
@@ -398,7 +398,7 @@ concommand.Add( "props_botpaths_startstop", function( pl, cmd, arg )
         return
     end
 
-	        -- We are recording, stop it.
+        -- We are recording, stop it.
     if pl.RecordMovement2 then
             -- Tell them they're done recording so their menu can update
         net.Start("props_BotPaths_NetworkRecording")
@@ -464,39 +464,39 @@ end )
 
 concommand.Add( "props_botpaths_cancel", function( pl )
     if not IsValid( pl ) then return end
-	--if not pl:IsAdmin() then pl:ChatPrint("admin only") return end
-	if not pl.RecordMovement2 or not BOTPATHS_RECORDINGS[ pl.RecordMovement2 ] then return end
-	if PROPKILL.Config["bots_legacybots"].default then return end
+    --if not pl:IsAdmin() then pl:ChatPrint("admin only") return end
+    if not pl.RecordMovement2 or not BOTPATHS_RECORDINGS[ pl.RecordMovement2 ] then return end
+    if PROPKILL.Config["bots_legacybots"].default then return end
 
         -- Tell them they're done recording so their menu can update
     net.Start("props_BotPaths_NetworkRecording")
         net.WriteString(pl.RecordMovement2)
         net.WriteBool(false)
     net.Send( pl )
-	BOTPATHS_RECORDINGS[ pl.RecordMovement2 ] = nil
-	BotPaths_PlayerForceStop( pl )
+    BOTPATHS_RECORDINGS[ pl.RecordMovement2 ] = nil
+    BotPaths_PlayerForceStop( pl )
 end )
 
 concommand.Add( "props_botpaths_save2", function( pl )
-	if not pl:IsSuperAdmin() then return end
+    if not pl:IsSuperAdmin() then return end
     if PROPKILL.Config["bots_legacybots"].default then return end
 
-	file.Write( "props/botpaths2/" .. string.lower( game.GetMap() ) .. ".txt", pon.encode( BOTPATHS_RECORDINGS ) )
-	pl:Notify( NOTIFY_GENERIC, 8, "Saved bot paths.", true )
+    file.Write( "props/botpaths2/" .. string.lower( game.GetMap() ) .. ".txt", pon.encode( BOTPATHS_RECORDINGS ) )
+    pl:Notify( NOTIFY_GENERIC, 8, "Saved bot paths.", true )
 end )
 
 concommand.Add( "props_botpaths_reset", function( pl, cmd, arg )
-	if not IsValid( pl ) then return end
+    if not IsValid( pl ) then return end
     if PROPKILL.Config["bots_legacybots"].default then return end
-	if not pl:IsSuperAdmin() then pl:ChatPrint("admin only") return end
-	if not arg[1] or not arg[1] == "yes" then
-		pl:ChatPrint( "This will reset ALL bot paths. Use argument 'yes' to continue.")
-		return
-	end
+    if not pl:IsSuperAdmin() then pl:ChatPrint("admin only") return end
+    if not arg[1] or not arg[1] == "yes" then
+        pl:ChatPrint( "This will reset ALL bot paths. Use argument 'yes' to continue.")
+        return
+    end
 
-	BOTPATHS_RECORDINGS = {}
+    BOTPATHS_RECORDINGS = {}
     BOTPATHS_RECORDINGSINPROGRESS = {}
-	for k,v in next, player.GetHumans() do
+    for k,v in next, player.GetHumans() do
         v.RecordMovement2 = nil
     end
     for k,v in next, player.GetBots() do
@@ -511,12 +511,12 @@ end )
 
 concommand.Add( "props_botpaths_deletepath", function( pl, cmd, arg )
     if not IsValid( pl ) then return end
-	if not pl:IsAdmin() and PROPKILL.Config["bots_adminonly"].default then pl:ChatPrint("admin only") return end
+    if not pl:IsAdmin() and PROPKILL.Config["bots_adminonly"].default then pl:ChatPrint("admin only") return end
     if not arg[1] then return end
     if PROPKILL.Config["bots_legacybots"].default then return end
 
-	local BotPath = string.lower(arg[1])
-	if BOTPATHS_RECORDINGS[BotPath] then
+    local BotPath = string.lower(arg[1])
+    if BOTPATHS_RECORDINGS[BotPath] then
         BotPaths_DeleteSavedPath( BotPath )
         pl:ChatPrint("Deleted Path " .. BotPath )
     end
@@ -525,12 +525,12 @@ end )
 
 concommand.Add( "props_botpaths_togglepath", function( pl, cmd, arg )
     if not IsValid( pl ) then return end
-	if not pl:IsAdmin() and PROPKILL.Config["bots_adminonly"].default then pl:ChatPrint("admin only") return end
+    if not pl:IsAdmin() and PROPKILL.Config["bots_adminonly"].default then pl:ChatPrint("admin only") return end
     if not arg[1] then return end
     if PROPKILL.Config["bots_legacybots"].default then return end
 
     local BotPath = string.lower(arg[1])
-	if BOTPATHS_RECORDINGS[BotPath] and BOTPATHS_RECORDINGS[BotPath].ActivePath then
+    if BOTPATHS_RECORDINGS[BotPath] and BOTPATHS_RECORDINGS[BotPath].ActivePath then
         BOTPATHS_RECORDINGS[BotPath].ActivePath = false
             -- Kill all active bots using this path
         for k,v in next, player.GetBots() do
@@ -558,5 +558,5 @@ concommand.Add( "props_botpaths_spawnbot", function( pl )
         return
     end
 
-	RunConsoleCommand("bot")
+    RunConsoleCommand("bot")
 end )

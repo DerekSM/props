@@ -1,4 +1,8 @@
 **Changelog
+v1.9.3
+/ Fixed the Recent Battles dropdown info text graphical artifacts
+/ Changed date formatting in Recent Battles dropdown text to show the month name
+/ Fixed some file indentation formatting issues
 v1.9.2
 / Probably fixed issue where bots will sometimes spawn and do nothing when multiple bots are online
 / Player list in Battle Menu refreshes when a player connects/disconnects

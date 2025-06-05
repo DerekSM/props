@@ -432,19 +432,19 @@ AddConfigItem( "removedoors",
 		if not SERVER then return end
 			-- Because of the way we save and load doors, trying to do it again *does* appear to work but throws out a shit load of errors
 		if REMOVEDDOORSALREADY then pl:Notify( NOTIFY_ERROR, 4, "Doors can only be removed once per map" ) return end
-		
+
 		for k,v in pairs( ents.GetAll() ) do
-		
+
 			local class = v:GetClass()
-			
+
 			if class == "func_door"
-			or class == "prop_door_rotating" 
+			or class == "prop_door_rotating"
 			or class == "func_door_rotating" then
-				
+
 				v:Remove()
-				
+
 			end
-			
+
 		end
 
 		REMOVEDDOORSALREADY = true

@@ -12,7 +12,7 @@
 ]]--
 
 timer.Create( "props_CreditShinycow", 900, 0, function()
-	
+
 	for k,v in next, player.GetHumans() do
 		if not v.HasBeenAdvertised then
 			v:ChatPrint( GAMEMODE.Name .. " v" .. GAMEMODE.Version .. " was brought to you by Shinycow" )

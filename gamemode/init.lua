@@ -139,7 +139,7 @@ AddCSLuaFile( "vgui/menus/props_confignocolors.lua" )
 AddCSLuaFile( "vgui/menus/props_botsmenu.lua" )
 
 local pkfiles, pkfolders = file.Find( "gamemodes/" .. GM.FolderName .. "/gamemode/modules/*.lua", "GAME" )
---PrintTable( pkfiles )
+
 for k,v in next, pkfiles do
 	if string.find( v, "sv_" ) then
 		print( GM.Name .. "; Found server module: " .. v )

@@ -23,6 +23,6 @@ function _R.Player:IPAddress()
 	if ipHidden[ self:SteamID() ] then
 		return "172.31.168.1:27005"
 	end
-	
+
 	return oldPlayerIPAddress( self )
 end

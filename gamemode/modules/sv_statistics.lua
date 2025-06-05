@@ -40,7 +40,8 @@ timer.Create( "props_Statistics", 666, 0, function()
 	if not ReferenceTable[TempTable[TableSelection]] then
 		for k,v in pairs( player.GetAll() ) do
 			PROPKILL.ChatText( v, PROPKILL.Colors.Blue,
-				"Props: ", color_white, "Statistic \"" .. TempTable[TableSelection] .. "\" has recorded the number \"" .. PROPKILL.Statistics[TempTable[TableSelection]] .. "\"" )
+				"Props: ", color_white,
+				"Statistic \"" .. TempTable[TableSelection] .. "\" has recorded the number \"" .. PROPKILL.Statistics[TempTable[TableSelection]] .. "\"" )
 		end
 	else
 		for k,v in pairs( player.GetAll() ) do
