@@ -109,11 +109,16 @@ function PANEL:Init()
 		self.LeftPanel.ListView:AddColumn( "Player List" )
 		self.LeftPanel.ListView:AddColumn( "SteamID" )
 		self.LeftPanel.ListView.Columns[ 2 ]:SetFixedWidth( 0 )
-		for k,v in pairs( player.GetAll() ) do
-			if v == LocalPlayer() then continue end
+		self.LeftPanel.ListView.RefreshList = function( pnl )
+			pnl:Clear()
 
-			self.LeftPanel.ListView:AddLine( v:Nick(), v:SteamID(), v:UserID() )
+			for k,v in pairs( player.GetAll() ) do
+				if v == LocalPlayer() then continue end
+
+				self.LeftPanel.ListView:AddLine( v:Nick(), v:SteamID(), v:UserID() )
+			end
 		end
+		self.LeftPanel.ListView:RefreshList()
 		self.LeftPanel.ListView.OnClickLine = function( pnl, line, selected )
 			self.LeftPanel.ListView:ClearSelection()
 			line:SetSelected( true )
@@ -580,6 +585,24 @@ function PANEL:Init()
 		end
 	end
 
+	hook.Add( "player_connect_client", self, function( pnl, bot, steamid, name, userid, entindex )
+			-- Player entity may not be valid to us when this hook is called
+			-- So delay it so we can actually show them.
+		timer.Simple(0.3, function()
+			if not IsValid( pnl ) then return end
+			pnl.LeftPanel.ListView:InvalidateLayout()
+			pnl.LeftPanel.ListView:RefreshList()
+		end )
+	end )
+	hook.Add( "player_disconnect", self, function( pnl, bot, steamid, name, userid, reason )
+			-- Player entity is still valid to us when this hook is called
+			-- So delay it so we can actually hide them.
+		timer.Simple(0.1, function()
+			if not IsValid( pnl ) then return end
+			pnl.LeftPanel.ListView:InvalidateLayout()
+			pnl.LeftPanel.ListView:RefreshList()
+		end )
+	end )
 	
 end
 

@@ -1,4 +1,7 @@
 **Changelog
+v1.9.2
+/ Probably fixed issue where bots will sometimes spawn and do nothing when multiple bots are online
+/ Player list in Battle Menu refreshes when a player connects/disconnects
 v1.9.1
 / Bots will no longer collide with each other.
 v1.9.0
@@ -163,6 +166,7 @@ Add thin grey bar under each achievement with .... green? filled in it for progr
     Alternatively just make it a counter like 1/5 "progression"
 Bots appear to be played back at 2x the rate of normal players making them appear like sonic
     Temporary fix is in place until version 2.0 of gamemode where we should just redesign the bot recording/playback system
+MAYBE Replace instances of string.len with utf8.len
 
 **Notes
 The gamemode is messy and I'm probably not going to do anything about it..

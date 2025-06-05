@@ -152,16 +152,16 @@ hook.Add("PlayerSpawn", "props_ReplayPlayerMovement", function( pl )
 
 		--print( pl.ReplayMovement2, pl:Nick() )
 		if not pl.ReplayTable2[ "startpos" ] then return end
+        pl:SetCustomCollisionCheck( true )
 		pl:SetPos( pl.ReplayTable2[ "startpos" ] )
 		pl:SetEyeAngles( pl.ReplayTable2[ "starteyes" ] )
         pl.ReplayTrigger2 = false
         pl.ReplayTable2[ "replayingpos" ] = 1
-		timer.Create( "props_ReplayPlayerMovement", 0.1, 1, function()
+		timer.CreatePlayer( pl, "props_ReplayPlayerMovement", 0.1, 1, function()
 			if not IsValid( pl ) then return end
 
 			pl.ReplayTrigger2 = true
 		end )
-		pl:SetCustomCollisionCheck( true )
 
             -- The callback stuff can be changed later on. For now, its debugging.
         if pl.HasCallback2 then
@@ -205,6 +205,7 @@ hook.Add("DoPlayerDeath", "props_ReplayPlayerMovementOrStopRecording", function(
 		pl.ReplayTable2[ "replayingpos" ] = 0
 		pl.ReplayMovement2 = nil
 		pl.ReplayTable2 = {}
+		timer.DestroyPlayer( pl, "props_ReplayPlayerMovement" )
     end
 end )
 

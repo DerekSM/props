@@ -20,6 +20,9 @@ PROPKILL.Battlers = PROPKILL.Battlers or {}
 PROPKILL.BattlePaused = PROPKILL.BattlePaused or false
 PROPKILL.Statistics = PROPKILL.Statistics or {}
 
+gameevent.Listen( "player_connect_client" )
+gameevent.Listen( "player_disconnect" )
+
 local function LoadModules()
 	local root = ((GM and GM.FolderName) or (GAMEMODE and GAMEMODE.FolderName) or "props") .. "/gamemode/modules/"
 	local pkfiles, pkfolders = file.Find( root .. "*", "LUA" )

@@ -15,5 +15,6 @@ IF YOU WANT THIS GAMEMODE IN THE SAME CATEGORY AS THE OTHER PROPKILL SERVERS:
 	3.) Open up the newly named 'PropKill.txt' and edit first line from "props" to "PropKill"
 
 # Screenshots
-![Gamemode configuration for admins](GamemodeConfigMenu.png)
-![Achievements Menu](AchievementsMenu.png)
+![Gamemode configuration for admins](images/GamemodeConfigMenu.png)
+![Achievements Menu](images/AchievementsMenu.png)
+![Bot Path Menu](images/BotPathingMenu.png)
