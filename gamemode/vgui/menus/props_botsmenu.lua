@@ -77,6 +77,9 @@ function PANEL:Init()
 	self.PathManagementBackground.StartStopButton:DockMargin( 0, 0, 0, 20 )
 	self.PathManagementBackground.StartStopButton:SetText( "Start/Stop" )
 	self.PathManagementBackground.StartStopButton:SetTooltip("Start or stop a bot recording. Stopping will create the path")
+	if PROPKILL.Config["bots_adminonly"].default and not LocalPlayer():IsAdmin() then
+		self.PathManagementBackground.StartStopButton:SetDisabled( true )
+	end
 	self.PathManagementBackground.StartStopButton.DoClick = function( pnl )
 		RunConsoleCommand("props_botpaths_startstop")
 	end

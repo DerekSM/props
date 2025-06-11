@@ -1,4 +1,7 @@
 **Changelog
+v1.9.4
+/ Fixed Bot Pathing menu Start/Stop button being enabled when it shouldn't be
+/ Fixed anus admin mod commands to work with the latest version on github
 v1.9.3
 / Fixed the Recent Battles dropdown info text graphical artifacts
 / Changed date formatting in Recent Battles dropdown text to show the month name

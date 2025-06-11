@@ -20,6 +20,7 @@ plugin.category = "Propkill"
 plugin.example = ""
 plugin.chatcommand = "pkcleanup"
 plugin.defaultAccess = "admin"
+plugin.APIVersion = 1
 
 function plugin:OnRun( pl, arg )
 	util.CleanUpMap( true )
@@ -27,7 +28,7 @@ function plugin:OnRun( pl, arg )
 	anus.NotifyPlugin( pl, plugin.id, "cleaned up the map!" )
 end
 
-anus.RegisterPlugin( plugin )
+anus.registerPlugin( plugin )
 
 
 local plugin = {}
@@ -39,6 +40,7 @@ plugin.category = "Propkill"
 plugin.example = ""
 plugin.chatcommand = "stopfight"
 plugin.defaultAccess = "admin"
+plugin.APIVersion = 1
 
 function plugin:OnRun( pl, arg )
 	if not PROPKILL.Battling then return end
@@ -48,7 +50,7 @@ function plugin:OnRun( pl, arg )
 	anus.NotifyPlugin( pl, plugin.id, "has stopped the fight!" )
 end
 
-anus.RegisterPlugin( plugin )
+anus.registerPlugin( plugin )
 
 local plugin = {}
 plugin.id = "forfeit"
@@ -59,6 +61,7 @@ plugin.category = "Propkill"
 plugin.example = ""
 plugin.chatcommand = "forfeit"
 plugin.defaultAccess = "user"
+plugin.APIVersion = 1
 
 function plugin:OnRun( pl, arg )
 	if not PROPKILL.Battling then return end
@@ -73,7 +76,7 @@ function plugin:OnRun( pl, arg )
 	anus.NotifyPlugin( pl, plugin.id, "has forfeited the fight!" )
 end
 
-anus.RegisterPlugin( plugin )
+anus.registerPlugin( plugin )
 
 if SERVER then
 	util.AddNetworkString( "props_GrabIP" )
@@ -95,6 +98,7 @@ plugin.category = "Propkill"
 plugin.example = "anus grabip bot"
 plugin.chatcommand = "grabip"
 plugin.defaultAccess = "superadmin"
+plugin.APIVersion = 1
 
 function plugin:OnRun( pl, arg, target )
 	if type( target ) == "table" then
@@ -115,7 +119,7 @@ function plugin:OnRun( pl, arg, target )
 	--anus.NotifyPlugin( pl, plugin.id, "copied the IP of ", anus.StartPlayerList, target, anus.EndPlayerList )
 end
 
-anus.RegisterPlugin( plugin )
+anus.registerPlugin( plugin )
 
 local teamList = { "spectator", "deathmatch", "red", "blue" }
 
@@ -129,6 +133,7 @@ plugin.category = "Propkill"
 plugin.example = ""
 plugin.chatcommand = "setteam"
 plugin.defaultAccess = "admin"
+plugin.APIVersion = 1
 
 function plugin:OnRun( pl, arg, target )
 	local team = arg[ 1 ]
@@ -154,7 +159,7 @@ function plugin:OnRun( pl, arg, target )
 	end
 end
 
-anus.RegisterPlugin( plugin )
+anus.registerPlugin( plugin )
 
 local plugin = {}
 plugin.id = "toolgun"
@@ -165,6 +170,7 @@ plugin.category = "Propkill"
 plugin.example = ""
 plugin.chatcommand = "toolgun"
 plugin.defaultAccess = "superadmin"
+plugin.APIVersion = 1
 
 function plugin:OnRun( pl, arg, target )
 	pl:Give( "gmod_tool" )
@@ -172,7 +178,7 @@ function plugin:OnRun( pl, arg, target )
 	anus.NotifyPlugin( pl, plugin.id, "gave themself the tool gun." )
 end
 
-anus.RegisterPlugin( plugin )
+anus.registerPlugin( plugin )
 
 
 local plugin = {}
@@ -185,6 +191,7 @@ plugin.category = "Propkill"
 plugin.example = ""
 plugin.chatcommand = "setkills"
 plugin.defaultAccess = "superadmin"
+plugin.APIVersion = 1
 
 function plugin:OnRun( pl, arg, target )
 	local amount = tonumber( arg[ 1 ] )
@@ -201,7 +208,7 @@ function plugin:OnRun( pl, arg, target )
 	end
 end
 
-anus.RegisterPlugin( plugin )
+anus.registerPlugin( plugin )
 
 
 local plugin = {}
@@ -214,6 +221,7 @@ plugin.category = "Propkill"
 plugin.example = ""
 plugin.chatcommand = "setdeaths"
 plugin.defaultAccess = "superadmin"
+plugin.APIVersion = 1
 
 function plugin:OnRun( pl, arg, target )
 	local amount = tonumber( arg[ 1 ] )
@@ -230,7 +238,7 @@ function plugin:OnRun( pl, arg, target )
 	end
 end
 
-anus.RegisterPlugin( plugin )
+anus.registerPlugin( plugin )
 
 
 local plugin = {}
@@ -242,6 +250,7 @@ plugin.category = "Propkill"
 plugin.example = ""
 plugin.chatcommand = "pause"
 plugin.defaultAccess = "user"
+plugin.APIVersion = 1
 
 function plugin:OnRun( pl, arg, target )
 	if not PROPKILL.Battling or PROPKILL.BattlePaused then return end
@@ -251,7 +260,7 @@ function plugin:OnRun( pl, arg, target )
 	anus.NotifyPlugin( pl, plugin.id, "paused the battle" )
 end
 
-anus.RegisterPlugin( plugin )
+anus.registerPlugin( plugin )
 
 
 local plugin = {}
@@ -263,6 +272,7 @@ plugin.category = "Propkill"
 plugin.example = ""
 plugin.chatcommand = "resetmystats"
 plugin.defaultAccess = "user"
+plugin.APIVersion = 1
 
 function plugin:OnRun( pl, arg, target )
 	local notify = pl:GetTotalFrags() >= 100
@@ -273,4 +283,4 @@ function plugin:OnRun( pl, arg, target )
 	end
 end
 
-anus.RegisterPlugin( plugin )
+anus.registerPlugin( plugin )
