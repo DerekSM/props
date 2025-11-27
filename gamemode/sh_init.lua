@@ -17,7 +17,7 @@ PROPKILL.Colors["Yellow"] = Color( 180,170,60,255 )
 
 GM.Name = "Props"
 GM.Author = "Shinycow"
-GM.Version = "1.9.4"
+GM.Version = "1.9.5"
 -- You (the server owner) should be fine to just remove the variable entirely if you don't want sounds
 GM.KillingSprees =
 {
@@ -140,6 +140,8 @@ end
 
 
 -- top props
+local SESSION_PROP_COUNT_BITS = 14		-- 16,383 max networked count per prop
+local TOTAL_PROP_COUNT_BITS = 22		-- 4,194,303 max
 
 if SERVER then
 	-- Hack to let the new config option work
@@ -176,7 +178,7 @@ if SERVER then
 				net.WriteUInt( SortedCount, 6 )
 				for i=1,SortedCount do
 					net.WriteString( PROPKILL.TopPropsSession[ i ].Model )
-					net.WriteUInt( PROPKILL.TopPropsSession[ i ].Count, 14 )
+					net.WriteUInt( PROPKILL.TopPropsSession[ i ].Count, SESSION_PROP_COUNT_BITS )
 				end
 			net.Broadcast()
 		end )
@@ -210,6 +212,7 @@ if SERVER then
 		for k,v in next, TotalCopy do
 			if SessionCopy[ k ] != nil then
 				v.Count = v.Count + (SessionCopy[k] - v.LastSessionCount)
+				v.LastSessionCount = SessionCopy[k]
 			end
 		end
 
@@ -224,7 +227,7 @@ if SERVER then
 		local PreOutputCopyCount = 0
 		for k,v in next, TotalCopy do
 			PreOutputCopyCount = PreOutputCopyCount + 1
-			PreOutputCopy[PreOutputCopyCount] = {Model = k, Count = v.Count, LastSessionCount = SessionCopy[k] or 0}
+			PreOutputCopy[PreOutputCopyCount] = {Model = k, Count = v.Count, LastSessionCount = v.LastSessionCount}
 		end
 		table.SortByMember(PreOutputCopy, "Count")
 		
@@ -255,7 +258,7 @@ if SERVER then
 
 			for i=1,math.Clamp( #Output, 0, PROPKILL.Config[ "topprops" ].default ) do
 				net.WriteString( Output[ i ].Model )
-				net.WriteUInt( Output[ i ].Count, 18 )
+				net.WriteUInt( Output[ i ].Count, TOTAL_PROP_COUNT_BITS )
 			end
 		net.Broadcast()
 	end
@@ -276,7 +279,7 @@ if SERVER then
 			net.WriteUInt( math.Clamp( #PROPKILL.TopPropsTotal, 0, PROPKILL.Config[ "topprops" ].default ), 6 )
 			for i=1,math.Clamp( #PROPKILL.TopPropsTotal, 0, PROPKILL.Config[ "topprops" ].default ) do
 				net.WriteString( PROPKILL.TopPropsTotal[ i ].Model )
-				net.WriteUInt( PROPKILL.TopPropsTotal[ i ].Count, 18 )
+				net.WriteUInt( PROPKILL.TopPropsTotal[ i ].Count, TOTAL_PROP_COUNT_BITS )
 			end
 		net.Send( pl or player.GetHumans() )
 	end
@@ -294,7 +297,7 @@ if CLIENT then
 		end
 		
 		for i=1,amt do
-			PROPKILL.TopPropsSession[ i ] = { Model = net.ReadString(), Count = net.ReadUInt( 14 ) }
+			PROPKILL.TopPropsSession[ i ] = { Model = net.ReadString(), Count = net.ReadUInt( SESSION_PROP_COUNT_BITS ) }
 		end
 		
 		hook.Call( "props_UpdateTopPropsSession", GAMEMODE )
@@ -308,7 +311,7 @@ if CLIENT then
 		if amt == 0 then return end
 		
 		for i=1,amt do
-			PROPKILL.TopPropsTotal[ i ] = { Model = net.ReadString(), Count = net.ReadUInt( 18 ) }
+			PROPKILL.TopPropsTotal[ i ] = { Model = net.ReadString(), Count = net.ReadUInt( TOTAL_PROP_COUNT_BITS ) }
 		end
 		
 		hook.Run( "props_UpdateTopPropsTotal" )

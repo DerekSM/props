@@ -12,7 +12,7 @@ hook.Add("OnAchievementUnlocked", "props_NetworkPlayerAchievement", function( pl
     props_SaveCombatAchievements()
 
     if PROPKILL.Config["achievements_playsound"].default then
-        pl:EmitSound("vo/coast/odessa/female01/nlo_cheer03.wav", 30)
+        pl:EmitSound("vo/coast/odessa/female01/nlo_cheer03.wav", 25, 100, 0.7)
     end
     if PROPKILL.Config["achievements_announce"].default then
         --pl:ChatPrint("You've unlocked achievement " .. fancytitle)

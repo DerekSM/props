@@ -14,26 +14,20 @@ local _R = debug.getregistry()
 function _R.Player:SavePropkillData()
 	local steamid = string.gsub( self:SteamID(), ":", "_" )
 
-	if self.PropkillDataError then
-		print( [[ERROR SAVING PROPKILL DATA: ]] .. self:Nick() .. [[ (]] .. self:SteamID() .. [[ )
-			Couldn't load data. Now quitting to prevent accidental overwrite.]] )
-		return
-	end
-
 	local data =
 	{
-	self:GetTotalFrags(),
-	self:GetTotalDeaths(),
+	self:GetTotalFrags() or 0,
+	self:GetTotalDeaths() or 0,
 
-	self:GetFlybys(),
-	self:GetLongshots(),
-	self:GetHeadsmash(),
+	self:GetFlybys() or 0,
+	self:GetLongshots() or 0,
+	self:GetHeadsmash() or 0,
 
-	self:GetBestKillstreak(),
-	self:GetBestDeathstreak(),
+	self:GetBestKillstreak() or 0,
+	self:GetBestDeathstreak() or 0,
 
-	self:GetFightsWon(),
-	self:GetFightsLost()
+	self:GetFightsWon() or 0,
+	self:GetFightsLost() or 0,
 	}
 
 	file.Write( "props/" .. steamid .. ".txt", pon.encode( data ) )
@@ -64,14 +58,16 @@ function _R.Player:LoadPropkillData()
 		local data = pon.decode( file.Read( "props/" .. steamid .. ".txt", "DATA" ) )
 
 		for i=1,#dataset do
-			if not data[ i ] then
+			local v = data[i]
+
+			if v == nil then
 				print( [[ERROR LOADING PLAYER DATA: ]] .. self:Nick() .. [[ (]] .. self:SteamID() .. [[ )
 							Couldn't load number ]] .. i )
-				self.PropkillDataError = true
-				return
+
+				v = 0
 			end
 
-			dataset[ i ]( self, data[ i ] )
+			dataset[ i ]( self, v )
 		end
 
 	else

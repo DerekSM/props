@@ -1,4 +1,14 @@
 **Changelog
+v1.9.5
+/ Fixed data loading / saving players without certain battle history. This also will fix some achievements not triggering for certain players.
+/ Achievement sound is quieter and distance drops off faster.
+/ Achievement tab now rounds numbers to 2 digits
+/ Increased max networking limit for top props counts (was 262k per prop, now ~4.2m)
+/ Fixed-fixed total prop counting issues that may compound over time.
+/ Removed old sh_speedy code that replicated internal code at best, and wrote wrong data at worst.
+/ Switched team changes from RealTime to CurTime
+/ Fixed last achievement dropdown requiring scroll-up followed by a scroll-down
+/ Changed some statistics wording
 v1.9.4
 / Fixed Bot Pathing menu Start/Stop button being enabled when it shouldn't be
 / Fixed anus admin mod commands to work with the latest version on github

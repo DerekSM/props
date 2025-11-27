@@ -179,11 +179,11 @@ function PANEL:CallUpdate()
 
 				-- Percentage of Players Completed for each achievement
 			self.Content[ k ].ContentPercentage = self.Content[ k ]:Add( "DLabel" )
-			self.Content[ k ].ContentPercentage:SetText( table.FastConcat("", v:GetCompletionRate() / (PROPKILL.Statistics["totaluniquejoins"] or 1) * 100, "%") )
+			self.Content[ k ].ContentPercentage:SetText( table.FastConcat("", math.Round(v:GetCompletionRate() / (PROPKILL.Statistics["totaluniquejoins"] or 1) * 100, 2), "%") )
 			self.Content[ k ].ContentPercentage:SetFont( "props_HUDTextTiny" )
 			self.Content[ k ].ContentPercentage:SetTextColor( Color( 90, 90, 90, 255 ) )
 			surface.SetFont( "props_HUDTextTiny" )
-			local contentnamesize_w, contentnamesize_h = surface.GetTextSize( table.FastConcat("", v:GetCompletionRate() / (PROPKILL.Statistics["totaluniquejoins"] or 1) * 100, "%") )
+			local contentnamesize_w, contentnamesize_h = surface.GetTextSize( table.FastConcat("", math.Round(v:GetCompletionRate() / (PROPKILL.Statistics["totaluniquejoins"] or 1) * 100, 2), "%") )
 			self.Content[ k ].ContentPercentage:SetSize( contentnamesize_w, contentnamesize_h )
 			self.Content[ k ].ContentPercentage:SetPos(
 				self.Content:GetWide() - contentnamesize_w - 15,
@@ -191,7 +191,7 @@ function PANEL:CallUpdate()
 			)
 			self.Content[ k ].ContentPercentage.PerformLayout = function( pnl )
 				surface.SetFont( "props_HUDTextTiny" )
-				local contentnamesize_w, contentnamesize_h = surface.GetTextSize( table.FastConcat("", v:GetCompletionRate() / (PROPKILL.Statistics["totaluniquejoins"] or 1) * 100, "%") )
+				local contentnamesize_w, contentnamesize_h = surface.GetTextSize( table.FastConcat("", math.Round(v:GetCompletionRate() / (PROPKILL.Statistics["totaluniquejoins"] or 1) * 100, 2), "%") )
 				self.Content[ k ].ContentPercentage:SetSize( contentnamesize_w, contentnamesize_h )
 				self.Content[ k ].ContentPercentage:SetPos(
 					self.Content:GetWide() - contentnamesize_w - 15,
@@ -214,6 +214,8 @@ function PANEL:CallUpdate()
 					--self.RightPanel.RecentContentPanel:RemoveItem( self.Content[ k ].ButtonForDropdown.ContentInfo )
 					self.Content[ k ].ButtonForDropdown.ContentInfo:Remove()
 				else
+					print('scroll', self.ScrollPanel:GetVBar():GetScroll())
+
 					self.Content[ k ].ButtonForDropdown.ContentInfo = self.Content:Add( "DPanel" )
 					--self.Content[ k ].ButtonForDropdown.ContentInfo:SetPos( 40, 0 )
 					self.Content[ k ].ButtonForDropdown.ContentInfo:SetWide( self.Content[ k ]:GetWide() )
@@ -265,6 +267,13 @@ function PANEL:CallUpdate()
 						-- Positions this new panel (aka the dropdown info) to right underneath our Achievement Title panel
 						-- Gives the illusion if a dropdown
 					self.Content[ k ].ButtonForDropdown.ContentInfo:MoveToAfter( self.Content[ k ] )
+
+
+					self.Content:InvalidateLayout(true)
+					self.ScrollPanel:InvalidateLayout(true)
+					if k == #OrganizedAchievementsFinal then
+						self.ScrollPanel:GetVBar():SetScroll( self.Content[ k ].y or 0 )
+					end
 				end
 			end
 

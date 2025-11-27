@@ -1,10 +1,10 @@
 --[[
-				  _________.__    .__                                  
+				  _________.__    .__
 				 /   _____/|  |__ |__| ____ ___.__. ____  ______  _  __
 				 \_____  \ |  |  \|  |/    <   |  |/ ___\/  _ \ \/ \/ /
-				 /        \|   Y  \  |   |  \___  \  \__(  <_> )     / 
-				/_______  /|___|  /__|___|  / ____|\___  >____/ \/\_/  
-						\/      \/        \/\/         \/              
+				 /        \|   Y  \  |   |  \___  \  \__(  <_> )     /
+				/_______  /|___|  /__|___|  / ____|\___  >____/ \/\_/
+						\/      \/        \/\/         \/
 
 		Statisics that the gamemode accumulates from normal playing.
 		A lot of these are from older versions and so servers that update to this will show the old data! (This is good)
@@ -14,14 +14,14 @@ if not PROPKILL.Statistics then return end
 
 local ReferenceTable =
 {
-["propspawns"] = "total props have been spawned acrossed restarts",
+["propspawns"] = "props have been spawned across sessions",
 ["totalheadsmash"] = "players had their heads smashed",
-["totaljoins"] = "total returning players have joined",
-["totaluniquejoins"] = "total unique players have joined.",
-["totalkills"] = "total kills across restarts",
-["totalmessages"] = "total messages have been said by players",
+["totaljoins"] = "total players have joined",
+["totaluniquejoins"] = "unique players have joined",
+["totalkills"] = "total kills across sessions",
+["totalmessages"] = "messages sent across sessions",
 ["totalfights"] = "total fights have been wagered",
-["otherspawns"] = "total non-props have been spawned across restarts",
+["otherspawns"] = "total non-props have been spawned across sessions",
 ["totallongshot"] = "players have been longshot'd",
 ["totalflyby"] = "players have been flyby'd",
 ["totalsuicides"] = "players have killed themselves",

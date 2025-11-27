@@ -703,8 +703,8 @@ function GM:PlayerCanJoinTeam( pl, teamid )
 
 	local timeSwitch = PROPKILL.Config["player_teamswitchdelay"].default
 
-	if pl.LastTeamSwitch and (RealTime() - pl.LastTeamSwitch) <= 0 then
-		return false, "Wait " .. math.Round( (pl.LastTeamSwitch - RealTime()), 1 ) .. " more seconds before trying again"
+	if pl.LastTeamSwitch and CurTime() < pl.LastTeamSwitch then
+		return false, "Wait " .. math.Round( (pl.LastTeamSwitch - CurTime()), 1 ) .. " more seconds before trying again"
 	end
 	
 	-- Already on this team!
@@ -712,7 +712,7 @@ function GM:PlayerCanJoinTeam( pl, teamid )
 		return false, "You're already on that team!"
 	end
 
-	pl.LastTeamSwitch = RealTime() + timeSwitch
+	pl.LastTeamSwitch = CurTime() + timeSwitch
 	return true, "success"
 end
 
