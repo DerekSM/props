@@ -290,13 +290,14 @@ hook.Add("HUDPaint", "PK_DrawMessageCache", DrawMessageCache)
 
 net.Receive("PK_HUDMessage", function()
 	local data_string = net.ReadString()
+	local data_killer = net.ReadEntity()
 	local data_int1 = net.ReadUInt( 8 )
 	local data_int2 = net.ReadUInt( 8 )
 	local data_int3 = net.ReadUInt( 8 )
 
 		-- Only play a sound for special kills
 	local stringfind = string.find
-	if stringfind(data_string, "headsmash'd" ) or stringfind(data_string, "flyby'd") or stringfind(data_string, "longshot'd") then
+	if IsValid(data_killer) and LocalPlayer and IsValid(LocalPlayer()) and data_killer == LocalPlayer() then
 		surface.PlaySound("buttons/lightswitch2.wav")
 	end
 

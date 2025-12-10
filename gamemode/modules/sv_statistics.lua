@@ -15,17 +15,18 @@ if not PROPKILL.Statistics then return end
 local ReferenceTable =
 {
 ["propspawns"] = "props have been spawned across sessions",
+["otherspawns"] = "total non-props have been spawned across sessions",
+["maxkilldistance"] = "units is the farthest confirmed kill",
 ["totalheadsmash"] = "players had their heads smashed",
 ["totaljoins"] = "total players have joined",
 ["totaluniquejoins"] = "unique players have joined",
 ["totalkills"] = "total kills across sessions",
 ["totalmessages"] = "messages sent across sessions",
 ["totalfights"] = "total fights have been wagered",
-["otherspawns"] = "total non-props have been spawned across sessions",
 ["totallongshot"] = "players have been longshot'd",
 ["totalflyby"] = "players have been flyby'd",
 ["totalsuicides"] = "players have killed themselves",
-["totalsmash"] = "total non-special kills have been performed.",
+["totalsmash"] = "total non-special kills have been performed",
 }
 
 

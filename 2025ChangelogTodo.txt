@@ -1,4 +1,9 @@
 **Changelog
+v1.9.6
+/ Increased max networking limit for top prop counts (was ~4.2m, now ~8.4m)
+/ Renamed Cancel My Fall to Prop-er Cushioning
++ New statistic maxkilldistance: Farthest kill recorded
+/ Reverted v1.4 prop kill sound changes. Instead, plays the tick sound for every kill the player makes
 v1.9.5
 / Fixed data loading / saving players without certain battle history. This also will fix some achievements not triggering for certain players.
 / Achievement sound is quieter and distance drops off faster.
@@ -184,6 +189,7 @@ Add thin grey bar under each achievement with .... green? filled in it for progr
 Bots appear to be played back at 2x the rate of normal players making them appear like sonic
     Temporary fix is in place until version 2.0 of gamemode where we should just redesign the bot recording/playback system
 MAYBE Replace instances of string.len with utf8.len
+Battles: Add a LoL-style option for both battlers to each blacklist 1 prop model from the fight
 
 **Notes
 The gamemode is messy and I'm probably not going to do anything about it..

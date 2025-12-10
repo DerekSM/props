@@ -791,7 +791,7 @@ end )
 local CA_CAUGHT = PROPKILL.RegisterCombatAchievement(
     {
         id = "cancelmyfall",
-        title = "Cancel my fall",
+        title = "Prop-er Cushioning",
         description = "Land in the middle of a frozen prop thats touching the ground while falling fast",
         type = "Trigger",
         difficulty = 2

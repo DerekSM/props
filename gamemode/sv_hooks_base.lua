@@ -295,7 +295,7 @@ local function DoPlayerDeathCleanedUp( prop_owner, deadplayer, killtype, b_NoRec
 	local hud_message = {}
 	local message = table.FastConcat( "", prop_owner:Nick(), " ", killtype, "'d ", deadplayer:Nick() )
 
-	hud_message = { txt = message, col = KillTypesAndColors[ killtype ][2] }
+	hud_message = { txt = message, killer = prop_owner, col = KillTypesAndColors[ killtype ][2] }
 	if not PROPKILL.Battling and not b_NoRecordingKillType then
 		_R.Player[ "Add" .. KillTypesAndColors[ killtype ][1] ]( prop_owner )
 	end
@@ -324,8 +324,8 @@ function GM:DoPlayerDeath( pl, killer, dmginfo )
 	if killer:IsPlayer() then
 		prop_owner = killer
 		hook.Run("props_PropKilled", pl, dmginfo:GetInflictor())
-	else
-		prop_owner = killer.Owner and IsValid( killer.Owner ) and killer.Owner:IsPlayer() and killer.Owner or pl:GetNearestProp().Owner
+	elseif killer != Entity(0) then
+		prop_owner = (killer.Owner and IsValid( killer.Owner ) and killer.Owner:IsPlayer() and killer.Owner) or pl:GetNearestProp().Owner
 			-- All these different hooks and methods and net calls are really piling up
 			-- I need to clean up the whole gamemode
 		hook.Run("props_PropKilled", pl, killer)
@@ -364,7 +364,11 @@ function GM:DoPlayerDeath( pl, killer, dmginfo )
 	
 	local KillType, HUDMessage = "Smash", {}
 	if prop_owner != pl then
-		if prop_owner:GetPos():Distance( pl:GetPos() ) >= 4000 then
+		local PKDistance = prop_owner:GetPos():Distance( pl:GetPos() )
+
+		if PKDistance >= 4000 then
+			PROPKILL.Statistics[ "maxkilldistance" ] = math.max(PROPKILL.Statistics[ "maxkilldistance" ] or 0, PKDistance)
+
 			KillType, HUDMessage = DoPlayerDeathCleanedUp( prop_owner, pl, "longshot" )
 				-- We just did a double whammy. Call the hook SPECIFICALLY made for achievements
 			if prop_owner.Headsmash and prop_owner.Headsmash == pl then
@@ -404,6 +408,7 @@ function GM:DoPlayerDeath( pl, killer, dmginfo )
 	if HUDMessage.txt then
 		net.Start( "PK_HUDMessage" )
 			net.WriteString( HUDMessage.txt )
+			net.WriteEntity( HUDMessage.killer )
 			net.WriteUInt( HUDMessage.col.r, 8 )
 			net.WriteUInt( HUDMessage.col.g, 8 )
 			net.WriteUInt( HUDMessage.col.b, 8 )

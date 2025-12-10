@@ -17,7 +17,7 @@ PROPKILL.Colors["Yellow"] = Color( 180,170,60,255 )
 
 GM.Name = "Props"
 GM.Author = "Shinycow"
-GM.Version = "1.9.5"
+GM.Version = "1.9.6"
 -- You (the server owner) should be fine to just remove the variable entirely if you don't want sounds
 GM.KillingSprees =
 {
@@ -141,7 +141,7 @@ end
 
 -- top props
 local SESSION_PROP_COUNT_BITS = 14		-- 16,383 max networked count per prop
-local TOTAL_PROP_COUNT_BITS = 22		-- 4,194,303 max
+local TOTAL_PROP_COUNT_BITS = 23		-- 8,388,607 max
 
 if SERVER then
 	-- Hack to let the new config option work
